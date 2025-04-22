@@ -5,32 +5,43 @@
 #ifndef TEXTURES_DIR
 #error "TEXTURES_DIR not defined"
 #endif
+#ifndef RESSOURCES_DIR
+#error "RESSOURCES_DIR not defined"
+#endif
 
 Game::Game(){
     std::string shader_dir = SHADER_DIR;
     std::string textures_dir = TEXTURES_DIR;
+    std::string ressources_dir = RESSOURCES_DIR;
     
+    // Player object
     phong_shader = new Shader(shader_dir + "phong.vert", shader_dir + "phong.frag");
     player = new Player(phong_shader);
 
-    Shader *texture_shader = new Shader(shader_dir + "texture.vert", shader_dir + "texture.frag");
-    Texture *texture = new Texture(textures_dir + "space3.jpeg");
-    Shape* sphere1 = new TexturedSphere(texture_shader, texture);
-    
+    // World node (moves when game is running)
     glm::mat4 world_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 45.0f))
         * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    world_node = new Node(world_mat);
+
+    // Environment Sphere
+    Shader *texture_shader = new Shader(shader_dir + "texture.vert", shader_dir + "texture.frag");
+    Texture *texture = new Texture(textures_dir + "space3.jpeg");
+    Shape* environment_sphere = new TexturedSphere(texture_shader, texture); 
     
-    glm::mat4 sphere_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
+    glm::mat4 environment_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
         * glm::scale(glm::mat4(1.0f), 120.0f * glm::vec3(1.0f, 1.0f, 1.0f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    Node* environment_node = new Node(environment_mat);
+    environment_node->add(environment_sphere);
     
-    world_node = new Node(world_mat);
-    Node* sphere_node = new Node(sphere_mat);
-    sphere_node->add(sphere1);
-    
-    Shape* sphere2 = new LightingSphere(phong_shader, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(255.0f, 255.0f, 255.0f), glm::vec3(255.0f, 0.0f, 0.0f));
-    Shape* asteroide = new ShapeModel("/Users/noah-r/Downloads/Asteroid.obj", phong_shader);
+    // Generates two types of obstacles
+    Shape* sphere = new LightingSphere(phong_shader, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(255.0f, 255.0f, 255.0f), glm::vec3(255.0f, 0.0f, 0.0f));
+    Shape* asteroid = new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
+    // Positions of the obstacles in the world node
+    glm::mat4 sphere_mat = glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 1.0f, 1.0f))
+        * glm::scale(glm::mat4(1.0f), 0.1f *glm::vec3(1.0f, 1.0f, 1.0f))
+        * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     glm::mat4 asteroid_mat1 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
         * glm::scale(glm::mat4(1.0f), 0.004f * glm::vec3(1.0f, 1.0f, 1.0f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -41,24 +52,22 @@ Game::Game(){
         * glm::scale(glm::mat4(1.0f), 0.006f * glm::vec3(1.0f, 1.0f, 1.0f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     
-    glm::mat4 sphere_mat2 = glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 1.0f, 1.0f))
-        * glm::scale(glm::mat4(1.0f), 0.1f *glm::vec3(1.0f, 1.0f, 1.0f))
-        * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    Node* sphere_node2 = new Node(sphere_mat2);
-    sphere_node2->add(sphere2);
+    Node* sphere_node = new Node(sphere_mat);
+    sphere_node->add(sphere);
     Node* a_node1 = new Node(asteroid_mat1);
-    a_node1->add(asteroide);
+    a_node1->add(asteroid);
     Node* a_node2 = new Node(asteroid_mat2);
-    a_node2->add(asteroide);
+    a_node2->add(asteroid);
     Node* a_node3 = new Node(asteroid_mat3);
-    a_node3->add(asteroide);
+    a_node3->add(asteroid);
 
+    world_node->add(environment_node);
     world_node->add(a_node1);
     world_node->add(a_node2);
     world_node->add(a_node3);
     world_node->add(sphere_node);
-    world_node->add(sphere_node2);
 
+    // Add the player and the world to the scene root
     scene_root = new Node();
     scene_root->add(player->node);
     scene_root->add(world_node);
@@ -68,7 +77,7 @@ Game::Game(){
 void Game::updateGame(){
     if(distance > -45.0f){
         distance -= 0.01f;
-        world_node->transform_ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, distance))* glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        world_node->transform_ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, distance)) * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
     }
 }
 

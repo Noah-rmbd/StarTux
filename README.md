@@ -1,6 +1,6 @@
 # StarTux is a game using OpenGl in C++
 
-This is the code of the game, before compiling it, you have to insert the absolute path of : texture file in the game.cpp file, shader directory in the game.h file and the absolute path of the ship in the player.h file.
+This is the code of the game, all you need is to build it using CMake. For VSCode, type "CMake: build" and insert the "CMakeLists.txt" file if required. Then "CMake: Compile" and you're done. 
 
 # Installation
 
