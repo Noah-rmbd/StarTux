@@ -1,8 +1,12 @@
 #include "player.h"
+#ifndef RESSOURCES_DIR
+#error "RESSOURCES_DIR not defined"
+#endif
 
 Player::Player(Shader* shader_program)
 {
-    model = new ShapeModel(ship_dir, shader_program);
+    ship_dir = RESSOURCES_DIR;
+    model = new ShapeModel(ship_dir + "ship.obj", shader_program);
     
     // Initialize the transformation matrix
     playerMat = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale);

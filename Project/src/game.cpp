@@ -1,24 +1,34 @@
 #include "game.h"
+#ifndef SHADER_DIR
+#error "SHADER_DIR not defined"
+#endif
+#ifndef TEXTURES_DIR
+#error "TEXTURES_DIR not defined"
+#endif
 
 Game::Game(){
+    std::string shader_dir = SHADER_DIR;
+    std::string textures_dir = TEXTURES_DIR;
+    
     phong_shader = new Shader(shader_dir + "phong.vert", shader_dir + "phong.frag");
     player = new Player(phong_shader);
 
     Shader *texture_shader = new Shader(shader_dir + "texture.vert", shader_dir + "texture.frag");
-
-    Texture *texture = new Texture("/Users/noah-r/Coding/StarTux/Project/textures/space3.jpeg"); // CHANGE THE PATH
-    
+    Texture *texture = new Texture(textures_dir + "space3.jpeg");
     Shape* sphere1 = new TexturedSphere(texture_shader, texture);
+    
     glm::mat4 world_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 45.0f))
         * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    
     glm::mat4 sphere_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
         * glm::scale(glm::mat4(1.0f), 120.0f * glm::vec3(1.0f, 1.0f, 1.0f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    
     world_node = new Node(world_mat);
     Node* sphere_node = new Node(sphere_mat);
     sphere_node->add(sphere1);
-    //world_node->add(sphere1);
+    
     Shape* sphere2 = new LightingSphere(phong_shader, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(255.0f, 255.0f, 255.0f), glm::vec3(255.0f, 0.0f, 0.0f));
     Shape* asteroide = new ShapeModel("/Users/noah-r/Downloads/Asteroid.obj", phong_shader);
     glm::mat4 asteroid_mat1 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))

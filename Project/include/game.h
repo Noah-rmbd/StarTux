@@ -23,7 +23,6 @@ class Game{
         float distance;
         
     private:
-        std::string shader_dir = "/Users/noah-r/Coding/StarTux/Project/shaders/"; //CHANGE THE PATH
         Shader *phong_shader;
         bool is_rotating = false;
         bool idle_rot = false;
