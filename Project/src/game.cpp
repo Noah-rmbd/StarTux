@@ -6,7 +6,8 @@ Game::Game(){
 
     Shader *texture_shader = new Shader(shader_dir + "texture.vert", shader_dir + "texture.frag");
 
-    Texture *texture = new Texture("/Users/noah-r/Coding/TP4/TP4_material/textures/space3.jpeg");
+    Texture *texture = new Texture("/Users/noah-r/Coding/StarTux/Project/textures/space3.jpeg"); // CHANGE THE PATH
+    
     Shape* sphere1 = new TexturedSphere(texture_shader, texture);
     glm::mat4 world_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 45.0f))
         * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f))

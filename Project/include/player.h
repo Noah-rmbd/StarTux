@@ -23,7 +23,7 @@ class Player{
         float zAngle = 0.0f;
 
     private:
-        std::string ship_dir = "/Users/noah-r/Downloads/uploads-files-4254779-StarShip2.obj";
+        std::string ship_dir = "/Users/noah-r/Coding/StarTux/Project/ressources/ship.obj"; // CHANGE THE PATH
 }; 
 
 #endif
