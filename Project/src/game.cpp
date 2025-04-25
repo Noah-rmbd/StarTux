@@ -71,6 +71,7 @@ Game::Game() {
                     glm::vec3(1.0f, 0.0f, 0.0f)); // asteroid
 
     Node *a_node1 = new Node(asteroid_mat1);
+    a_node1->velocity_ = glm::vec3(0.0f, 0.0f, 0.2f);
     a_node1->add(asteroid);
 
     world_node->add(a_node1);
@@ -90,12 +91,7 @@ void Game::updateGame() {
   } else {
     latence -= 1;
   }
-  if (distance > -45.0f) {
-    distance -= 0.01f;
-    world_node->transform_ =
-        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, distance)) *
-        glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-  }
+  world_node->animation();
 }
 
 void Game::keyHandler(
@@ -300,6 +296,7 @@ void Game::spawn_rectangle() {
   // std::cout << "Spawning at position: (" << posX << ", " << posY << ",
   // -2.0)"<< std::endl;
   Node *rectNode = new Node(asteroid_mat);
+  rectNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.2f);
   rectNode->add(asteroid);
 
   world_node->add(rectNode);

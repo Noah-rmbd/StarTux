@@ -33,6 +33,27 @@ void Node::key_handler(int key) const {
   }
 }
 
+void Node::animation() {
+  // Avancer selon la vélocité
+  transform_ = glm::translate(transform_, velocity_);
+
+  // Si le cube est trop proche de la caméra
+  if (transform_[3].z > 5.0f) {
+    // Nouvelle position aléatoire en X et Y
+    float newX = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
+    float newY = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
+
+    // Nouvelle matrice : position random en X,Y et fond à Z = -4
+    transform_ = glm::translate(glm::mat4(1.0f), glm::vec3(newX, newY, -4.0f)) *
+                 glm::scale(glm::mat4(1.0f), glm::vec3(0.2f));
+  }
+
+  // Animer les enfants
+  for (Node *child : children_) {
+    child->animation();
+  }
+}
+
 void Node::remove(Node *node) {
   auto it = std::find(children_.begin(), children_.end(), node);
   if (it != children_.end()) {
