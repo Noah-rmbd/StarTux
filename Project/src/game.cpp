@@ -40,28 +40,20 @@ Game::Game() {
                   glm::vec3(1.0f, 0.0f, 0.0f));
   Node *environment_node = new Node(environment_mat);
   environment_node->add(environment_sphere);
-
-  // // Generates two types of obstacles
-
-  // Node* sphere_node = new Node(sphere_mat);
-  // sphere_node->add(sphere);
-  // Node* a_node1 = new Node(asteroid_mat1);
-  // a_node1->add(asteroid);
-  // Node* a_node2 = new Node(asteroid_mat2);
-  // a_node2->add(asteroid);
-  // Node* a_node3 = new Node(asteroid_mat3);
-  // a_node3->add(asteroid);
-  //
-  // world_node->add(environment_node);
-  // world_node->add(a_node1);
-  // world_node->add(a_node2);
-  // world_node->add(a_node3);
-  // world_node->add(sphere_node);
-  //
   // Ajout partie de banzai oui je parle français merde
   Shape *sphere = new LightingSphere(phong_shader, glm::vec3(0.0f, 0.0f, 0.0f),
                                      glm::vec3(255.0f, 255.0f, 255.0f),
                                      glm::vec3(255.0f, 0.0f, 0.0f));
+  glm::mat4 sphere_mat =
+      glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 1.0f, 1.0f)) *
+      glm::scale(glm::mat4(1.0f), 0.1f * glm::vec3(1.0f, 1.0f, 1.0f)) *
+      glm::rotate(glm::mat4(1.0f), glm::radians(0.0f),
+                  glm::vec3(1.0f, 0.0f, 0.0f));
+  Node *sphere_node = new Node(sphere_mat);
+  sphere_node->add(sphere);
+
+  world_node->add(environment_node);
+  world_node->add(sphere_node);
   Shape *asteroid =
       new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
   // Créer plusieurs cubes
@@ -69,13 +61,14 @@ Game::Game() {
     // Position aléatoire
     float x = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
     float y = ((rand() % 200) / 100.0f) - 1.0f;
+
     float z = -((rand() % 300) / 100.0f) - 1.0f; // entre -1 et -4
 
     glm::mat4 asteroid_mat1 =
         glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z)) *
         glm::scale(glm::mat4(1.0f), 0.006f * glm::vec3(1.0f, 1.0f, 1.0f)) *
         glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
-                    glm::vec3(1.0f, 0.0f, 0.0f)); // petits cubes
+                    glm::vec3(1.0f, 0.0f, 0.0f)); // asteroid
 
     Node *a_node1 = new Node(asteroid_mat1);
     a_node1->add(asteroid);
