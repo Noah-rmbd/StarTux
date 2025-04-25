@@ -9,6 +9,7 @@
 #include <assimp/scene.h>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <string>
 
 class ShapeModel : public Shape {
 public:

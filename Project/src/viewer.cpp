@@ -63,19 +63,6 @@ Viewer::Viewer(int width, int height) {
   // Initialize the game
   game = new Game();
 
-  scene_root = new Node();
-
-  world_node = new Node();
-
-  std::string shader_dir = SHADER_DIR;
-  std::string ressources_dir = RESSOURCES_DIR;
-
-  Shader *phong_shader =
-      new Shader(shader_dir + "phong.vert", shader_dir + "phong.frag");
-
-  // Charger une fois le modèle
-  asteroid_template =
-      new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
   // std::string shader_dir = "/Users/noah-r/Coding/TP4/TP4_material/shaders/";
   /*textShader = Shader(shader_dir + "text.vs", shader_dir+"text.fs"); // path
   relative to binary or CMAKE source dir glm::mat4 projection = glm::ortho(0.0f,
@@ -220,10 +207,7 @@ void Viewer::run() {
     auto frameStart =
         std::chrono::high_resolution_clock::now(); // Stores the start of the
                                                    // frame
-    // Par exemple : toutes les 4 rames
-    if (int(animationTime * 10) % 40 == 0) {
-      spawn_rectangle();
-    }
+
     animationTime += 0.08;
     // clear draw buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -302,37 +286,5 @@ void Viewer::on_key(int key, int action) {
     }
   } else if (action == GLFW_RELEASE) {
     keyStates[key].first = false;
-  }
-}
-
-void Viewer::spawn_rectangle() {
-  if (!asteroid_template)
-    return; // sécurité
-
-  // Clone de l'astéroïde
-  Shape *asteroid =
-      new ShapeModel(*asteroid_template); // appel du constructeur de copie
-
-  // Position aléatoire
-  float posX = ((rand() % 200) / 100.0f) - 1.0f;
-  float posY = ((rand() % 200) / 100.0f) - 1.0f;
-
-  glm::mat4 asteroid_mat =
-      glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, -5.0f)) *
-      glm::scale(glm::mat4(1.0f), 0.02f * glm::vec3(1.0f)) *
-      glm::rotate(glm::mat4(1.0f), glm::radians(10.0f), glm::vec3(1, 0, 0));
-
-  Node *rectNode = new Node(asteroid_mat);
-  rectNode->add(asteroid);
-
-  world_node->add(rectNode);
-  asteorides_.push_back(rectNode);
-
-  if (asteorides_.size() > max_asteorides) {
-    Node *oldRect = asteorides_.front();
-    asteorides_.erase(asteorides_.begin());
-
-    world_node->remove(oldRect); // retirer du world node
-    delete oldRect;
   }
 }

@@ -4,6 +4,9 @@
 #include <assimp/scene.h>
 #include <iostream>
 
+// Debug
+#include <glm/gtx/string_cast.hpp>
+
 ShapeModel::ShapeModel(const std::string &filepath, Shader *shader_program)
     : Shape(shader_program), VAO(0), VBO(0), EBO(0), indexCount(0) {
   // Get uniform locations for phong shader
@@ -105,6 +108,8 @@ void ShapeModel::setupMesh() {
 
 void ShapeModel::draw(glm::mat4 &model, glm::mat4 &view,
                       glm::mat4 &projection) {
+  // Teste
+  // std::cout << "Drawing asteroid at " << glm::to_string(model) << std::endl;
   glUseProgram(this->shader_program_);
   glBindVertexArray(VAO);
 

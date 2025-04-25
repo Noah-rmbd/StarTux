@@ -84,6 +84,12 @@ Game::Game() {
 }
 
 void Game::updateGame() {
+  if (latence == 0) {
+    spawn_rectangle();
+    latence = 80;
+  } else {
+    latence -= 1;
+  }
   if (distance > -45.0f) {
     distance -= 0.01f;
     world_node->transform_ =
@@ -272,4 +278,38 @@ void Game::keyHandler(
   }
 
   player->updatePosition();
+}
+
+void Game::spawn_rectangle() {
+  std::string ressources_dir = RESSOURCES_DIR;
+  // Clone de l'astéroïde
+  Shape *asteroid =
+      new ShapeModel(ressources_dir + "Asteroid.obj",
+                     phong_shader); // appel du constructeur de copie
+
+  // Position aléatoire
+  float posX = ((rand() % 200) / 100.0f) - 1.0f;
+  float posY = ((rand() % 200) / 100.0f) - 1.0f;
+
+  glm::mat4 asteroid_mat =
+      glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, -2.0f)) *
+      glm::scale(glm::mat4(1.0f), 0.006f * glm::vec3(1.0f, 1.0f, 1.0f)) *
+      glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
+                  glm::vec3(1.0f, 0.0f, 0.0f));
+  // Teste
+  // std::cout << "Spawning at position: (" << posX << ", " << posY << ",
+  // -2.0)"<< std::endl;
+  Node *rectNode = new Node(asteroid_mat);
+  rectNode->add(asteroid);
+
+  world_node->add(rectNode);
+  asteorides_.push_back(rectNode);
+
+  if (asteorides_.size() > max_asteorides_) {
+    Node *oldRect = asteorides_.front();
+    asteorides_.erase(asteorides_.begin());
+
+    world_node->remove(oldRect); // retirer du world node
+    delete oldRect;
+  }
 }

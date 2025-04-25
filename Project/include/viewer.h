@@ -33,11 +33,8 @@ public:
   void run();
   void on_key(int key, int action);
 
-  Node *scene_root;
-  Node *world_node;
   Camera camera;
   Game *game;
-  void spawn_rectangle();
 
 private:
   GLFWwindow *win;
@@ -60,9 +57,6 @@ private:
                                     double ypos);
   void keyboard_events();
   std::vector<Node *> asteorides_;
-  const size_t max_asteorides = 30;
-
-  ShapeModel *asteroid_template = nullptr;
 };
 
 #endif // VIEWER_H
