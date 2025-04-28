@@ -4,7 +4,9 @@ This is the code of the game, all you need is to build it using CMake. For VSCod
 
 # Installation
 
-You would need CMake(to build our project) which can be downloaded from [here](https://cmake.org/download/).
+You'll need the latest version of CMake (to build our project), which can be downloaded from [here] (https://cmake.org/download/).
+
+You'll need Freetype (https://github.com/freetype/freetype) and Assimp(https://github.com/assimp/assimp) 
 
 # Setup
 
