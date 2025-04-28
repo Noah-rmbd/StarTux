@@ -67,6 +67,7 @@ Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
     
     // Initialize interface
     startup_screen = new StartupScreen(windowWidth, windowHeight);
+    hud = new Hud(windowWidth, windowHeight);
 }
 
 Viewer::~Viewer()
@@ -109,7 +110,11 @@ void Viewer::run()
             glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
             game->scene_root->draw(model, view, projection);
-
+            game->player->score += 1.0;
+            hud->update(game->player->life, game->player->score);
+            if(game->lost){
+              glfwSetWindowShouldClose(win, GLFW_TRUE);
+            }
             // Render HUD
             //interface->renderText("Score: " + std::to_string(400), 25.0f, 960.0f - 50.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
             //interface->renderText("Lives: " + std::to_string(3), 25.0f, 960.0f - 100.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));

@@ -21,6 +21,10 @@ class Player{
         float xAngle = 0.0f;
         float yAngle = 0.0f;
         float zAngle = 0.0f;
+        float movement_speed = 0.05f;
+
+        int life = 3;
+        double score = 0;
 
     private:
         std::string ship_dir;

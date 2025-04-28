@@ -18,11 +18,14 @@ public:
   void updateGame();
   void keyHandler(std::unordered_map<int, std::pair<bool, double>> keyStates,
                   double time);
+  void spawn_rectangle();
+
   Player *player;
   Node *scene_root;
   Node *world_node;
   float distance;
-  void spawn_rectangle();
+  bool lost = false;
+  
 
 private:
   Shader *phong_shader;

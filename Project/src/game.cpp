@@ -101,6 +101,10 @@ void Game::updateGame() {
     // Suprime la sphére si elle s'aproche trop
     if (sqrt(x * x + y * y + z * z) < 0.3) {
       world_node->remove(child);
+      player->life -= 1;
+      if (player->life <= 0){
+        lost = true;
+      }
     };
   }
 }
@@ -108,6 +112,7 @@ void Game::updateGame() {
 void Game::keyHandler(
     std::unordered_map<int, std::pair<bool, double>> keyStates, double time) {
   float smoother = 0.0f;
+  float speed = player->movement_speed;
 
   if (keyStates[GLFW_KEY_U].first) { // Move Forward
     idle_ud = false;
@@ -118,7 +123,7 @@ void Game::keyHandler(
       smoother = 1.0f;
     }
 
-    player->position += smoother * glm::vec3(0.0f, -0.08f, 0.0f);
+    player->position -= smoother * glm::vec3(0.0f, speed, 0.0f); // Move
 
     if (player->xAngle < 15.0f) {
       player->xAngle += smoother * 1.0f;
@@ -134,7 +139,7 @@ void Game::keyHandler(
       smoother = 1.0f;
     }
 
-    player->position += smoother * glm::vec3(0.0f, 0.08f, 0.0f);
+    player->position += smoother * glm::vec3(0.0f, speed, 0.0f); // Move
     if (player->xAngle > -15.0f) {
       player->xAngle -= smoother * 1.0f;
     }
@@ -149,7 +154,7 @@ void Game::keyHandler(
       smoother = 1.0f;
     }
 
-    player->position += smoother * glm::vec3(0.08f, 0.0f, 0.0f);
+    player->position += smoother * glm::vec3(speed, 0.0f, 0.0f); // Move
     if (player->zAngle > -15.0f && !is_rotating) {
       player->zAngle -= smoother * 1.0f;
     }
@@ -167,7 +172,7 @@ void Game::keyHandler(
       smoother = 1.0f;
     }
 
-    player->position += smoother * glm::vec3(-0.08f, 0.0f, 0.0f);
+    player->position -= smoother * glm::vec3(speed, 0.0f, 0.0f); // Move
     if (player->zAngle < 15.0f && !is_rotating) {
       player->zAngle += smoother * 1.0f;
     }

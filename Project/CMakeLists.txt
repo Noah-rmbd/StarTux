@@ -46,6 +46,7 @@ set(SOURCES
     ${SRC_DIR}/lighting_sphere.cpp
     ${SRC_DIR}/interface.cpp
     ${SRC_DIR}/startup_screen.cpp
+    ${SRC_DIR}/hud.cpp
 
 )
 

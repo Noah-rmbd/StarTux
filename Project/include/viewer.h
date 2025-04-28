@@ -18,6 +18,7 @@
 #include "texture.h"
 #include "interface.h"
 #include "startup_screen.h"
+#include "hud.h"
 
 
 
@@ -35,6 +36,8 @@ public:
     Camera camera;
     Game *game;
     StartupScreen *startup_screen;
+    Hud *hud;
+
 
 private:
   GLFWwindow *win;
