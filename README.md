@@ -20,8 +20,7 @@ After cloning this repo, you also need to load the submodules GLEW, GLFW and GLM
 To launch the window, simply run:
 
     cmake .
-    make
-    ./opengl_program
+    make run
 
 ## Controls
 
