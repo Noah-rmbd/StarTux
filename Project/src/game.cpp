@@ -21,7 +21,7 @@ Game::Game() {
 
   // World node (moves when game is running)
   glm::mat4 world_mat =
-      glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 45.0f)) *
+      glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) *
       glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f)) *
       glm::rotate(glm::mat4(1.0f), glm::radians(0.0f),
                   glm::vec3(1.0f, 0.0f, 0.0f));
@@ -41,9 +41,8 @@ Game::Game() {
   Node *environment_node = new Node(environment_mat);
   environment_node->add(environment_sphere);
   // Ajout partie de banzai oui je parle français merde
-  Shape *sphere = new LightingSphere(phong_shader, glm::vec3(0.0f, 0.0f, 0.0f),
-                                     glm::vec3(255.0f, 255.0f, 255.0f),
-                                     glm::vec3(255.0f, 0.0f, 0.0f));
+  /*Shape *sphere = new LightingSphere(phong_shader, glm::vec3(0.0f, 0.0f,
+  0.0f), glm::vec3(255.0f, 255.0f, 255.0f), glm::vec3(255.0f, 0.0f, 0.0f));
   glm::mat4 sphere_mat =
       glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 1.0f, 1.0f)) *
       glm::scale(glm::mat4(1.0f), 0.1f * glm::vec3(1.0f, 1.0f, 1.0f)) *
@@ -52,8 +51,8 @@ Game::Game() {
   Node *sphere_node = new Node(sphere_mat);
   sphere_node->add(sphere);
 
-  world_node->add(environment_node);
   world_node->add(sphere_node);
+  */
   Shape *asteroid =
       new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
   // Créer plusieurs cubes
@@ -62,7 +61,7 @@ Game::Game() {
     float x = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
     float y = ((rand() % 200) / 100.0f) - 1.0f;
 
-    float z = -((rand() % 300) / 100.0f) - 1.0f; // entre -1 et -4
+    float z = ((rand() % 300) / 100.0f) - 1.0f; // entre -1 et -4
 
     glm::mat4 asteroid_mat1 =
         glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z)) *
@@ -81,6 +80,7 @@ Game::Game() {
   scene_root = new Node();
   scene_root->add(player->node);
   scene_root->add(world_node);
+  scene_root->add(environment_node);
   distance = 45.0f;
 }
 
@@ -301,7 +301,7 @@ void Game::spawn_rectangle() {
 
   world_node->add(rectNode);
   asteorides_.push_back(rectNode);
-
+  /*
   if (asteorides_.size() > max_asteorides_) {
     Node *oldRect = asteorides_.front();
     asteorides_.erase(asteorides_.begin());
@@ -309,4 +309,5 @@ void Game::spawn_rectangle() {
     world_node->remove(oldRect); // retirer du world node
     delete oldRect;
   }
+  */
 }
