@@ -61,7 +61,7 @@ Game::Game() {
     float x = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
     float y = ((rand() % 200) / 100.0f) - 1.0f;
 
-    float z = ((rand() % 300) / 100.0f) - 1.0f; // entre -1 et -4
+    float z = -(((rand() % 300) / 100.0f) - 1.0f); // entre -1 et -4
 
     glm::mat4 asteroid_mat1 =
         glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z)) *
@@ -70,7 +70,7 @@ Game::Game() {
                     glm::vec3(1.0f, 0.0f, 0.0f)); // asteroid
 
     Node *a_node1 = new Node(asteroid_mat1);
-    a_node1->velocity_ = glm::vec3(0.0f, 0.0f, 0.2f);
+    a_node1->velocity_ = glm::vec3(0.0f, 0.0f, -0.2f);
     a_node1->add(asteroid);
 
     world_node->add(a_node1);
@@ -288,7 +288,7 @@ void Game::spawn_rectangle() {
   float posY = ((rand() % 200) / 100.0f) - 1.0f;
 
   glm::mat4 asteroid_mat =
-      glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, -2.0f)) *
+      glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, +4.0f)) *
       glm::scale(glm::mat4(1.0f), 0.006f * glm::vec3(1.0f, 1.0f, 1.0f)) *
       glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
                   glm::vec3(1.0f, 0.0f, 0.0f));
@@ -296,7 +296,7 @@ void Game::spawn_rectangle() {
   // std::cout << "Spawning at position: (" << posX << ", " << posY << ",
   // -2.0)"<< std::endl;
   Node *rectNode = new Node(asteroid_mat);
-  rectNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.2f);
+  rectNode->velocity_ = glm::vec3(0.0f, 0.0f, -0.2f);
   rectNode->add(asteroid);
 
   world_node->add(rectNode);
