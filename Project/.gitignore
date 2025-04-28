@@ -1,0 +1,51 @@
+
+# Ignorer les dossiers de build CMake
+cmake-build-debug/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+Makefile2
+CMakeLists.txt.user
+CTestTestfile.cmake
+Testing/
+test_fs_support_case_sensitivity
+test_fs_support_CASE_sensitivity
+build.ninja
+*.ninja
+*.ninja_deps
+*.ninja_log
+CMakeConfigureLog.yaml
+CMakeDirectoryInformation.cmake
+CMakeRuleHashes.txt
+InstallScripts.json
+pkgRedirects/
+progress.marks
+TargetDirectories.txt
+external/
+
+# Ignorer les exécutables
+opengl_program
+opengl_program.exe
+
+# Ignorer les fichiers système
+.DS_Store
+Thumbs.db
+
+# Cache ou fichiers temporaires
+*.obj
+*.o
+*.lo
+*.la
+*.al
+*.libs
+*.swp
+*.swo
+*.tmp
+*.bak
+*.log
+
+# Idées pour ignorer les IDE spécifiques (à adapter selon ton IDE)
+.vscode/
+.idea/
+*.code-workspace
