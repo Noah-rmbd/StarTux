@@ -1,4 +1,5 @@
 #include "game.h"
+#include <cmath>
 #ifndef SHADER_DIR
 #error "SHADER_DIR not defined"
 #endif
@@ -92,6 +93,16 @@ void Game::updateGame() {
     latence -= 1;
   }
   world_node->animation();
+  // Colisiont
+  for (Node *child : world_node->children_) {
+    double x = (player->position.x - child->transform_[3].x);
+    double y = (player->position.y - child->transform_[3].y);
+    double z = (player->position.z - child->transform_[3].z);
+    // Suprime la sphére si elle s'aproche trop
+    if (sqrt(x * x + y * y + z * z) < 0.3) {
+      world_node->remove(child);
+    };
+  }
 }
 
 void Game::keyHandler(
