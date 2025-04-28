@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5)
 
 project(OpenGLProgram)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find Assimp package
 find_package(assimp REQUIRED)
@@ -40,6 +44,9 @@ set(SOURCES
     ${SRC_DIR}/texture.cpp
     ${SRC_DIR}/textured_sphere.cpp
     ${SRC_DIR}/lighting_sphere.cpp
+    ${SRC_DIR}/interface.cpp
+    ${SRC_DIR}/startup_screen.cpp
+
 )
 
 # Define Shader director
