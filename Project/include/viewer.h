@@ -10,19 +10,15 @@
 #include <chrono>
 #include <thread>
 
-//#include <ft2build.h>
-//#include FT_FREETYPE_H
 
+#include "shader.h"
+#include "node.h"
 #include "camera.h"
 #include "game.h"
+#include "texture.h"
+#include "interface.h"
+#include "startup_screen.h"
 
-// Structure to hold character information
-/*struct Character {
-    unsigned int TextureID;  // ID handle of the glyph texture
-    glm::ivec2   Size;       // Size of glyph
-    glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
-    unsigned int Advance;    // Offset to advance to next glyph
-};*/
 
 
 class Viewer {
