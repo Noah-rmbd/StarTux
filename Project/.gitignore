@@ -23,6 +23,7 @@ pkgRedirects/
 progress.marks
 TargetDirectories.txt
 external/
+external/glew-cmake
 
 # Ignorer les exécutables
 opengl_program
