@@ -2,9 +2,10 @@
 #include <filesystem>
 #include <iostream>
 
-#include <glm/glm.hpp>
 #include "glm/ext.hpp"
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <ostream>
 
 Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
 {
@@ -14,19 +15,19 @@ Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
         glfwTerminate();
     }
 
-    // version hints: create GL window with >= OpenGL 3.3 and core profile
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    
-    win = glfwCreateWindow(width, height, "Viewer", NULL, NULL);
+  // version hints: create GL window with >= OpenGL 3.3 and core profile
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    if (win == NULL) {
-        std::cerr << "Failed to create window" << std::endl;
-        glfwTerminate();
-    }
+  win = glfwCreateWindow(width, height, "Viewer", NULL, NULL);
+
+  if (win == NULL) {
+    std::cerr << "Failed to create window" << std::endl;
+    glfwTerminate();
+  }
 
     // make win's OpenGL context current; no OpenGL calls can happen before
     glfwMakeContextCurrent(win);
@@ -37,8 +38,8 @@ Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
         glfwTerminate();
     }
 
-    // Set user pointer for GLFW window to this Viewer instance
-    glfwSetWindowUserPointer(win, this);
+  // Set user pointer for GLFW window to this Viewer instance
+  glfwSetWindowUserPointer(win, this);
 
     // register event handlers
     glfwSetKeyCallback(win, key_callback_static);
@@ -46,19 +47,20 @@ Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
     glfwSetMouseButtonCallback(win, mouse_button_callback_static);
     //glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide cursor and lock it
 
-    // useful message to check OpenGL renderer characteristics
-    std::cout << glGetString(GL_VERSION) << ", GLSL "
-              << glGetString(GL_SHADING_LANGUAGE_VERSION) << ", Renderer "
-              << glGetString(GL_RENDERER) << std::endl;
+  // useful message to check OpenGL renderer characteristics
+  std::cout << glGetString(GL_VERSION) << ", GLSL "
+            << glGetString(GL_SHADING_LANGUAGE_VERSION) << ", Renderer "
+            << glGetString(GL_RENDERER) << std::endl;
 
-    // initialize GL by setting viewport and default render characteristics
-    glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+  // initialize GL by setting viewport and default render characteristics
+  glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
 
-    /* tell GL to only draw onto a pixel if the shape is closer to the viewer
-    than anything already drawn at that pixel */
-    glEnable( GL_DEPTH_TEST ); /* enable depth-testing */
-    /* with LESS depth-testing interprets a smaller depth value as meaning "closer" */
-    glDepthFunc( GL_LESS );
+  /* tell GL to only draw onto a pixel if the shape is closer to the viewer
+  than anything already drawn at that pixel */
+  glEnable(GL_DEPTH_TEST); /* enable depth-testing */
+  /* with LESS depth-testing interprets a smaller depth value as meaning
+   * "closer" */
+  glDepthFunc(GL_LESS);
 
     // Initialize the game
     game = new Game();
@@ -87,8 +89,8 @@ void Viewer::run()
     {   
         auto frameStart = std::chrono::high_resolution_clock::now(); // Stores the start of the frame
 
-        // clear draw buffer
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // clear draw buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if(startGame) {
             camera.keyboard_events(keyStates);
@@ -144,34 +146,36 @@ void Viewer::run()
         
         //interface->renderText("FPS: " + std::to_string(static_cast<int>(fps)), 1280.0f - 150.0f, 960.0f - 50.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
-        // Poll for and process events
-        glfwPollEvents();
+    // Poll for and process events
+    glfwPollEvents();
 
-        // flush render commands, and swap draw buffers
-        glfwSwapBuffers(win);
+    // flush render commands, and swap draw buffers
+    glfwSwapBuffers(win);
 
-        // Calculate frame time and sleep if necessary
-        auto frameEnd = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<float> frameDuration = frameEnd - frameStart;
-        float frameTime = frameDuration.count();
+    // Calculate frame time and sleep if necessary
+    auto frameEnd = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float> frameDuration = frameEnd - frameStart;
+    float frameTime = frameDuration.count();
 
         if (frameTime < targetFrameTime)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((targetFrameTime - frameTime) * 1000)));
         }
     }
+    glfwTerminate();
+  }
+
+
+void Viewer::key_callback_static(GLFWwindow *window, int key, int scancode,
+                                 int action, int mods) {
+  Viewer *viewer = static_cast<Viewer *>(glfwGetWindowUserPointer(window));
+  viewer->on_key(key, action);
 }
 
-void Viewer::key_callback_static(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    Viewer* viewer = static_cast<Viewer*>(glfwGetWindowUserPointer(window));
-    viewer->on_key(key, action);
-}
-
-void Viewer::mouse_callback_static(GLFWwindow* window, double xpos, double ypos)
-{
-    Viewer* viewer = static_cast<Viewer*>(glfwGetWindowUserPointer(window));
-    viewer->camera.mouse_callback(xpos, ypos);
+void Viewer::mouse_callback_static(GLFWwindow *window, double xpos,
+                                   double ypos) {
+  Viewer *viewer = static_cast<Viewer *>(glfwGetWindowUserPointer(window));
+  viewer->camera.mouse_callback(xpos, ypos);
 }
 
 void Viewer::mouse_button_callback_static(GLFWwindow* window, int button, int action, int mods)
@@ -182,24 +186,23 @@ void Viewer::mouse_button_callback_static(GLFWwindow* window, int button, int ac
     viewer->on_mouse_button(button, action, xpos, ypos);
 }
 
-void Viewer::on_key(int key, int action)
-{
-    // 'Q' or 'Escape' quits
-    if (key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q)
-    {
-        glfwSetWindowShouldClose(win, GLFW_TRUE);
-    }
 
-    // Store key state (true when pressed, false when released)
-    if (action == GLFW_PRESS) {
-        if(!keyStates[key].first){
-            keyStates[key].second = glfwGetTime(); // store the time when the key started to be pressed
-            keyStates[key].first = true; 
-        }
-    } 
-    else if (action == GLFW_RELEASE) {
-        keyStates[key].first = false;
+
+void Viewer::on_key(int key, int action) {
+  // 'Q' or 'Escape' quits
+  if (key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q) {
+    glfwSetWindowShouldClose(win, GLFW_TRUE);
+  }
+  // Store key state (true when pressed, false when released)
+  if (action == GLFW_PRESS) {
+    if (!keyStates[key].first) {
+      keyStates[key].second =
+          glfwGetTime(); // store the time when the key started to be pressed
+      keyStates[key].first = true;
     }
+  } else if (action == GLFW_RELEASE) {
+    keyStates[key].first = false;
+  }
 }
 
 void Viewer::on_mouse_button(int button, int action, double xpos, double ypos)
@@ -208,3 +211,5 @@ void Viewer::on_mouse_button(int button, int action, double xpos, double ypos)
         startup_screen->mouse(button, action, xpos, ypos);
     }
 }
+
+
