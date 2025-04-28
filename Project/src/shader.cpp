@@ -4,41 +4,32 @@
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>
 
 using namespace std;
 
 Shader::Shader(const std::string& vertex_path, const std::string& fragment_path) {
-    GLuint vert_shader, frag_shader;
-    GLint status;
+    GLuint vertex_shader = compile_shader(vertex_path, GL_VERTEX_SHADER);
+    GLuint fragment_shader = compile_shader(fragment_path, GL_FRAGMENT_SHADER);
 
-    // Create vertex shader
-    vert_shader = compile_shader(vertex_path, GL_VERTEX_SHADER);
-
-    // Create fragment shader
-    frag_shader = compile_shader(fragment_path, GL_FRAGMENT_SHADER);
-
-    // Create shader program
     glid = glCreateProgram();
-    glAttachShader(glid, vert_shader);
-    glAttachShader(glid, frag_shader);
+    glAttachShader(glid, vertex_shader);
+    glAttachShader(glid, fragment_shader);
     glLinkProgram(glid);
 
-    // Check if shader program linked successfully
-    glGetProgramiv(glid, GL_LINK_STATUS, &status);
-    if (status != GL_TRUE) {
-        char buffer[512];
-        glGetProgramInfoLog(glid, 512, NULL, buffer);
-        cerr << "Failed to link shader program: " << buffer << endl;
-        exit(EXIT_FAILURE);
+    GLint success;
+    GLchar infoLog[512];
+    glGetProgramiv(glid, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(glid, 512, NULL, infoLog);
+        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
     }
 
-    // Delete shaders
-    glDeleteShader(vert_shader);
-    glDeleteShader(frag_shader);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
 }
 
 Shader::~Shader() {
-    glUseProgram(0);
     glDeleteProgram(glid);
 }
 
@@ -46,39 +37,52 @@ GLuint Shader::get_id() {
     return glid;
 }
 
+void Shader::use() {
+    glUseProgram(glid);
+}
+
+void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const {
+    glUniformMatrix4fv(glGetUniformLocation(glid, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+void Shader::setVec3(const std::string &name, const glm::vec3 &vec) const {
+    glUniform3fv(glGetUniformLocation(glid, name.c_str()), 1, &vec[0]);
+}
+
+void Shader::setVec4(const std::string &name, const glm::vec4 &vec) const {
+    glUniform4fv(glGetUniformLocation(glid, name.c_str()), 1, &vec[0]);
+}
+
+void Shader::setInt(const std::string &name, int value) const {
+    glUniform1i(glGetUniformLocation(glid, name.c_str()), value);
+}
+
 GLuint Shader::compile_shader(const std::string& path, GLenum shader_type) {
-
-    string source;
-    ifstream file(path);
-
-    if (!file.is_open()) {
-        cerr << "Failed to open shader file: " << path << endl;
-        exit(EXIT_FAILURE);
+    std::string shader_code;
+    std::ifstream shader_file;
+    shader_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try {
+        shader_file.open(path);
+        std::stringstream shader_stream;
+        shader_stream << shader_file.rdbuf();
+        shader_file.close();
+        shader_code = shader_stream.str();
+    }
+    catch (std::ifstream::failure& e) {
+        std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << path << std::endl;
     }
 
-    string line;
-    while (getline(file, line)) {
-        source += line + "\n";
-    }
-
-    file.close();
-    
-    GLuint shader;
-    GLint status;
-    const GLchar* src_array[1] = {source.c_str()};
-
-    // Create shader
-    shader = glCreateShader(shader_type);
-    glShaderSource(shader, 1, src_array, NULL);
+    const char* shader_code_cstr = shader_code.c_str();
+    GLuint shader = glCreateShader(shader_type);
+    glShaderSource(shader, 1, &shader_code_cstr, NULL);
     glCompileShader(shader);
 
-    // Check if shader compiled successfully
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (status != GL_TRUE) {
-        char buffer[512];
-        glGetShaderInfoLog(shader, 512, NULL, buffer);
-        cerr << "Failed to compile shader: " << buffer << endl;
-        exit(EXIT_FAILURE);
+    GLint success;
+    GLchar infoLog[512];
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        std::cerr << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
     return shader;

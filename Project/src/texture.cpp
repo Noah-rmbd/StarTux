@@ -23,6 +23,7 @@ Texture::Texture(const std::string& tex_file, GLenum wrap_mode, GLenum min_filte
     unsigned char* data = stbi_load(tex_file.c_str(), &width, &height, &num_channels, 0);
     if (!data) {
         std::cerr << "Failed to load texture from file: " << tex_file << std::endl;
+        std::cerr << "STB_Image error: " << stbi_failure_reason() << std::endl;
         throw std::runtime_error("Failed to load texture from file");
     }
 

@@ -22,7 +22,7 @@ public:
 
     // Mouse control variables
     bool firstMouse = true;
-    bool devMode = true;
+    bool devMode = false;
     float lastX, lastY;
     float yaw = -90.0f;  // Yaw angle (left/right)
     float pitch = 0.0f;  // Pitch angle (up/down)

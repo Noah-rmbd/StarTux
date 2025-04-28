@@ -6,7 +6,7 @@ Camera::Camera()
     cameraPos = glm::vec3(0.0f, 0.0f, 5.0f); // Initial position
     cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); // Direction the camera is facing
     cameraUp = glm::vec3(0.0f, 1.0f, 0.0f); // Up direction
-    cameraSpeed = 0.05f; // Adjust movement speed
+    cameraSpeed = 0.01f; // Adjust movement speed
 }
 
 void Camera::mouse_callback(double xpos, double ypos){
