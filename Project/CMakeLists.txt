@@ -70,3 +70,9 @@ add_executable(opengl_program ${SOURCES})
 target_link_libraries(opengl_program ${LIBS})
 target_link_libraries(opengl_program ${ASSIMP_LIBRARIES})
 target_link_libraries(opengl_program ${FREETYPE_LIBRARIES})
+
+add_custom_target(run
+    COMMAND opengl_program
+    DEPENDS opengl_program
+    WORKING_DIRECTORY ${CMAKE_PROJECT_DIR}
+)
