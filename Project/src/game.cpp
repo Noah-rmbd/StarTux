@@ -42,21 +42,9 @@ Game::Game() {
   Node *environment_node = new Node(environment_mat);
   environment_node->add(environment_sphere);
   // Ajout partie de banzai oui je parle français merde
-  /*Shape *sphere = new LightingSphere(phong_shader, glm::vec3(0.0f, 0.0f,
-  0.0f), glm::vec3(255.0f, 255.0f, 255.0f), glm::vec3(255.0f, 0.0f, 0.0f));
-  glm::mat4 sphere_mat =
-      glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 1.0f, 1.0f)) *
-      glm::scale(glm::mat4(1.0f), 0.1f * glm::vec3(1.0f, 1.0f, 1.0f)) *
-      glm::rotate(glm::mat4(1.0f), glm::radians(0.0f),
-                  glm::vec3(1.0f, 0.0f, 0.0f));
-  Node *sphere_node = new Node(sphere_mat);
-  sphere_node->add(sphere);
-
-  world_node->add(sphere_node);
-  */
   Shape *asteroid =
       new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
-  // Créer plusieurs cubes
+  // Créer plusieurs asteroid
   for (int i = 0; i < 20; ++i) {
     // Position aléatoire
     float x = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
@@ -102,7 +90,7 @@ void Game::updateGame() {
     if (sqrt(x * x + y * y + z * z) < 0.3) {
       world_node->remove(child);
       player->life -= 1;
-      if (player->life <= 0){
+      if (player->life <= 0) {
         lost = true;
       }
     };
