@@ -1,8 +1,8 @@
 #include "viewer.h"
-#include <filesystem>
 #include <iostream>
 
-#include "glm/ext.hpp"
+#include "GLFW/glfw3.h"
+#include "startup_screen.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <ostream>
@@ -62,12 +62,11 @@ Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
    * "closer" */
   glDepthFunc(GL_LESS);
 
-    // Initialize the game
-    game = new Game();
+  // Initialize the game
+  game = new Game(width, height);
     
-    // Initialize interface
-    startup_screen = new StartupScreen(windowWidth, windowHeight);
-    hud = new Hud(windowWidth, windowHeight);
+  // Initialize the startup screen
+  startup_screen = new StartupScreen(windowWidth, windowHeight);
 }
 
 Viewer::~Viewer()
@@ -83,104 +82,90 @@ Viewer::~Viewer()
 void Viewer::run()
 {   
     const float targetFrameTime = 1.0f / 60.0f; // Target frame time for 60 FPS
-    Interface* startUpScreen = new Interface();
 
     // Main render loop for this OpenGL window
     while (!glfwWindowShouldClose(win))
     {   
-        auto frameStart = std::chrono::high_resolution_clock::now(); // Stores the start of the frame
+      auto frameStart = std::chrono::high_resolution_clock::now(); // Stores the start of the frame
 
-    // clear draw buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      // clear draw buffer
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if(startGame) {
-            camera.keyboard_events(keyStates);
-            game->keyHandler(keyStates, glfwGetTime());
-            game->updateGame();
+      if(startGame) {
+          game->keyHandler(keyStates, glfwGetTime());
+          game->updateGame(glfwGetTime());
 
-            if(!camera.devMode){
-                camera.cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
-                camera.cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-                camera.cameraPos = game->player->position + glm::vec3(0.0f, 0.05f, -0.22f);
-                //camera.cameraPos = game->player->position + glm::vec3(0.0f, 0.1f, -0.52f);
-            }
-
-            glm::mat4 model = glm::mat4(1.0f);
-            glm::mat4 view = glm::lookAt(camera.cameraPos, camera.cameraPos + camera.cameraFront, camera.cameraUp);
-            glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
-            game->scene_root->draw(model, view, projection);
-            game->player->score += 1.0;
-            hud->update(game->player->life, game->player->score);
-            if(game->lost){
-              glfwSetWindowShouldClose(win, GLFW_TRUE);
-            }
-            // Render HUD
-            //interface->renderText("Score: " + std::to_string(400), 25.0f, 960.0f - 50.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-            //interface->renderText("Lives: " + std::to_string(3), 25.0f, 960.0f - 100.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-        }
-        else {
-            // Render start screen
-            // Center the image and scale it to fit the window
-            //float imageWidth = 337.0f;  // Adjust these values to fit your needs
-            float imageWidth = 320.0f;
-            float imageHeight = 180.0f;
-            float centerX = (windowWidth - imageWidth) / 2.0f;
-            float centerY = (windowHeight - imageHeight) / 2.0f;
+          glm::mat4 model = glm::mat4(1.0f);
+          glm::mat4 view = glm::lookAt(game->camera.cameraPos, game->camera.cameraPos + game->camera.cameraFront, game->camera.cameraUp);
+          glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+          // Draw the game + HUD
+          game->draw(model, view, projection);
             
-            startup_screen->update();
-            if (startup_screen->isLaunched()) {
-                startGame = true;
-                glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide cursor and lock it
-            }
-        }
 
-        // Calculate and render FPS
-        static float lastTime = 0.0f;
-        static int frameCount = 0;
-        static float fps = 0.0f;
+          // Quit the game
+          if(game->lost){
+            game = new Game(windowWidth, windowHeight);
+            startup_screen = new StartupScreen(windowWidth, windowHeight);
+            startGame = false;
+            glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Hide cursor and lock it
+          }
+      }
+      else {
+          // Render start screen
+          startup_screen->update();
+            
+          if (startup_screen->isLaunched()) {
+              startGame = true;
+              glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide cursor and lock it
+          }
+      }
+
+      // Calculate and render FPS
+      static float lastTime = 0.0f;
+      static int frameCount = 0;
+      static float fps = 0.0f;
         
-        float currentTime = glfwGetTime();
-        frameCount++;
+      float currentTime = glfwGetTime();
+      frameCount++;
         
-        if (currentTime - lastTime >= 1.0f) {
-            fps = frameCount;
-            frameCount = 0;
-            lastTime = currentTime;
-        }
-        
-        //interface->renderText("FPS: " + std::to_string(static_cast<int>(fps)), 1280.0f - 150.0f, 960.0f - 50.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+      if (currentTime - lastTime >= 1.0f) {
+        fps = frameCount;
+        frameCount = 0;
+        lastTime = currentTime;
+      }
 
-    // Poll for and process events
-    glfwPollEvents();
+      // Poll for and process events
+      glfwPollEvents();
 
-    // flush render commands, and swap draw buffers
-    glfwSwapBuffers(win);
+      // flush render commands, and swap draw buffers
+      glfwSwapBuffers(win);
 
-    // Calculate frame time and sleep if necessary
-    auto frameEnd = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<float> frameDuration = frameEnd - frameStart;
-    float frameTime = frameDuration.count();
+      // Calculate frame time and sleep if necessary
+      auto frameEnd = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<float> frameDuration = frameEnd - frameStart;
+      float frameTime = frameDuration.count();
 
-        if (frameTime < targetFrameTime)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((targetFrameTime - frameTime) * 1000)));
-        }
+      if (frameTime < targetFrameTime)
+      {
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((targetFrameTime - frameTime) * 1000)));
+      }
     }
     glfwTerminate();
-  }
+}
 
 
 void Viewer::key_callback_static(GLFWwindow *window, int key, int scancode,
                                  int action, int mods) {
   Viewer *viewer = static_cast<Viewer *>(glfwGetWindowUserPointer(window));
+  // Send the keys to on_key
   viewer->on_key(key, action);
 }
 
 void Viewer::mouse_callback_static(GLFWwindow *window, double xpos,
                                    double ypos) {
   Viewer *viewer = static_cast<Viewer *>(glfwGetWindowUserPointer(window));
-  viewer->camera.mouse_callback(xpos, ypos);
+  // Send the mouse to the camera
+  viewer->game->camera.mouse_callback(xpos, ypos);
 }
 
 void Viewer::mouse_button_callback_static(GLFWwindow* window, int button, int action, int mods)
@@ -191,8 +176,7 @@ void Viewer::mouse_button_callback_static(GLFWwindow* window, int button, int ac
     viewer->on_mouse_button(button, action, xpos, ypos);
 }
 
-
-
+// Converts key pressed onto a map of all the key pressed and the time since they're pressed
 void Viewer::on_key(int key, int action) {
   // 'Q' or 'Escape' quits
   if (key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q) {
@@ -210,6 +194,7 @@ void Viewer::on_key(int key, int action) {
   }
 }
 
+// Send the mouse to the startup screen
 void Viewer::on_mouse_button(int button, int action, double xpos, double ypos)
 {
     if (!startGame) {

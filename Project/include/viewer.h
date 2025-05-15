@@ -32,11 +32,8 @@ public:
     float windowWidth;
     float windowHeight;
 
-    Node *scene_root;
-    Camera camera;
     Game *game;
     StartupScreen *startup_screen;
-    Hud *hud;
 
 
 private:

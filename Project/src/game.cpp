@@ -1,5 +1,7 @@
 #include "game.h"
+#include "hud.h"
 #include <cmath>
+#include <ctime>
 #ifndef SHADER_DIR
 #error "SHADER_DIR not defined"
 #endif
@@ -10,10 +12,13 @@
 #error "RESSOURCES_DIR not defined"
 #endif
 
-Game::Game() {
+Game::Game(int width, int height) {
   std::string shader_dir = SHADER_DIR;
   std::string textures_dir = TEXTURES_DIR;
   std::string ressources_dir = RESSOURCES_DIR;
+
+  // Generates HUD
+  hud = new Hud(width, height);
 
   // Player object
   phong_shader =
@@ -34,6 +39,7 @@ Game::Game() {
   Texture *texture = new Texture(textures_dir + "space3.jpeg");
   Shape *environment_sphere = new TexturedSphere(texture_shader, texture);
 
+  // Node that contains the environment sphere
   glm::mat4 environment_mat =
       glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) *
       glm::scale(glm::mat4(1.0f), 120.0f * glm::vec3(1.0f, 1.0f, 1.0f)) *
@@ -41,27 +47,15 @@ Game::Game() {
                   glm::vec3(1.0f, 0.0f, 0.0f));
   Node *environment_node = new Node(environment_mat);
   environment_node->add(environment_sphere);
-  // Ajout partie de banzai oui je parle français merde
-  /*Shape *sphere = new LightingSphere(phong_shader, glm::vec3(0.0f, 0.0f,
-  0.0f), glm::vec3(255.0f, 255.0f, 255.0f), glm::vec3(255.0f, 0.0f, 0.0f));
-  glm::mat4 sphere_mat =
-      glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 1.0f, 1.0f)) *
-      glm::scale(glm::mat4(1.0f), 0.1f * glm::vec3(1.0f, 1.0f, 1.0f)) *
-      glm::rotate(glm::mat4(1.0f), glm::radians(0.0f),
-                  glm::vec3(1.0f, 0.0f, 0.0f));
-  Node *sphere_node = new Node(sphere_mat);
-  sphere_node->add(sphere);
-
-  world_node->add(sphere_node);
-  */
+  
+  // Asteroid model
   Shape *asteroid =
       new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
-  // Créer plusieurs cubes
+  // Generates 20 asteroids
   for (int i = 0; i < 20; ++i) {
-    // Position aléatoire
+    // Random position
     float x = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
     float y = ((rand() % 200) / 100.0f) - 1.0f;
-
     float z = -(((rand() % 300) / 100.0f) - 1.0f); // entre -1 et -4
 
     glm::mat4 asteroid_mat1 =
@@ -73,7 +67,7 @@ Game::Game() {
     Node *a_node1 = new Node(asteroid_mat1);
     a_node1->velocity_ = glm::vec3(0.0f, 0.0f, -0.2f);
     a_node1->add(asteroid);
-
+    // Add it to the world
     world_node->add(a_node1);
   }
 
@@ -82,24 +76,41 @@ Game::Game() {
   scene_root->add(player->node);
   scene_root->add(world_node);
   scene_root->add(environment_node);
-  distance = 45.0f;
+  
+  // Place the camera
+  camera.cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+  camera.cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+  camera.cameraPos = player->position + glm::vec3(0.0f, 0.05f, -0.3f);
 }
 
-void Game::updateGame() {
+void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection) {
+  scene_root->draw(model, view, projection);
+  hud->update(player->life, player->score);
+}
+
+void Game::updateHud() {
+  hud->update(player->life, player->score);
+}
+
+void Game::updateGame(double time) {
+  // Generates new asteroids
   if (latence == 0) {
     spawn_rectangle();
     latence = 80;
   } else {
     latence -= 1;
   }
+
+  // Moves the world forward
   world_node->animation();
-  // Colisiont
+
+  // Verify collisions
   for (Node *child : world_node->children_) {
     double x = (player->position.x - child->transform_[3].x);
     double y = (player->position.y - child->transform_[3].y);
     double z = (player->position.z - child->transform_[3].z);
     // Suprime la sphére si elle s'aproche trop
-    if (sqrt(x * x + y * y + z * z) < 0.3) {
+    if (sqrt(x * x + y * y + z * z) < 0.25) {
       world_node->remove(child);
       player->life -= 1;
       if (player->life <= 0){
@@ -107,12 +118,39 @@ void Game::updateGame() {
       }
     };
   }
+
+  // Increments player's score
+  player->score += 1.0;
+
+  // Adds dialogs
+  if(player->position.z == 0) {
+    hud->newDialog(0, time);
+  }
+  
+
+  //camera.updateAngle();
+
+  // Update camera
+  //camera.cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+  //camera.cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+  //camera.cameraPos = player->position + glm::vec3(0.0f, 0.05f, -0.3f);
 }
 
 void Game::keyHandler(
     std::unordered_map<int, std::pair<bool, double>> keyStates, double time) {
   float smoother = 0.0f;
   float speed = player->movement_speed;
+
+  if (dev_mode){
+      camera.keyboard_events(keyStates);
+  }
+
+  if (keyStates[GLFW_KEY_X].first) {
+      dev_mode = true;
+  }
+  if (keyStates[GLFW_KEY_C].first) {
+      dev_mode = false;
+  }
 
   if (keyStates[GLFW_KEY_U].first) { // Move Forward
     idle_ud = false;
@@ -122,8 +160,13 @@ void Game::keyHandler(
     } else {
       smoother = 1.0f;
     }
+    if (player->position.y + smoother * speed >= -1.0) {
+      player->position -= smoother * glm::vec3(0.0f, speed, 0.0f); // Move
+    }
 
-    player->position -= smoother * glm::vec3(0.0f, speed, 0.0f); // Move
+    if(!dev_mode && camera.cameraPos.y - player->position.y >= 0.04) {
+      camera.cameraPos.y = player->position.y + 0.04f;
+    }
 
     if (player->xAngle < 15.0f) {
       player->xAngle += smoother * 1.0f;
@@ -139,7 +182,14 @@ void Game::keyHandler(
       smoother = 1.0f;
     }
 
-    player->position += smoother * glm::vec3(0.0f, speed, 0.0f); // Move
+    if (player->position.y + smoother * speed <= 1.0) {
+      player->position += smoother * glm::vec3(0.0f, speed, 0.0f); // Move
+    }
+
+    if(!dev_mode && camera.cameraPos.y - player->position.y <= -0.04) {
+      camera.cameraPos.y = player->position.y + -0.04f;
+    }
+
     if (player->xAngle > -15.0f) {
       player->xAngle -= smoother * 1.0f;
     }
@@ -154,12 +204,20 @@ void Game::keyHandler(
       smoother = 1.0f;
     }
 
-    player->position += smoother * glm::vec3(speed, 0.0f, 0.0f); // Move
+    if(player->position.x + smoother * speed <= 1.5){
+      player->position += smoother * glm::vec3(speed, 0.0f, 0.0f); // Move
+    }
+    
+    if(!dev_mode && camera.cameraPos.x - player->position.x <= -0.06) {
+      camera.cameraPos.x = player->position.x + -0.06f;
+    }
+
     if (player->zAngle > -15.0f && !is_rotating) {
       player->zAngle -= smoother * 1.0f;
     }
     if (player->yAngle < 15.0f) {
       player->yAngle += smoother * 1.0f;
+      //camera.yAngle = player->yAngle; 
     }
   }
 
@@ -172,12 +230,19 @@ void Game::keyHandler(
       smoother = 1.0f;
     }
 
-    player->position -= smoother * glm::vec3(speed, 0.0f, 0.0f); // Move
+    if (player->position.x - smoother * speed >= -1.5){
+      player->position -= smoother * glm::vec3(speed, 0.0f, 0.0f); // Move
+    }
+    if(!dev_mode && camera.cameraPos.x - player->position.x >= 0.06) {
+      camera.cameraPos.x = player->position.x + 0.06f;
+    }
+
     if (player->zAngle < 15.0f && !is_rotating) {
       player->zAngle += smoother * 1.0f;
     }
     if (player->yAngle > -15.0f) {
       player->yAngle -= smoother * 1.0f;
+      //camera.yAngle = player->yAngle; 
     }
   }
 
@@ -220,15 +285,18 @@ void Game::keyHandler(
       if (!is_rotating) {
         player->zAngle =
             player->zAngle * cos(glm::radians(90.0f * (time - idle_start_lr)));
+            //camera.yAngle = player->yAngle; 
       }
       player->yAngle =
           player->yAngle * cos(glm::radians(90.0f * (time - idle_start_lr)));
+          //camera.yAngle = player->yAngle; 
     } else if (idle_lr) { // end of the animation
       idle_lr = false;
       if (!is_rotating) {
         player->zAngle = 0.0f;
       }
       player->yAngle = 0.0f;
+      //camera.yAngle = player->yAngle; 
     }
   }
 
@@ -300,11 +368,12 @@ void Game::spawn_rectangle() {
                      phong_shader); // appel du constructeur de copie
 
   // Position aléatoire
-  float posX = ((rand() % 200) / 100.0f) - 1.0f;
-  float posY = ((rand() % 200) / 100.0f) - 1.0f;
+  float posX = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
+  float posY = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
+  float posZ = ((rand() % 200) / 100.0f) + 1.0f; // Entre 1 et 2
 
   glm::mat4 asteroid_mat =
-      glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, +4.0f)) *
+      glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, posZ)) *
       glm::scale(glm::mat4(1.0f), 0.006f * glm::vec3(1.0f, 1.0f, 1.0f)) *
       glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
                   glm::vec3(1.0f, 0.0f, 0.0f));
@@ -326,4 +395,10 @@ void Game::spawn_rectangle() {
     delete oldRect;
   }
   */
+}
+
+void Game::mouse_callback(double xpos, double ypos){
+    if(dev_mode){
+      camera.mouse_callback(xpos, ypos);
+    }
 }

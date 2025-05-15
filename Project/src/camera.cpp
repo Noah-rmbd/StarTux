@@ -71,3 +71,7 @@ void Camera::keyboard_events(std::unordered_map<int, std::pair<bool, double>> ke
     }
     
 }
+
+ //void Camera::updateAngle(){
+    //cameraFront = glm::vec3(0.0f, cos(yAngle), sin(yAngle));
+ //}

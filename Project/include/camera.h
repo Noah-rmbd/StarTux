@@ -1,8 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <vector>
-#include <string>
 #include <unordered_map>
 #include <glm/glm.hpp>
 
@@ -19,6 +17,8 @@ public:
     glm::vec3 cameraFront;
     glm::vec3 cameraUp;
     float cameraSpeed;
+    float xAngle;
+    float yAngle;
 
     // Mouse control variables
     bool firstMouse = true;
@@ -30,6 +30,7 @@ public:
 
     void mouse_callback(double xpos, double ypos);
     void keyboard_events(std::unordered_map<int, std::pair<bool, double>> keyStates);
+    //void updateAngle();
 
 private:
 };

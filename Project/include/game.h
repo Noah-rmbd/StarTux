@@ -1,11 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "lighting_sphere.h"
+#include "hud.h"
 #include "node.h"
 #include "player.h"
 #include "shader.h"
-#include "shape_model.h"
+#include "camera.h"
 #include "texture.h"
 #include "textured_sphere.h"
 #include <GL/glew.h>
@@ -14,21 +14,26 @@
 
 class Game {
 public:
-  Game();
-  void updateGame();
+  Game(int width, int height);
+  void updateGame(double time);
+  
+  void draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
   void keyHandler(std::unordered_map<int, std::pair<bool, double>> keyStates,
                   double time);
-  void spawn_rectangle();
-
+  void mouse_callback(double xpos, double ypos);
+  
   Player *player;
+  Camera camera;
   Node *scene_root;
   Node *world_node;
-  float distance;
   bool lost = false;
   
 
 private:
+  void spawn_rectangle();
+  void updateHud();
   Shader *phong_shader;
+  bool dev_mode = false;
   bool is_rotating = false;
   bool idle_rot = false;
   bool idle_lr =
@@ -38,7 +43,8 @@ private:
       0.0; // stores the timestamp of the beginning of the idle animation
   double idle_start_ud = 0.0;
   double idle_start_rot = 0.0;
-  // float rot_start_angle = 0.0f;
+
+  Hud *hud;
 
   std::vector<Node *> asteorides_;
   const size_t max_asteorides_ = 30;

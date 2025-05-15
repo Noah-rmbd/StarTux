@@ -63,11 +63,9 @@ void StartupScreen::update(){
 
 void StartupScreen::mouse(int button, int action, double xpos, double ypos) {
     if (action == GLFW_PRESS && button == 0 && xpos <= 1240.0 && xpos>= 954.0 && ypos <= 692.0 && ypos >= 622.0) {
-        std::cout << "Mouse button " << button << " pressed at (" << xpos << ", " << ypos << ")" << std::endl;
         click_valid = true; // means the click started inhe button
     }
     if (click_valid && action == GLFW_RELEASE && button == 0 && xpos <= 1240.0 && xpos>= 954.0 && ypos <= 692.0 && ypos >= 622.0) {
-        std::cout << "Mouse button " << button << " released at (" << xpos << ", " << ypos << ")" << std::endl;
         click_valid = false;
         start_game = true;
     }
