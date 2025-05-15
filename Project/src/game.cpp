@@ -113,7 +113,7 @@ void Game::updateGame(double time) {
     if (sqrt(x * x + y * y + z * z) < 0.25) {
       world_node->remove(child);
       player->life -= 1;
-      if (player->life <= 0){
+      if (player->life <= 0) {
         lost = true;
       }
     };
