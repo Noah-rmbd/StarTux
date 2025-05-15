@@ -49,4 +49,5 @@ Thumbs.db
 # Idées pour ignorer les IDE spécifiques (à adapter selon ton IDE)
 .vscode/
 .idea/
+.cache/
 *.code-workspace

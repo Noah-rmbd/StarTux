@@ -30,23 +30,20 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 set(SOURCES
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/node.cpp
-    ${SRC_DIR}/shape.cpp
-    ${SRC_DIR}/shader.cpp
+    ${SRC_DIR}/shapes/shape.cpp
+    ${SRC_DIR}/graphics/shader.cpp
     ${SRC_DIR}/viewer.cpp
-    ${SRC_DIR}/camera.cpp
-    ${SRC_DIR}/game.cpp
-    ${SRC_DIR}/player.cpp
-    ${SRC_DIR}/triangle.cpp
-    ${SRC_DIR}/pyramid.cpp
-    ${SRC_DIR}/cylinder.cpp
-    ${SRC_DIR}/shape_model.cpp
-    ${SRC_DIR}/sphere.cpp
-    ${SRC_DIR}/texture.cpp
-    ${SRC_DIR}/textured_sphere.cpp
-    ${SRC_DIR}/lighting_sphere.cpp
-    ${SRC_DIR}/interface.cpp
-    ${SRC_DIR}/startup_screen.cpp
-    ${SRC_DIR}/hud.cpp
+    ${SRC_DIR}/game/camera.cpp
+    ${SRC_DIR}/game/game.cpp
+    ${SRC_DIR}/game/player.cpp
+    ${SRC_DIR}/shapes/shape_model.cpp
+    ${SRC_DIR}/shapes/sphere.cpp
+    ${SRC_DIR}/graphics/texture.cpp
+    ${SRC_DIR}/shapes/textured_sphere.cpp
+    ${SRC_DIR}/shapes/lighting_sphere.cpp
+    ${SRC_DIR}/interfaces/interface.cpp
+    ${SRC_DIR}/interfaces/startup_screen.cpp
+    ${SRC_DIR}/interfaces/hud.cpp
 
 )
 
