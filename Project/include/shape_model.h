@@ -3,6 +3,7 @@
 
 #include "shader.h"
 #include "shape.h"
+#include "texture.h"
 #include <GL/glew.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -14,11 +15,11 @@
 class ShapeModel : public Shape {
 public:
   ShapeModel(const std::string &filepath, Shader *shader_program);
-
+  ShapeModel(const ShapeModel &other); // 👈 Ajouté
+  ~ShapeModel();
   void draw(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection) override;
   void key_handler(int key);
-  virtual ~ShapeModel();
-  ShapeModel(const ShapeModel &other); // 👈 Ajouté
+  void setTexture(Texture* texture);
   Shape *clone() const;
 
 private:
@@ -34,6 +35,9 @@ private:
   glm::vec3 light_position;
   glm::vec3 light_color;
   glm::vec3 object_color;
+
+  // Texture
+  Texture* texture_ = nullptr;
 
   unsigned int VAO; // Vertex Array Object
   unsigned int VBO; // Vertex Buffer Object

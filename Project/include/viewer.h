@@ -35,16 +35,14 @@ public:
     Game *game;
     StartupScreen *startup_screen;
 
-
 private:
-  GLFWwindow *win;
-
+    GLFWwindow *win;
     bool startGame = false;
     Texture* startScreenImage;
-    std::vector<Node *> asteorides_;
 
     // Store key states
     std::unordered_map<int, std::pair<bool, double>> keyStates;
+    // Input handlers
     static void key_callback_static(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void mouse_callback_static(GLFWwindow* window, double xpos, double ypos);
     static void mouse_button_callback_static(GLFWwindow* window, int button, int action, int mods);

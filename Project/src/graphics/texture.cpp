@@ -58,6 +58,10 @@ Texture::Texture(const std::string& tex_file, GLenum wrap_mode, GLenum min_filte
               << wrap_mode << ", " << min_filter << ", " << mag_filter << ")" << std::endl;
 }
 
+GLuint Texture::getGLid(){ 
+    return glid_; 
+}
+
 Texture::~Texture() {
     glDeleteTextures(1, &glid_);
 }

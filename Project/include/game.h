@@ -6,18 +6,19 @@
 #include "player.h"
 #include "shader.h"
 #include "camera.h"
+#include "projectile.h"
 #include "texture.h"
 #include "textured_sphere.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <unordered_map>
+#include <vector>
 
 class Game {
 public:
   Game(int width, int height);
   void updateGame(double time);
-  
-  void draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
+  void draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time);
   void keyHandler(std::unordered_map<int, std::pair<bool, double>> keyStates,
                   double time);
   void mouse_callback(double xpos, double ypos);
@@ -31,7 +32,6 @@ public:
 
 private:
   void spawn_rectangle();
-  void updateHud();
   Shader *phong_shader;
   bool dev_mode = false;
   bool is_rotating = false;
@@ -44,10 +44,19 @@ private:
   double idle_start_ud = 0.0;
   double idle_start_rot = 0.0;
 
-  Hud *hud;
+  double x_mouse;
+  double y_mouse;
 
+  Hud *hud;
+  int window_width;
+  int window_height;
+  // List of active projectiles in the game
+  std::vector<Projectile *> projectiles;
+  Node *projectile_node;
+  double last_shoot_time;
   std::vector<Node *> asteorides_;
   const size_t max_asteorides_ = 30;
+  float asteroid_speed = -1.2f;
   int latence = 0;
 };
 

@@ -36,6 +36,7 @@ set(SOURCES
     ${SRC_DIR}/game/camera.cpp
     ${SRC_DIR}/game/game.cpp
     ${SRC_DIR}/game/player.cpp
+    ${SRC_DIR}/game/projectile.cpp
     ${SRC_DIR}/shapes/shape_model.cpp
     ${SRC_DIR}/shapes/sphere.cpp
     ${SRC_DIR}/graphics/texture.cpp

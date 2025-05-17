@@ -115,10 +115,17 @@ void ShapeModel::draw(glm::mat4 &model, glm::mat4 &view,
 
   Shape::draw(model, view, projection);
 
-  // Set phong shader uniforms
-  glUniform3fv(light_pos_loc, 1, glm::value_ptr(light_position));
-  glUniform3fv(light_color_loc, 1, glm::value_ptr(light_color));
-  glUniform3fv(object_color_loc, 1, glm::value_ptr(object_color));
+  // If we have a texture, bind it
+  if (texture_) {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture_->getGLid());
+    glUniform1i(glGetUniformLocation(shader_program_, "texture1"), 0);
+  } else {
+    // Set phong shader uniforms if no texture
+    glUniform3fv(light_pos_loc, 1, glm::value_ptr(light_position));
+    glUniform3fv(light_color_loc, 1, glm::value_ptr(light_color));
+    glUniform3fv(object_color_loc, 1, glm::value_ptr(object_color));
+  }
 
   glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 }
@@ -132,6 +139,7 @@ ShapeModel::~ShapeModel() {
 void ShapeModel::key_handler(int key) {
   // Handle key events if needed
 }
+
 ShapeModel::ShapeModel(const ShapeModel &other)
     : Shape(other), // Copie les membres de base
       VAO(other.VAO), VBO(other.VBO), EBO(other.EBO),
@@ -142,3 +150,5 @@ ShapeModel::ShapeModel(const ShapeModel &other)
 }
 
 Shape *ShapeModel::clone() const { return new ShapeModel(*this); }
+
+void ShapeModel::setTexture(Texture* texture) { texture_ = texture; }

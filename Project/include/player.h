@@ -3,15 +3,19 @@
 
 #include "node.h"
 #include "shader.h"
+#include "texture.h"
 #include "shape_model.h"
 #include <glm/glm.hpp>
 
 class Player{
     public :
         Player(Shader* shader_program);
+        ~Player();
         void updatePosition();
 
         Shape* model;
+        Shader* texture_shader;
+        Texture* ship_texture;
 
         glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::vec3 scale = glm::vec3(0.005f, 0.005f, 0.005f);

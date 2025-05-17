@@ -6,7 +6,16 @@
 Player::Player(Shader* shader_program)
 {
     ship_dir = RESSOURCES_DIR;
-    model = new ShapeModel(ship_dir + "ship.obj", shader_program);
+    // Create texture shader
+    std::string shader_dir = SHADER_DIR;
+    texture_shader = new Shader(shader_dir + "ship.vert", shader_dir + "ship.frag");
+    
+    // Load texture
+    ship_texture = new Texture(ship_dir + "Material.001_Base_color.jpg");
+    
+    // Create model with texture shader
+    model = new ShapeModel(ship_dir + "ship.obj", texture_shader);
+    static_cast<ShapeModel*>(model)->setTexture(ship_texture);
     
     // Initialize the transformation matrix
     playerMat = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale);
@@ -16,6 +25,13 @@ Player::Player(Shader* shader_program)
     
     // Add the model to the node
     node->add(model);
+}
+
+Player::~Player() {
+    delete node;
+    delete model;
+    delete ship_texture;
+    delete texture_shader;
 }
 
 void Player::updatePosition(){

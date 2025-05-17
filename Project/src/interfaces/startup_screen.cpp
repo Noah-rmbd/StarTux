@@ -26,8 +26,13 @@ StartupScreen::StartupScreen(int width, int height) : windowWidth(width), window
     Node* space_node = new Node(space_mat);
     space_node->add(space_sphere);
 
-    Shader* phong_shader = new Shader(shader_dir + "phong.vert", shader_dir + "phong.frag");
-    Shape* ship = new ShapeModel(ressources_dir + "ship.obj", phong_shader);
+    // Create ship's texture and shader
+    Shader* ship_shader = new Shader(shader_dir + "ship.vert", shader_dir + "ship.frag");
+    Texture* ship_texture = new Texture(ressources_dir + "Material.001_Base_color.jpg");
+    // Create model with texture shader
+    Shape* ship = new ShapeModel(ressources_dir + "ship.obj", ship_shader);
+    static_cast<ShapeModel*>(ship)->setTexture(ship_texture);
+    
     glm::mat4 ship_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
         * glm::scale(glm::mat4(1.0f), 0.1f * glm::vec3(1.0f, 1.0f, 1.0f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));

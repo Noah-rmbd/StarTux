@@ -11,7 +11,7 @@ public:
             GLenum min_filter = GL_LINEAR, GLenum mag_filter = GL_LINEAR_MIPMAP_LINEAR);
     ~Texture();
 
-    GLuint getGLid() const { return glid_; }
+    GLuint getGLid();
 
 private:
     GLuint glid_;

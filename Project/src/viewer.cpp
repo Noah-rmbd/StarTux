@@ -99,7 +99,7 @@ void Viewer::run()
           glm::mat4 view = glm::lookAt(game->camera.cameraPos, game->camera.cameraPos + game->camera.cameraFront, game->camera.cameraUp);
           glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
           // Draw the game + HUD
-          game->draw(model, view, projection);
+          game->draw(model, view, projection, glfwGetTime());
             
 
           // Quit the game
@@ -165,7 +165,7 @@ void Viewer::mouse_callback_static(GLFWwindow *window, double xpos,
                                    double ypos) {
   Viewer *viewer = static_cast<Viewer *>(glfwGetWindowUserPointer(window));
   // Send the mouse to the camera
-  viewer->game->camera.mouse_callback(xpos, ypos);
+  viewer->game->mouse_callback(xpos, ypos);
 }
 
 void Viewer::mouse_button_callback_static(GLFWwindow* window, int button, int action, int mods)
