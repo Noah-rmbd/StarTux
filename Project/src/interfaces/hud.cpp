@@ -15,7 +15,7 @@ Hud::Hud(int width, int height) : windowWidth(width), windowHeight(height){
     game_interface = new Interface(windowWidth, windowHeight);
 }
 
-void Hud::update(int life, double score, double time, int speed, int fps) {
+void Hud::update(int life, double score, int bullets, double time, int speed, int fps) {
     // Render info and cursor
     std::string scoreString = std::to_string(score);
     scoreString = scoreString.substr(0, scoreString.length()-5);
@@ -24,7 +24,8 @@ void Hud::update(int life, double score, double time, int speed, int fps) {
     game_interface->renderText("FPS : " + std::to_string(fps), windowWidth-150, windowHeight-60, 0.5f, glm::vec3(1.0f));
     game_interface->renderText("Score : " + scoreString, 25.0f, windowHeight-100, 0.5f, scoreColor);
     game_interface->renderImage(aim_image, xPos, windowHeight-yPos, 50.0f, 50.0f);
-    game_interface->renderText(std::to_string(speed) + " Km/h", 25.0, windowHeight-700, 0.8f, glm::vec3(1.0f));
+    game_interface->renderText(std::to_string(bullets) + " /10", 25.0, windowHeight-750, 0.5f, glm::vec3(0.9f));
+    game_interface->renderText(std::to_string(speed) + " Km/h", 25.0, windowHeight-800, 0.8f, glm::vec3(1.0f));
     // Render dialogs
     if (currentDialog != NULL) {
         game_interface->renderText(currentDialog->first, 25.0, windowHeight-500, 0.5f, glm::vec3(1.0f));

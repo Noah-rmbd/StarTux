@@ -1,5 +1,6 @@
 #include "game.h"
 #include "GLFW/glfw3.h"
+#include "asteroid.h"
 #include "glm/fwd.hpp"
 #include "hud.h"
 #include "projectile.h"
@@ -70,12 +71,15 @@ Game::Game(int width, int height, int target_fps) {
         glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
                     glm::vec3(1.0f, 0.0f, 0.0f)); // asteroid
 
-    Node *a_node1 = new Node(asteroid_mat1);
-    a_node1->z_speed = &asteroid_speed;
-    a_node1->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
-    a_node1->add(asteroid);
+    Node *asteroidNode = new Node(asteroid_mat1);
+    asteroidNode->z_speed = &asteroid_speed;
+    asteroidNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+    asteroidNode->add(asteroid);
+    
     // Add it to the world
-    world_node->add(a_node1);
+    Asteroid* asteroid = new Asteroid(asteroidNode);
+    asteroids_.push_back(asteroid);
+    world_node->add(asteroid->asteroid_node);
   }
   
   // Add the player and the world to the scene root
@@ -95,7 +99,7 @@ Game::Game(int width, int height, int target_fps) {
 
 void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps) {
   scene_root->draw(model, view, projection);
-  hud->update(player->life, player->score, time, -asteroid_speed*50, fps);
+  hud->update(player->life, player->score, player->bullets, time, -asteroid_speed*50, fps);
 }
 
 void Game::updateGame(double time, int fps) {
@@ -105,7 +109,7 @@ void Game::updateGame(double time, int fps) {
     fps_correction = static_cast<float>(targeted_fps) / static_cast<float>(fps);
     player->fps_correction = fps_correction;
   }
-  std::cout << "FPS corr : " << fps_correction << " " << static_cast<float>(targeted_fps) << " " << static_cast<float>(fps) <<"\n";
+  
   // Generates new asteroids
   if (latence == 0) {
     spawn_rectangle();
@@ -117,19 +121,25 @@ void Game::updateGame(double time, int fps) {
   // Moves the world forward
   world_node->animation(fps_correction);
 
-  // Verify collisions
-  for (Node *child : world_node->children_) {
-    double x = (player->position.x - child->transform_[3].x);
-    double y = (player->position.y - child->transform_[3].y);
-    double z = (player->position.z - child->transform_[3].z);
+  // Detect player colisions for each asteroid in asteroids_ list
+  for(auto it = asteroids_.begin(); it != asteroids_.end();) {
+    Asteroid *asteroid = *it;
+    Node* node = asteroid->asteroid_node;
+    glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
+    double x = (player->position.x - asteroid_position.x);
+    double y = (player->position.y - asteroid_position.y);
+    double z = (player->position.z - asteroid_position.z);
     // Supprime la sphére si elle s'aproche trop
     if (sqrt(x * x + y * y + z * z) < 0.20) {
-      world_node->remove(child);
+      world_node->remove(node);
+      it = asteroids_.erase(it);
       player->life -= 1;
       if (player->life <= 0) {
         lost = true;
       }
-    };
+    } else {
+      ++it;
+    }
   }
 
   // Increments player's score
@@ -137,7 +147,7 @@ void Game::updateGame(double time, int fps) {
 
   // Every 5000 points, player get an extra life
   if(static_cast<int>(player->score) % 5000 == 0) {
-    player->life += 1;
+    player->increaseLife();
     hud->newDialog(2, time);
   }
 
@@ -157,26 +167,69 @@ void Game::updateGame(double time, int fps) {
     hud->newDialog(0, time);
   }
 
+  // For each projectile in projectiles list
   for(auto it = projectiles.begin(); it != projectiles.end();) {
     Projectile *shoot = *it;
     shoot->update(time);
-    
-    // Verify collisions with asteroids
-    for (Node *child : world_node->children_) {
-      glm::vec3 asteroid_position = glm::vec3(child->transform_[3].x, child->transform_[3].y, child->transform_[3].z);
+
+    // For each asteroid in asteroids_ list
+    for(auto it = asteroids_.begin(); it != asteroids_.end();) {
+      Asteroid *asteroid = *it;
+      Node* node = asteroid->asteroid_node;
+      glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
       // Delete the asteroid if colision
       if (shoot->checkCollision(glm::vec3(asteroid_position))) {
-        world_node->remove(child);
+        world_node->remove(node);
+        it = asteroids_.erase(it);
+        
         shoot->active = false;
         player->score += 50.0;
         hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time);
-      };
+      } else {
+        ++it;
+      }
     }
 
     // Delete the shoot if inactive
     if (!shoot->active) {
       scene_root->remove(shoot->node);
       it = projectiles.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
+  // For each light projectile in light_projectiles list
+  for(auto it = light_projectiles.begin(); it != light_projectiles.end();) {
+    LightProjectile *shoot = *it;
+    shoot->update(time);
+
+    // For each asteroid in asteroids_ list
+    for(auto asteroid_it = asteroids_.begin(); asteroid_it != asteroids_.end(); ++asteroid_it) {
+      Asteroid *asteroid = *asteroid_it;
+      Node* node = asteroid->asteroid_node;
+      glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
+      // Check collision with asteroid
+      if (shoot->checkCollision(glm::vec3(asteroid_position))) {
+        asteroid->life -= 1;
+        if (asteroid->life <= 0) {
+          // Erase the asteroid
+          world_node->remove(node);
+          asteroids_.erase(asteroid_it);
+          // Increment score
+          player->score += 50.0;
+          hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time);
+        }
+        // Delete the shoot
+        shoot->active = false;
+        break; // Exit asteroid loop since projectile hit something
+      }
+    }
+
+    // Delete the shoot if inactive
+    if (!shoot->active) {
+      scene_root->remove(shoot->node);
+      it = light_projectiles.erase(it);
     } else {
       ++it;
     }
@@ -208,6 +261,12 @@ void Game::mouse_button_callback(int button, int action, double xpos, double ypo
   } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE){
     l_mouse_button_pressed = false;
   }
+
+  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+    r_mouse_button_pressed = true;
+  } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE){
+    r_mouse_button_pressed = false;
+  }
 }
 
 void Game::keyHandler(
@@ -215,22 +274,39 @@ void Game::keyHandler(
   float smoother = 0.0f;
   float speed = player->movement_speed * player->fps_correction;
 
-  
-  if (l_mouse_button_pressed) {
-    // Add new shoot to the projectile list
-    if (projectiles.size() < 10) {
+  if (r_mouse_button_pressed) {
+    // Shooting cooldown
+    if ((last_shoot_time == 0.0 || time-last_shoot_time > 1.0) && (player->bullets > 0)) {
+      player->bullets -= 1;
       double xpos = (x_mouse / (window_width)) - 0.5;
       double ypos = (y_mouse / (window_height)) - 0.5;
       
       glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.2f); 
       glm::vec3 shoot_direction = glm::vec3(-xpos+camera.cameraPos.x-player->position.x, -ypos+camera.cameraPos.y-player->position.y, 1.0f);
-      // Shooting cooldown
-      if (last_shoot_time == 0.0 || time-last_shoot_time > 1.0) {
-        Projectile *new_shot = new Projectile(phong_shader, shoot_position, shoot_direction, glm::vec3(x_mouse, y_mouse, 0.0f));
-        projectiles.push_back(new_shot);
-        scene_root->add(new_shot->node);
-        last_shoot_time = time;
-      }
+
+      // Add new shot to projectile list
+      Projectile *new_shot = new Projectile(phong_shader, shoot_position, shoot_direction, glm::vec3(x_mouse, y_mouse, 0.0f));
+      projectiles.push_back(new_shot);
+      scene_root->add(new_shot->node);
+      last_shoot_time = time;
+    }
+  }
+
+  if (l_mouse_button_pressed) {
+    // Shooting cooldown
+    if (last_shoot_time_l == 0.0 || time-last_shoot_time_l > 0.1) {
+      double xpos = (x_mouse / (window_width)) - 0.5;
+      double ypos = (y_mouse / (window_height)) - 0.5;
+      
+      glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.2f); 
+      glm::vec3 shoot_direction = glm::vec3(-xpos+camera.cameraPos.x-player->position.x, -ypos+camera.cameraPos.y-player->position.y, 1.0f);
+
+      // Add new shot to projectile list
+      LightProjectile *new_shot = new LightProjectile(phong_shader, shoot_position, shoot_direction, glm::vec3(x_mouse, y_mouse, 0.0f));
+      light_projectiles.push_back(new_shot);
+      scene_root->add(new_shot->node);
+      last_shoot_time_l = time;
+      
     }
   }
 
@@ -405,7 +481,6 @@ void Game::keyHandler(
   }
 
   if (!keyStates[GLFW_KEY_O].first && !keyStates[GLFW_KEY_P].first) {
-    std::cout << is_rotating << " " << player->zAngle << "\n";
     if (is_rotating && player->zAngle != 0.0f) {
       idle_rot = true;
       is_rotating = false;
@@ -461,22 +536,14 @@ void Game::spawn_rectangle() {
       glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
                   glm::vec3(1.0f, 0.0f, 0.0f));
   
-  Node *rectNode = new Node(asteroid_mat);
+  Node *asteroidNode = new Node(asteroid_mat);
 
-  rectNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
-  rectNode->z_speed = &asteroid_speed;
-  rectNode->add(asteroid);
+  asteroidNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+  asteroidNode->z_speed = &asteroid_speed;
+  asteroidNode->add(asteroid);
 
-  world_node->add(rectNode);
-  asteorides_.push_back(rectNode);
-  /*
-  if (asteorides_.size() > max_asteorides_) {
-    Node *oldRect = asteorides_.front();
-    asteorides_.erase(asteorides_.begin());
-
-    world_node->remove(oldRect); // retirer du world node
-    delete oldRect;
-  }
-  */
+  Asteroid* asteroid = new Asteroid(asteroidNode);
+  asteroids_.push_back(asteroid);
+  world_node->add(asteroid->asteroid_node);
 }
 

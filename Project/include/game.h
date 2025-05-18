@@ -6,7 +6,9 @@
 #include "player.h"
 #include "shader.h"
 #include "camera.h"
+#include "light_projectile.h"
 #include "projectile.h"
+#include "asteroid.h"
 #include "texture.h"
 #include "textured_sphere.h"
 #include <GL/glew.h>
@@ -48,6 +50,7 @@ private:
   double x_mouse;
   double y_mouse;
   bool l_mouse_button_pressed = false;
+  bool r_mouse_button_pressed = false;
 
   Hud *hud;
   int window_width;
@@ -59,10 +62,15 @@ private:
   Node *projectile_node;
   double last_shoot_time;
 
+  // List of light active projectiles in the game
+  std::vector<LightProjectile *> light_projectiles;
+  Node *projectile_l_node;
+  double last_shoot_time_l;
+
   // Asteroids elements
   Shape *asteroid;
-  std::vector<Node *> asteorides_;
-  const size_t max_asteorides_ = 30;
+  std::vector<Asteroid *> asteroids_;
+  const size_t max_asteroids_ = 30;
   float asteroid_speed = -2.4f;
   int latence = 0;
 };

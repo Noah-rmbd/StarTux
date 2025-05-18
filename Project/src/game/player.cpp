@@ -40,3 +40,15 @@ void Player::updatePosition(){
     * glm::rotate(glm::mat4(1.0f), glm::radians(yAngle), glm::vec3(0.0f, 1.0f, 0.0f))
     * glm::rotate(glm::mat4(1.0f), glm::radians(zAngle), glm::vec3(0.0f, 0.0f, 1.0f));
 }
+
+void Player::increaseLife(){
+    if (life < 3){
+        life += 1;
+    }
+}
+
+void Player::increaseBullets(){
+    if (bullets < 10) {
+        bullets += 1;
+    }
+}

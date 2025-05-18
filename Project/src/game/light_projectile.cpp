@@ -1,12 +1,12 @@
 // projectile.cpp
-#include "projectile.h"
+#include "light_projectile.h"
 #include "shape.h"
 //#include <cmath>
 
-Projectile::Projectile(Shader* shader, glm::vec3 position, glm::vec3 direction, glm::vec3 cursor) {
+LightProjectile::LightProjectile(Shader* shader, glm::vec3 position, glm::vec3 direction, glm::vec3 cursor) {
     this->position = position;
     this->direction = glm::normalize(direction);
-    speed = 3.0f; // Projectile speed
+    speed = 6.0f; // Projectile speed
     active = true;
     cursorPosition = cursor;
     
@@ -16,7 +16,7 @@ Projectile::Projectile(Shader* shader, glm::vec3 position, glm::vec3 direction, 
     // Create node for the projectile
     glm::mat4 projectile_mat = 
         glm::translate(glm::mat4(1.0f), position) *
-        glm::scale(glm::mat4(1.0f), 0.05f * glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::scale(glm::mat4(1.0f), 0.02f * glm::vec3(1.0f, 1.0f, 1.0f));
     
     node = new Node(projectile_mat);
     node->add(projectile_shape);
@@ -25,29 +25,29 @@ Projectile::Projectile(Shader* shader, glm::vec3 position, glm::vec3 direction, 
     node->velocity_ = direction * speed;
 }
 
-Projectile::~Projectile() {
+LightProjectile::~LightProjectile() {
     // Shape will be deleted by the Node destructor
 }
 
-void Projectile::update(double currentTime) {
+void LightProjectile::update(double currentTime) {
     // Update position based on direction and speed
     position += direction * speed * 0.01f;
     
     // Update the node's transformation matrix
     node->transform_ = glm::translate(glm::mat4(1.0f), position) *
-                      glm::scale(glm::mat4(1.0f), 0.05f * glm::vec3(1.0f, 1.0f, 1.0f));
+                      glm::scale(glm::mat4(1.0f), 0.02f * glm::vec3(0.4f, 0.5f, 1.0f));
     
     // Deactivate the projectile if it's gone too far
-    if (position.z > 4.0f) {
+    if (position.z > 3.0f) {
         active = false;
     }
 }
 
-void Projectile::draw(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection) {
+void LightProjectile::draw(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection) {
     node->draw(model, view, projection);
 }
 
-bool Projectile::checkCollision(glm::vec3 asteroid_pos) {
+bool LightProjectile::checkCollision(glm::vec3 asteroid_pos) {
     // Simple collision detection - distance based
     double x = (position.x - asteroid_pos.x);
     double y = (position.y - asteroid_pos.y);

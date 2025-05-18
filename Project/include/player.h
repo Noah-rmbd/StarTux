@@ -12,6 +12,8 @@ class Player{
         Player(Shader* shader_program);
         ~Player();
         void updatePosition();
+        void increaseLife();
+        void increaseBullets();
 
         Shape* model;
         Shader* texture_shader;
@@ -29,6 +31,7 @@ class Player{
         float fps_correction = 1.0f;
 
         int life = 3;
+        int bullets = 10;
         double score = 0;
 
     private:
