@@ -25,7 +25,8 @@ class Player{
         float xAngle = 0.0f;
         float yAngle = 0.0f;
         float zAngle = 0.0f;
-        float movement_speed = 0.02f;
+        float movement_speed = 0.04f;
+        float fps_correction = 1.0f;
 
         int life = 3;
         double score = 0;

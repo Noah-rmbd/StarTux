@@ -1,4 +1,5 @@
 #include "game.h"
+#include "GLFW/glfw3.h"
 #include "glm/fwd.hpp"
 #include "hud.h"
 #include "projectile.h"
@@ -14,7 +15,7 @@
 #error "RESSOURCES_DIR not defined"
 #endif
 
-Game::Game(int width, int height) {
+Game::Game(int width, int height, int target_fps) {
   std::string shader_dir = SHADER_DIR;
   std::string textures_dir = TEXTURES_DIR;
   std::string ressources_dir = RESSOURCES_DIR;
@@ -23,6 +24,7 @@ Game::Game(int width, int height) {
   hud = new Hud(width, height);
   window_width = width;
   window_height = height;
+  targeted_fps = target_fps;
 
   // Player object
   phong_shader =
@@ -51,10 +53,10 @@ Game::Game(int width, int height) {
                   glm::vec3(1.0f, 0.0f, 0.0f));
   Node *environment_node = new Node(environment_mat);
   environment_node->add(environment_sphere);
-  
+
   // Asteroid model
-  Shape *asteroid =
-      new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
+  asteroid = new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
+  
   // Generates 20 asteroids
   for (int i = 0; i < 20; ++i) {
     // Random position
@@ -69,12 +71,13 @@ Game::Game(int width, int height) {
                     glm::vec3(1.0f, 0.0f, 0.0f)); // asteroid
 
     Node *a_node1 = new Node(asteroid_mat1);
-    a_node1->velocity_ = glm::vec3(0.0f, 0.0f, asteroid_speed);
+    a_node1->z_speed = &asteroid_speed;
+    a_node1->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
     a_node1->add(asteroid);
     // Add it to the world
     world_node->add(a_node1);
   }
-
+  
   // Add the player and the world to the scene root
   scene_root = new Node();
   scene_root->add(player->node);
@@ -90,12 +93,19 @@ Game::Game(int width, int height) {
   last_shoot_time = 0.0;
 }
 
-void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time) {
+void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps) {
   scene_root->draw(model, view, projection);
-  hud->update(player->life, player->score, time);
+  hud->update(player->life, player->score, time, -asteroid_speed*50, fps);
 }
 
-void Game::updateGame(double time) {
+void Game::updateGame(double time, int fps) {
+  // Adjust game speed to the number of fps
+  float fps_correction = 1.0f;
+  if (fps > 15) {
+    fps_correction = static_cast<float>(targeted_fps) / static_cast<float>(fps);
+    player->fps_correction = fps_correction;
+  }
+  std::cout << "FPS corr : " << fps_correction << " " << static_cast<float>(targeted_fps) << " " << static_cast<float>(fps) <<"\n";
   // Generates new asteroids
   if (latence == 0) {
     spawn_rectangle();
@@ -105,7 +115,7 @@ void Game::updateGame(double time) {
   }
 
   // Moves the world forward
-  world_node->animation();
+  world_node->animation(fps_correction);
 
   // Verify collisions
   for (Node *child : world_node->children_) {
@@ -133,7 +143,13 @@ void Game::updateGame(double time) {
 
   // Every 1000 points, the ship speed increases
   if(static_cast<int>(player->score) % 1000 == 0) {
-    asteroid_speed -= 0.1;
+    if (player->score > 20000.0) {
+      asteroid_speed -= 0.8;
+    } else if(player->score > 10000.0) {
+      asteroid_speed -= 0.6;
+    } else {
+      asteroid_speed -= 0.4;
+    }
   }
 
   // Adds dialogs
@@ -166,6 +182,7 @@ void Game::updateGame(double time) {
     }
   }
 }
+
 void Game::mouse_callback(double xpos, double ypos){
   if(xpos < 0.0){
     xpos = 0.0;
@@ -184,13 +201,23 @@ void Game::mouse_callback(double xpos, double ypos){
   hud->mouse(xpos, ypos);
 }
 
+void Game::mouse_button_callback(int button, int action, double xpos, double ypos, double time){
+  mouse_callback(xpos, ypos);
+  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    l_mouse_button_pressed = true;
+  } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE){
+    l_mouse_button_pressed = false;
+  }
+}
+
 void Game::keyHandler(
     std::unordered_map<int, std::pair<bool, double>> keyStates, double time) {
   float smoother = 0.0f;
-  float speed = player->movement_speed;
+  float speed = player->movement_speed * player->fps_correction;
 
-  // Add new shoot to the projectile list
-  if (keyStates[GLFW_KEY_G].first) {
+  
+  if (l_mouse_button_pressed) {
+    // Add new shoot to the projectile list
     if (projectiles.size() < 10) {
       double xpos = (x_mouse / (window_width)) - 0.5;
       double ypos = (y_mouse / (window_height)) - 0.5;
@@ -198,13 +225,20 @@ void Game::keyHandler(
       glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.2f); 
       glm::vec3 shoot_direction = glm::vec3(-xpos+camera.cameraPos.x-player->position.x, -ypos+camera.cameraPos.y-player->position.y, 1.0f);
       // Shooting cooldown
-      if (last_shoot_time == 0.0 || time-last_shoot_time > 0.5) {
+      if (last_shoot_time == 0.0 || time-last_shoot_time > 1.0) {
         Projectile *new_shot = new Projectile(phong_shader, shoot_position, shoot_direction, glm::vec3(x_mouse, y_mouse, 0.0f));
         projectiles.push_back(new_shot);
         scene_root->add(new_shot->node);
         last_shoot_time = time;
       }
     }
+  }
+
+  if (keyStates[GLFW_KEY_W].first) {
+    asteroid_speed -= 1.0f;
+  }
+  if (keyStates[GLFW_KEY_S].first) {
+    asteroid_speed += 1.0f;
   }
 
   if (keyStates[GLFW_KEY_U].first) { // Move Forward
@@ -416,12 +450,6 @@ void Game::keyHandler(
 }
 
 void Game::spawn_rectangle() {
-  std::string ressources_dir = RESSOURCES_DIR;
-  // Clone de l'astéroïde
-  Shape *asteroid =
-      new ShapeModel(ressources_dir + "Asteroid.obj",
-                     phong_shader); // appel du constructeur de copie
-
   // Position aléatoire
   float posX = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
   float posY = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
@@ -432,11 +460,11 @@ void Game::spawn_rectangle() {
       glm::scale(glm::mat4(1.0f), 0.006f * glm::vec3(1.0f, 1.0f, 1.0f)) *
       glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
                   glm::vec3(1.0f, 0.0f, 0.0f));
-  // Teste
-  // std::cout << "Spawning at position: (" << posX << ", " << posY << ",
-  // -2.0)"<< std::endl;
+  
   Node *rectNode = new Node(asteroid_mat);
-  rectNode->velocity_ = glm::vec3(0.0f, 0.0f, asteroid_speed);
+
+  rectNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+  rectNode->z_speed = &asteroid_speed;
   rectNode->add(asteroid);
 
   world_node->add(rectNode);

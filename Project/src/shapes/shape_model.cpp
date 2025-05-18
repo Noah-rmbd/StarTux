@@ -15,7 +15,7 @@ ShapeModel::ShapeModel(const std::string &filepath, Shader *shader_program)
   object_color_loc = glGetUniformLocation(this->shader_program_, "objectColor");
 
   // Set default values for phong lighting
-  light_position = glm::vec3(1.0f, 1.0f, 1.0f);
+  light_position = glm::vec3(1.0f, 1.0f, -1.0f);
   light_color = glm::vec3(1.0f, 1.0f, 1.0f);
   object_color = glm::vec3(0.0f, 0.0f, 1.0f); // Blue color
 

@@ -10,7 +10,7 @@ class Hud {
     public:
         Hud(int width, int height);
         //~Hud();
-        void update(int life, double score, double time);
+        void update(int life, double score, double time, int speed, int fps);
         void mouse(double xpos, double ypos);
         void newDialog(int number, double time);
         void scoreIncrement(int xpos, int ypos, double time);

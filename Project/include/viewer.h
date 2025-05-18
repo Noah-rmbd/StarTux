@@ -37,8 +37,10 @@ public:
 
 private:
     GLFWwindow *win;
-    bool startGame = false;
     Texture* startScreenImage;
+    
+    bool startGame = false;
+    int target_FPS = 30;
 
     // Store key states
     std::unordered_map<int, std::pair<bool, double>> keyStates;
