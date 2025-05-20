@@ -48,27 +48,27 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/bin/cmake
+CMAKE_COMMAND = /usr/local/bin/cmake
 
 # The command to remove a file.
-RM = /usr/bin/cmake -E rm -f
+RM = /usr/local/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/home/moua/Documents/Polytech/Ingé 1/S2/Computer_Graphics/StarTux/Project"
+CMAKE_SOURCE_DIR = /home/banzaiaiai/Documents/programation/opengl/ProjectGlobal/StarTux/Project
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/home/moua/Documents/Polytech/Ingé 1/S2/Computer_Graphics/StarTux/Project"
+CMAKE_BINARY_DIR = /home/banzaiaiai/Documents/programation/opengl/ProjectGlobal/StarTux/Project
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
+	/usr/local/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -78,7 +78,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/usr/local/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -97,44 +97,44 @@ list_install_components/fast: list_install_components
 # Special rule for the target install
 install: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
+	/usr/local/bin/cmake -P cmake_install.cmake
 .PHONY : install
 
 # Special rule for the target install
 install/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
+	/usr/local/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
 
 # Special rule for the target install/local
 install/local: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+	/usr/local/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local
 
 # Special rule for the target install/local
 install/local/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+	/usr/local/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local/fast
 
 # Special rule for the target install/strip
 install/strip: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
-	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+	/usr/local/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip
 
 # Special rule for the target install/strip
 install/strip/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
-	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+	/usr/local/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/moua/Documents/Polytech/Ingé 1/S2/Computer_Graphics/StarTux/Project/CMakeFiles" "/home/moua/Documents/Polytech/Ingé 1/S2/Computer_Graphics/StarTux/Project//CMakeFiles/progress.marks"
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/banzaiaiai/Documents/programation/opengl/ProjectGlobal/StarTux/Project/CMakeFiles /home/banzaiaiai/Documents/programation/opengl/ProjectGlobal/StarTux/Project//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/moua/Documents/Polytech/Ingé 1/S2/Computer_Graphics/StarTux/Project/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/banzaiaiai/Documents/programation/opengl/ProjectGlobal/StarTux/Project/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -173,6 +173,19 @@ opengl_program: cmake_check_build_system
 opengl_program/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/build
 .PHONY : opengl_program/fast
+
+#=============================================================================
+# Target rules for targets named run
+
+# Build rule for target.
+run: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 run
+.PHONY : run
+
+# fast build rule for target.
+run/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/build
+.PHONY : run/fast
 
 #=============================================================================
 # Target rules for targets named libglew_static
@@ -239,101 +252,269 @@ update_mappings/fast:
 	$(MAKE) $(MAKESILENT) -f external/glfw/src/CMakeFiles/update_mappings.dir/build.make external/glfw/src/CMakeFiles/update_mappings.dir/build
 .PHONY : update_mappings/fast
 
-src/camera.o: src/camera.cpp.o
-.PHONY : src/camera.o
+src/game/asteroid.o: src/game/asteroid.cpp.o
+.PHONY : src/game/asteroid.o
 
 # target to build an object file
-src/camera.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/camera.cpp.o
-.PHONY : src/camera.cpp.o
+src/game/asteroid.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/asteroid.cpp.o
+.PHONY : src/game/asteroid.cpp.o
 
-src/camera.i: src/camera.cpp.i
-.PHONY : src/camera.i
+src/game/asteroid.i: src/game/asteroid.cpp.i
+.PHONY : src/game/asteroid.i
 
 # target to preprocess a source file
-src/camera.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/camera.cpp.i
-.PHONY : src/camera.cpp.i
+src/game/asteroid.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/asteroid.cpp.i
+.PHONY : src/game/asteroid.cpp.i
 
-src/camera.s: src/camera.cpp.s
-.PHONY : src/camera.s
+src/game/asteroid.s: src/game/asteroid.cpp.s
+.PHONY : src/game/asteroid.s
 
 # target to generate assembly for a file
-src/camera.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/camera.cpp.s
-.PHONY : src/camera.cpp.s
+src/game/asteroid.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/asteroid.cpp.s
+.PHONY : src/game/asteroid.cpp.s
 
-src/cylinder.o: src/cylinder.cpp.o
-.PHONY : src/cylinder.o
+src/game/camera.o: src/game/camera.cpp.o
+.PHONY : src/game/camera.o
 
 # target to build an object file
-src/cylinder.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/cylinder.cpp.o
-.PHONY : src/cylinder.cpp.o
+src/game/camera.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/camera.cpp.o
+.PHONY : src/game/camera.cpp.o
 
-src/cylinder.i: src/cylinder.cpp.i
-.PHONY : src/cylinder.i
+src/game/camera.i: src/game/camera.cpp.i
+.PHONY : src/game/camera.i
 
 # target to preprocess a source file
-src/cylinder.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/cylinder.cpp.i
-.PHONY : src/cylinder.cpp.i
+src/game/camera.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/camera.cpp.i
+.PHONY : src/game/camera.cpp.i
 
-src/cylinder.s: src/cylinder.cpp.s
-.PHONY : src/cylinder.s
+src/game/camera.s: src/game/camera.cpp.s
+.PHONY : src/game/camera.s
 
 # target to generate assembly for a file
-src/cylinder.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/cylinder.cpp.s
-.PHONY : src/cylinder.cpp.s
+src/game/camera.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/camera.cpp.s
+.PHONY : src/game/camera.cpp.s
 
-src/game.o: src/game.cpp.o
-.PHONY : src/game.o
+src/game/game.o: src/game/game.cpp.o
+.PHONY : src/game/game.o
 
 # target to build an object file
-src/game.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game.cpp.o
-.PHONY : src/game.cpp.o
+src/game/game.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/game.cpp.o
+.PHONY : src/game/game.cpp.o
 
-src/game.i: src/game.cpp.i
-.PHONY : src/game.i
+src/game/game.i: src/game/game.cpp.i
+.PHONY : src/game/game.i
 
 # target to preprocess a source file
-src/game.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game.cpp.i
-.PHONY : src/game.cpp.i
+src/game/game.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/game.cpp.i
+.PHONY : src/game/game.cpp.i
 
-src/game.s: src/game.cpp.s
-.PHONY : src/game.s
+src/game/game.s: src/game/game.cpp.s
+.PHONY : src/game/game.s
 
 # target to generate assembly for a file
-src/game.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game.cpp.s
-.PHONY : src/game.cpp.s
+src/game/game.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/game.cpp.s
+.PHONY : src/game/game.cpp.s
 
-src/lighting_sphere.o: src/lighting_sphere.cpp.o
-.PHONY : src/lighting_sphere.o
+src/game/light_projectile.o: src/game/light_projectile.cpp.o
+.PHONY : src/game/light_projectile.o
 
 # target to build an object file
-src/lighting_sphere.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/lighting_sphere.cpp.o
-.PHONY : src/lighting_sphere.cpp.o
+src/game/light_projectile.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/light_projectile.cpp.o
+.PHONY : src/game/light_projectile.cpp.o
 
-src/lighting_sphere.i: src/lighting_sphere.cpp.i
-.PHONY : src/lighting_sphere.i
+src/game/light_projectile.i: src/game/light_projectile.cpp.i
+.PHONY : src/game/light_projectile.i
 
 # target to preprocess a source file
-src/lighting_sphere.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/lighting_sphere.cpp.i
-.PHONY : src/lighting_sphere.cpp.i
+src/game/light_projectile.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/light_projectile.cpp.i
+.PHONY : src/game/light_projectile.cpp.i
 
-src/lighting_sphere.s: src/lighting_sphere.cpp.s
-.PHONY : src/lighting_sphere.s
+src/game/light_projectile.s: src/game/light_projectile.cpp.s
+.PHONY : src/game/light_projectile.s
 
 # target to generate assembly for a file
-src/lighting_sphere.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/lighting_sphere.cpp.s
-.PHONY : src/lighting_sphere.cpp.s
+src/game/light_projectile.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/light_projectile.cpp.s
+.PHONY : src/game/light_projectile.cpp.s
+
+src/game/player.o: src/game/player.cpp.o
+.PHONY : src/game/player.o
+
+# target to build an object file
+src/game/player.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/player.cpp.o
+.PHONY : src/game/player.cpp.o
+
+src/game/player.i: src/game/player.cpp.i
+.PHONY : src/game/player.i
+
+# target to preprocess a source file
+src/game/player.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/player.cpp.i
+.PHONY : src/game/player.cpp.i
+
+src/game/player.s: src/game/player.cpp.s
+.PHONY : src/game/player.s
+
+# target to generate assembly for a file
+src/game/player.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/player.cpp.s
+.PHONY : src/game/player.cpp.s
+
+src/game/projectile.o: src/game/projectile.cpp.o
+.PHONY : src/game/projectile.o
+
+# target to build an object file
+src/game/projectile.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/projectile.cpp.o
+.PHONY : src/game/projectile.cpp.o
+
+src/game/projectile.i: src/game/projectile.cpp.i
+.PHONY : src/game/projectile.i
+
+# target to preprocess a source file
+src/game/projectile.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/projectile.cpp.i
+.PHONY : src/game/projectile.cpp.i
+
+src/game/projectile.s: src/game/projectile.cpp.s
+.PHONY : src/game/projectile.s
+
+# target to generate assembly for a file
+src/game/projectile.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/projectile.cpp.s
+.PHONY : src/game/projectile.cpp.s
+
+src/graphics/shader.o: src/graphics/shader.cpp.o
+.PHONY : src/graphics/shader.o
+
+# target to build an object file
+src/graphics/shader.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/shader.cpp.o
+.PHONY : src/graphics/shader.cpp.o
+
+src/graphics/shader.i: src/graphics/shader.cpp.i
+.PHONY : src/graphics/shader.i
+
+# target to preprocess a source file
+src/graphics/shader.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/shader.cpp.i
+.PHONY : src/graphics/shader.cpp.i
+
+src/graphics/shader.s: src/graphics/shader.cpp.s
+.PHONY : src/graphics/shader.s
+
+# target to generate assembly for a file
+src/graphics/shader.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/shader.cpp.s
+.PHONY : src/graphics/shader.cpp.s
+
+src/graphics/texture.o: src/graphics/texture.cpp.o
+.PHONY : src/graphics/texture.o
+
+# target to build an object file
+src/graphics/texture.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/texture.cpp.o
+.PHONY : src/graphics/texture.cpp.o
+
+src/graphics/texture.i: src/graphics/texture.cpp.i
+.PHONY : src/graphics/texture.i
+
+# target to preprocess a source file
+src/graphics/texture.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/texture.cpp.i
+.PHONY : src/graphics/texture.cpp.i
+
+src/graphics/texture.s: src/graphics/texture.cpp.s
+.PHONY : src/graphics/texture.s
+
+# target to generate assembly for a file
+src/graphics/texture.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/texture.cpp.s
+.PHONY : src/graphics/texture.cpp.s
+
+src/interfaces/hud.o: src/interfaces/hud.cpp.o
+.PHONY : src/interfaces/hud.o
+
+# target to build an object file
+src/interfaces/hud.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/interfaces/hud.cpp.o
+.PHONY : src/interfaces/hud.cpp.o
+
+src/interfaces/hud.i: src/interfaces/hud.cpp.i
+.PHONY : src/interfaces/hud.i
+
+# target to preprocess a source file
+src/interfaces/hud.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/interfaces/hud.cpp.i
+.PHONY : src/interfaces/hud.cpp.i
+
+src/interfaces/hud.s: src/interfaces/hud.cpp.s
+.PHONY : src/interfaces/hud.s
+
+# target to generate assembly for a file
+src/interfaces/hud.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/interfaces/hud.cpp.s
+.PHONY : src/interfaces/hud.cpp.s
+
+src/interfaces/interface.o: src/interfaces/interface.cpp.o
+.PHONY : src/interfaces/interface.o
+
+# target to build an object file
+src/interfaces/interface.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/interfaces/interface.cpp.o
+.PHONY : src/interfaces/interface.cpp.o
+
+src/interfaces/interface.i: src/interfaces/interface.cpp.i
+.PHONY : src/interfaces/interface.i
+
+# target to preprocess a source file
+src/interfaces/interface.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/interfaces/interface.cpp.i
+.PHONY : src/interfaces/interface.cpp.i
+
+src/interfaces/interface.s: src/interfaces/interface.cpp.s
+.PHONY : src/interfaces/interface.s
+
+# target to generate assembly for a file
+src/interfaces/interface.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/interfaces/interface.cpp.s
+.PHONY : src/interfaces/interface.cpp.s
+
+src/interfaces/startup_screen.o: src/interfaces/startup_screen.cpp.o
+.PHONY : src/interfaces/startup_screen.o
+
+# target to build an object file
+src/interfaces/startup_screen.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/interfaces/startup_screen.cpp.o
+.PHONY : src/interfaces/startup_screen.cpp.o
+
+src/interfaces/startup_screen.i: src/interfaces/startup_screen.cpp.i
+.PHONY : src/interfaces/startup_screen.i
+
+# target to preprocess a source file
+src/interfaces/startup_screen.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/interfaces/startup_screen.cpp.i
+.PHONY : src/interfaces/startup_screen.cpp.i
+
+src/interfaces/startup_screen.s: src/interfaces/startup_screen.cpp.s
+.PHONY : src/interfaces/startup_screen.s
+
+# target to generate assembly for a file
+src/interfaces/startup_screen.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/interfaces/startup_screen.cpp.s
+.PHONY : src/interfaces/startup_screen.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -383,221 +564,125 @@ src/node.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/node.cpp.s
 .PHONY : src/node.cpp.s
 
-src/player.o: src/player.cpp.o
-.PHONY : src/player.o
+src/shapes/lighting_sphere.o: src/shapes/lighting_sphere.cpp.o
+.PHONY : src/shapes/lighting_sphere.o
 
 # target to build an object file
-src/player.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/player.cpp.o
-.PHONY : src/player.cpp.o
+src/shapes/lighting_sphere.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/lighting_sphere.cpp.o
+.PHONY : src/shapes/lighting_sphere.cpp.o
 
-src/player.i: src/player.cpp.i
-.PHONY : src/player.i
+src/shapes/lighting_sphere.i: src/shapes/lighting_sphere.cpp.i
+.PHONY : src/shapes/lighting_sphere.i
 
 # target to preprocess a source file
-src/player.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/player.cpp.i
-.PHONY : src/player.cpp.i
+src/shapes/lighting_sphere.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/lighting_sphere.cpp.i
+.PHONY : src/shapes/lighting_sphere.cpp.i
 
-src/player.s: src/player.cpp.s
-.PHONY : src/player.s
+src/shapes/lighting_sphere.s: src/shapes/lighting_sphere.cpp.s
+.PHONY : src/shapes/lighting_sphere.s
 
 # target to generate assembly for a file
-src/player.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/player.cpp.s
-.PHONY : src/player.cpp.s
+src/shapes/lighting_sphere.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/lighting_sphere.cpp.s
+.PHONY : src/shapes/lighting_sphere.cpp.s
 
-src/pyramid.o: src/pyramid.cpp.o
-.PHONY : src/pyramid.o
+src/shapes/shape.o: src/shapes/shape.cpp.o
+.PHONY : src/shapes/shape.o
 
 # target to build an object file
-src/pyramid.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/pyramid.cpp.o
-.PHONY : src/pyramid.cpp.o
+src/shapes/shape.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/shape.cpp.o
+.PHONY : src/shapes/shape.cpp.o
 
-src/pyramid.i: src/pyramid.cpp.i
-.PHONY : src/pyramid.i
+src/shapes/shape.i: src/shapes/shape.cpp.i
+.PHONY : src/shapes/shape.i
 
 # target to preprocess a source file
-src/pyramid.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/pyramid.cpp.i
-.PHONY : src/pyramid.cpp.i
+src/shapes/shape.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/shape.cpp.i
+.PHONY : src/shapes/shape.cpp.i
 
-src/pyramid.s: src/pyramid.cpp.s
-.PHONY : src/pyramid.s
+src/shapes/shape.s: src/shapes/shape.cpp.s
+.PHONY : src/shapes/shape.s
 
 # target to generate assembly for a file
-src/pyramid.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/pyramid.cpp.s
-.PHONY : src/pyramid.cpp.s
+src/shapes/shape.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/shape.cpp.s
+.PHONY : src/shapes/shape.cpp.s
 
-src/shader.o: src/shader.cpp.o
-.PHONY : src/shader.o
+src/shapes/shape_model.o: src/shapes/shape_model.cpp.o
+.PHONY : src/shapes/shape_model.o
 
 # target to build an object file
-src/shader.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shader.cpp.o
-.PHONY : src/shader.cpp.o
+src/shapes/shape_model.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/shape_model.cpp.o
+.PHONY : src/shapes/shape_model.cpp.o
 
-src/shader.i: src/shader.cpp.i
-.PHONY : src/shader.i
+src/shapes/shape_model.i: src/shapes/shape_model.cpp.i
+.PHONY : src/shapes/shape_model.i
 
 # target to preprocess a source file
-src/shader.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shader.cpp.i
-.PHONY : src/shader.cpp.i
+src/shapes/shape_model.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/shape_model.cpp.i
+.PHONY : src/shapes/shape_model.cpp.i
 
-src/shader.s: src/shader.cpp.s
-.PHONY : src/shader.s
+src/shapes/shape_model.s: src/shapes/shape_model.cpp.s
+.PHONY : src/shapes/shape_model.s
 
 # target to generate assembly for a file
-src/shader.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shader.cpp.s
-.PHONY : src/shader.cpp.s
+src/shapes/shape_model.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/shape_model.cpp.s
+.PHONY : src/shapes/shape_model.cpp.s
 
-src/shape.o: src/shape.cpp.o
-.PHONY : src/shape.o
+src/shapes/sphere.o: src/shapes/sphere.cpp.o
+.PHONY : src/shapes/sphere.o
 
 # target to build an object file
-src/shape.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shape.cpp.o
-.PHONY : src/shape.cpp.o
+src/shapes/sphere.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/sphere.cpp.o
+.PHONY : src/shapes/sphere.cpp.o
 
-src/shape.i: src/shape.cpp.i
-.PHONY : src/shape.i
+src/shapes/sphere.i: src/shapes/sphere.cpp.i
+.PHONY : src/shapes/sphere.i
 
 # target to preprocess a source file
-src/shape.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shape.cpp.i
-.PHONY : src/shape.cpp.i
+src/shapes/sphere.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/sphere.cpp.i
+.PHONY : src/shapes/sphere.cpp.i
 
-src/shape.s: src/shape.cpp.s
-.PHONY : src/shape.s
+src/shapes/sphere.s: src/shapes/sphere.cpp.s
+.PHONY : src/shapes/sphere.s
 
 # target to generate assembly for a file
-src/shape.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shape.cpp.s
-.PHONY : src/shape.cpp.s
+src/shapes/sphere.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/sphere.cpp.s
+.PHONY : src/shapes/sphere.cpp.s
 
-src/shape_model.o: src/shape_model.cpp.o
-.PHONY : src/shape_model.o
+src/shapes/textured_sphere.o: src/shapes/textured_sphere.cpp.o
+.PHONY : src/shapes/textured_sphere.o
 
 # target to build an object file
-src/shape_model.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shape_model.cpp.o
-.PHONY : src/shape_model.cpp.o
+src/shapes/textured_sphere.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/textured_sphere.cpp.o
+.PHONY : src/shapes/textured_sphere.cpp.o
 
-src/shape_model.i: src/shape_model.cpp.i
-.PHONY : src/shape_model.i
-
-# target to preprocess a source file
-src/shape_model.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shape_model.cpp.i
-.PHONY : src/shape_model.cpp.i
-
-src/shape_model.s: src/shape_model.cpp.s
-.PHONY : src/shape_model.s
-
-# target to generate assembly for a file
-src/shape_model.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shape_model.cpp.s
-.PHONY : src/shape_model.cpp.s
-
-src/sphere.o: src/sphere.cpp.o
-.PHONY : src/sphere.o
-
-# target to build an object file
-src/sphere.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/sphere.cpp.o
-.PHONY : src/sphere.cpp.o
-
-src/sphere.i: src/sphere.cpp.i
-.PHONY : src/sphere.i
+src/shapes/textured_sphere.i: src/shapes/textured_sphere.cpp.i
+.PHONY : src/shapes/textured_sphere.i
 
 # target to preprocess a source file
-src/sphere.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/sphere.cpp.i
-.PHONY : src/sphere.cpp.i
+src/shapes/textured_sphere.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/textured_sphere.cpp.i
+.PHONY : src/shapes/textured_sphere.cpp.i
 
-src/sphere.s: src/sphere.cpp.s
-.PHONY : src/sphere.s
-
-# target to generate assembly for a file
-src/sphere.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/sphere.cpp.s
-.PHONY : src/sphere.cpp.s
-
-src/texture.o: src/texture.cpp.o
-.PHONY : src/texture.o
-
-# target to build an object file
-src/texture.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/texture.cpp.o
-.PHONY : src/texture.cpp.o
-
-src/texture.i: src/texture.cpp.i
-.PHONY : src/texture.i
-
-# target to preprocess a source file
-src/texture.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/texture.cpp.i
-.PHONY : src/texture.cpp.i
-
-src/texture.s: src/texture.cpp.s
-.PHONY : src/texture.s
+src/shapes/textured_sphere.s: src/shapes/textured_sphere.cpp.s
+.PHONY : src/shapes/textured_sphere.s
 
 # target to generate assembly for a file
-src/texture.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/texture.cpp.s
-.PHONY : src/texture.cpp.s
-
-src/textured_sphere.o: src/textured_sphere.cpp.o
-.PHONY : src/textured_sphere.o
-
-# target to build an object file
-src/textured_sphere.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/textured_sphere.cpp.o
-.PHONY : src/textured_sphere.cpp.o
-
-src/textured_sphere.i: src/textured_sphere.cpp.i
-.PHONY : src/textured_sphere.i
-
-# target to preprocess a source file
-src/textured_sphere.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/textured_sphere.cpp.i
-.PHONY : src/textured_sphere.cpp.i
-
-src/textured_sphere.s: src/textured_sphere.cpp.s
-.PHONY : src/textured_sphere.s
-
-# target to generate assembly for a file
-src/textured_sphere.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/textured_sphere.cpp.s
-.PHONY : src/textured_sphere.cpp.s
-
-src/triangle.o: src/triangle.cpp.o
-.PHONY : src/triangle.o
-
-# target to build an object file
-src/triangle.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/triangle.cpp.o
-.PHONY : src/triangle.cpp.o
-
-src/triangle.i: src/triangle.cpp.i
-.PHONY : src/triangle.i
-
-# target to preprocess a source file
-src/triangle.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/triangle.cpp.i
-.PHONY : src/triangle.cpp.i
-
-src/triangle.s: src/triangle.cpp.s
-.PHONY : src/triangle.s
-
-# target to generate assembly for a file
-src/triangle.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/triangle.cpp.s
-.PHONY : src/triangle.cpp.s
+src/shapes/textured_sphere.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/textured_sphere.cpp.s
+.PHONY : src/shapes/textured_sphere.cpp.s
 
 src/viewer.o: src/viewer.cpp.o
 .PHONY : src/viewer.o
@@ -635,57 +720,67 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... run"
 	@echo "... uninstall"
 	@echo "... update_mappings"
 	@echo "... glfw"
 	@echo "... libglew_shared"
 	@echo "... libglew_static"
 	@echo "... opengl_program"
-	@echo "... src/camera.o"
-	@echo "... src/camera.i"
-	@echo "... src/camera.s"
-	@echo "... src/cylinder.o"
-	@echo "... src/cylinder.i"
-	@echo "... src/cylinder.s"
-	@echo "... src/game.o"
-	@echo "... src/game.i"
-	@echo "... src/game.s"
-	@echo "... src/lighting_sphere.o"
-	@echo "... src/lighting_sphere.i"
-	@echo "... src/lighting_sphere.s"
+	@echo "... src/game/asteroid.o"
+	@echo "... src/game/asteroid.i"
+	@echo "... src/game/asteroid.s"
+	@echo "... src/game/camera.o"
+	@echo "... src/game/camera.i"
+	@echo "... src/game/camera.s"
+	@echo "... src/game/game.o"
+	@echo "... src/game/game.i"
+	@echo "... src/game/game.s"
+	@echo "... src/game/light_projectile.o"
+	@echo "... src/game/light_projectile.i"
+	@echo "... src/game/light_projectile.s"
+	@echo "... src/game/player.o"
+	@echo "... src/game/player.i"
+	@echo "... src/game/player.s"
+	@echo "... src/game/projectile.o"
+	@echo "... src/game/projectile.i"
+	@echo "... src/game/projectile.s"
+	@echo "... src/graphics/shader.o"
+	@echo "... src/graphics/shader.i"
+	@echo "... src/graphics/shader.s"
+	@echo "... src/graphics/texture.o"
+	@echo "... src/graphics/texture.i"
+	@echo "... src/graphics/texture.s"
+	@echo "... src/interfaces/hud.o"
+	@echo "... src/interfaces/hud.i"
+	@echo "... src/interfaces/hud.s"
+	@echo "... src/interfaces/interface.o"
+	@echo "... src/interfaces/interface.i"
+	@echo "... src/interfaces/interface.s"
+	@echo "... src/interfaces/startup_screen.o"
+	@echo "... src/interfaces/startup_screen.i"
+	@echo "... src/interfaces/startup_screen.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
 	@echo "... src/node.o"
 	@echo "... src/node.i"
 	@echo "... src/node.s"
-	@echo "... src/player.o"
-	@echo "... src/player.i"
-	@echo "... src/player.s"
-	@echo "... src/pyramid.o"
-	@echo "... src/pyramid.i"
-	@echo "... src/pyramid.s"
-	@echo "... src/shader.o"
-	@echo "... src/shader.i"
-	@echo "... src/shader.s"
-	@echo "... src/shape.o"
-	@echo "... src/shape.i"
-	@echo "... src/shape.s"
-	@echo "... src/shape_model.o"
-	@echo "... src/shape_model.i"
-	@echo "... src/shape_model.s"
-	@echo "... src/sphere.o"
-	@echo "... src/sphere.i"
-	@echo "... src/sphere.s"
-	@echo "... src/texture.o"
-	@echo "... src/texture.i"
-	@echo "... src/texture.s"
-	@echo "... src/textured_sphere.o"
-	@echo "... src/textured_sphere.i"
-	@echo "... src/textured_sphere.s"
-	@echo "... src/triangle.o"
-	@echo "... src/triangle.i"
-	@echo "... src/triangle.s"
+	@echo "... src/shapes/lighting_sphere.o"
+	@echo "... src/shapes/lighting_sphere.i"
+	@echo "... src/shapes/lighting_sphere.s"
+	@echo "... src/shapes/shape.o"
+	@echo "... src/shapes/shape.i"
+	@echo "... src/shapes/shape.s"
+	@echo "... src/shapes/shape_model.o"
+	@echo "... src/shapes/shape_model.i"
+	@echo "... src/shapes/shape_model.s"
+	@echo "... src/shapes/sphere.o"
+	@echo "... src/shapes/sphere.i"
+	@echo "... src/shapes/sphere.s"
+	@echo "... src/shapes/textured_sphere.o"
+	@echo "... src/shapes/textured_sphere.i"
+	@echo "... src/shapes/textured_sphere.s"
 	@echo "... src/viewer.o"
 	@echo "... src/viewer.i"
 	@echo "... src/viewer.s"
@@ -703,7 +798,3 @@ cmake_check_build_system:
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 
-#=============================================================================
-# Commande pour exécuter après compilation
-run: all
-	./opengl_program
