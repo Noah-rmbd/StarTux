@@ -32,22 +32,19 @@ public:
     float windowWidth;
     float windowHeight;
 
-    Node *scene_root;
-    Camera camera;
     Game *game;
     StartupScreen *startup_screen;
-    Hud *hud;
-
 
 private:
-  GLFWwindow *win;
-
-    bool startGame = false;
+    GLFWwindow *win;
     Texture* startScreenImage;
-    std::vector<Node *> asteorides_;
+    
+    bool startGame = false;
+    int target_FPS = 30;
 
     // Store key states
     std::unordered_map<int, std::pair<bool, double>> keyStates;
+    // Input handlers
     static void key_callback_static(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void mouse_callback_static(GLFWwindow* window, double xpos, double ypos);
     static void mouse_button_callback_static(GLFWwindow* window, int button, int action, int mods);

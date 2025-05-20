@@ -6,9 +6,9 @@ project(OpenGLProgram)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find Assimp package
+# Find external packages
 find_package(assimp REQUIRED)
-find_package(Freetype REQUIRED) 
+find_package(Freetype REQUIRED)
 
 # Set directories
 set(SRC_DIR src)
@@ -18,62 +18,67 @@ set(GLEW_DIR ${EXTERNAL_DIR}/glew-cmake)
 set(GLFW_DIR ${EXTERNAL_DIR}/glfw)
 set(GLM_DIR ${EXTERNAL_DIR}/glm)
 
-# Include directories
-include_directories(${INCLUDE_DIR})
-include_directories(${GLEW_DIR}/include)
-include_directories(${GLFW_DIR}/include)
-include_directories(${GLM_DIR})
-include_directories(${ASSIMP_INCLUDE_DIRS})
-include_directories(${FREETYPE_INCLUDE_DIRS})
-
 # Source files
 set(SOURCES
     ${SRC_DIR}/main.cpp
     ${SRC_DIR}/node.cpp
-    ${SRC_DIR}/shape.cpp
-    ${SRC_DIR}/shader.cpp
+    ${SRC_DIR}/shapes/shape.cpp
+    ${SRC_DIR}/graphics/shader.cpp
     ${SRC_DIR}/viewer.cpp
-    ${SRC_DIR}/camera.cpp
-    ${SRC_DIR}/game.cpp
-    ${SRC_DIR}/player.cpp
-    ${SRC_DIR}/triangle.cpp
-    ${SRC_DIR}/pyramid.cpp
-    ${SRC_DIR}/cylinder.cpp
-    ${SRC_DIR}/shape_model.cpp
-    ${SRC_DIR}/sphere.cpp
-    ${SRC_DIR}/texture.cpp
-    ${SRC_DIR}/textured_sphere.cpp
-    ${SRC_DIR}/lighting_sphere.cpp
-    ${SRC_DIR}/interface.cpp
-    ${SRC_DIR}/startup_screen.cpp
-    ${SRC_DIR}/hud.cpp
-
+    ${SRC_DIR}/game/camera.cpp
+    ${SRC_DIR}/game/game.cpp
+    ${SRC_DIR}/game/player.cpp
+    ${SRC_DIR}/game/light_projectile.cpp
+    ${SRC_DIR}/game/projectile.cpp
+    ${SRC_DIR}/game/asteroid.cpp
+    ${SRC_DIR}/shapes/shape_model.cpp
+    ${SRC_DIR}/shapes/sphere.cpp
+    ${SRC_DIR}/graphics/texture.cpp
+    ${SRC_DIR}/shapes/textured_sphere.cpp
+    ${SRC_DIR}/shapes/lighting_sphere.cpp
+    ${SRC_DIR}/interfaces/interface.cpp
+    ${SRC_DIR}/interfaces/startup_screen.cpp
+    ${SRC_DIR}/interfaces/hud.cpp
 )
 
-# Define Shader director
+# Shader and resources directories as compile-time definitions
 add_compile_definitions(SHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/shaders/")
 add_compile_definitions(TEXTURES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/textures/")
 add_compile_definitions(RESSOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/ressources/")
 
-# GLEW library
+# Add external subdirectories
 add_subdirectory(${GLEW_DIR})
-set(LIBS ${LIBS} libglew_static)
-
-# GLFW library
 add_subdirectory(${GLFW_DIR})
-set(LIBS ${LIBS} glfw)
+add_subdirectory(${GLM_DIR})  # GLM is header-only, but this ensures it is set up
 
-# GLM library
-add_subdirectory(${GLM_DIR})
-
-# Executable
+# Define executable
 add_executable(opengl_program ${SOURCES})
-target_link_libraries(opengl_program ${LIBS})
-target_link_libraries(opengl_program ${ASSIMP_LIBRARIES})
-target_link_libraries(opengl_program ${FREETYPE_LIBRARIES})
 
+# Include directories (modern style)
+target_include_directories(opengl_program PRIVATE
+    ${INCLUDE_DIR}
+    ${INCLUDE_DIR}/game
+    ${INCLUDE_DIR}/graphics
+    ${INCLUDE_DIR}/interfaces
+    ${INCLUDE_DIR}/shapes
+    ${GLEW_DIR}/include
+    ${GLM_DIR}
+    ${ASSIMP_INCLUDE_DIRS}
+    ${FREETYPE_INCLUDE_DIRS}
+)
+
+# Link libraries
+target_link_libraries(opengl_program
+    libglew_static
+    glfw
+    ${ASSIMP_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
+)
+
+# Custom run target
 add_custom_target(run
     COMMAND opengl_program
     DEPENDS opengl_program
-    WORKING_DIRECTORY ${CMAKE_PROJECT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+

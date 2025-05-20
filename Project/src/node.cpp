@@ -33,9 +33,12 @@ void Node::key_handler(int key) const {
   }
 }
 
-void Node::animation() {
+void Node::animation(float fps_correction) {
   // Avancer selon la vélocité
-  transform_ = glm::translate(transform_, velocity_);
+  if(z_speed != nullptr) {
+    velocity_.z = *z_speed;
+  }
+  transform_ = glm::translate(transform_, velocity_ * fps_correction);
 
   // Si le cube est trop proche de la caméra
   if (transform_[3].z < -1.0f) {
@@ -51,7 +54,7 @@ void Node::animation() {
 
   // Animer les enfants
   for (Node *child : children_) {
-    child->animation();
+    child->animation(fps_correction);
   }
 }
 
