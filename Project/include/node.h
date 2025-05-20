@@ -1,8 +1,8 @@
 #pragma once
 
+#include "shape.h"
 #include <glm/glm.hpp>
 #include <vector>
-#include "shape.h"
 
 class Shape;
 
@@ -16,7 +16,7 @@ public:
   void remove(Node *node);
   void animation(float fps_correction);
 
-  float* z_speed;
+  float *z_speed;
   glm::vec3 velocity_ = glm::vec3(0.0f);
   glm::mat4 transform_;
   std::vector<Node *> children_;

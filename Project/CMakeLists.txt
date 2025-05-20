@@ -30,6 +30,7 @@ set(SOURCES
     ${SRC_DIR}/game/player.cpp
     ${SRC_DIR}/game/light_projectile.cpp
     ${SRC_DIR}/game/projectile.cpp
+    ${SRC_DIR}/game/particle_system.cpp
     ${SRC_DIR}/game/asteroid.cpp
     ${SRC_DIR}/shapes/shape_model.cpp
     ${SRC_DIR}/shapes/sphere.cpp

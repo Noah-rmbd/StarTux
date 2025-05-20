@@ -1,14 +1,24 @@
 #ifndef ASTEROID_H
 #define ASTEROID_H
 
+#pragma once
+
 #include "node.h"
+#include <glm/glm.hpp>
 
-class Asteroid{
+class Asteroid {
 public:
-    Asteroid(Node* node);
+  Asteroid(Node *node);
 
-    Node* asteroid_node;
-    int life = 15;
+  void onHit();   // Appelée quand l'astéroïde est touché
+  void explode(); // Déclenche l'explosion
+  glm::vec3 getPosition() const;
+
+  int life = 15;
+  Node *asteroid_node;
+
+private:
+  bool isDestroyed = false;
 };
 
 #endif

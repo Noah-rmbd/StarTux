@@ -348,6 +348,30 @@ src/game/light_projectile.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/light_projectile.cpp.s
 .PHONY : src/game/light_projectile.cpp.s
 
+src/game/particle_system.o: src/game/particle_system.cpp.o
+.PHONY : src/game/particle_system.o
+
+# target to build an object file
+src/game/particle_system.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/particle_system.cpp.o
+.PHONY : src/game/particle_system.cpp.o
+
+src/game/particle_system.i: src/game/particle_system.cpp.i
+.PHONY : src/game/particle_system.i
+
+# target to preprocess a source file
+src/game/particle_system.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/particle_system.cpp.i
+.PHONY : src/game/particle_system.cpp.i
+
+src/game/particle_system.s: src/game/particle_system.cpp.s
+.PHONY : src/game/particle_system.s
+
+# target to generate assembly for a file
+src/game/particle_system.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/particle_system.cpp.s
+.PHONY : src/game/particle_system.cpp.s
+
 src/game/player.o: src/game/player.cpp.o
 .PHONY : src/game/player.o
 
@@ -739,6 +763,9 @@ help:
 	@echo "... src/game/light_projectile.o"
 	@echo "... src/game/light_projectile.i"
 	@echo "... src/game/light_projectile.s"
+	@echo "... src/game/particle_system.o"
+	@echo "... src/game/particle_system.i"
+	@echo "... src/game/particle_system.s"
 	@echo "... src/game/player.o"
 	@echo "... src/game/player.i"
 	@echo "... src/game/player.s"
