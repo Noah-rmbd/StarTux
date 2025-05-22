@@ -4,7 +4,7 @@
 #include <iostream>
 // debug
 #include <glm/gtx/string_cast.hpp>
-Node::Node(const glm::mat4 &transform) : transform_(transform) {
+Node::Node(const glm::mat4 &transform) : transform_(transform), z_speed(nullptr) {
 
   children_ = std::vector<Node *>();
 }
@@ -36,8 +36,11 @@ void Node::key_handler(int key) const {
 void Node::animation(float fps_correction) {
   // Avancer selon la vélocité
   if(z_speed != nullptr) {
-    velocity_.z = *z_speed;
+    velocity_.z = *z_speed; 
+  } else {
+    velocity_.z = 0.0f;
   }
+
   transform_ = glm::translate(transform_, velocity_ * fps_correction);
 
   // Si le cube est trop proche de la caméra
