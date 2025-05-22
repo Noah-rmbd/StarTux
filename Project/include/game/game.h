@@ -1,14 +1,14 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "asteroid.h"
+#include "camera.h"
 #include "hud.h"
+#include "light_projectile.h"
 #include "node.h"
 #include "player.h"
-#include "shader.h"
-#include "camera.h"
-#include "light_projectile.h"
 #include "projectile.h"
-#include "asteroid.h"
+#include "shader.h"
 #include "texture.h"
 #include "textured_sphere.h"
 #include <GL/glew.h>
@@ -20,18 +20,20 @@ class Game {
 public:
   Game(int width, int height, int target_fps);
   void updateGame(double time, int fps);
-  void draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps);
+  void draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time,
+            int fps);
   void keyHandler(std::unordered_map<int, std::pair<bool, double>> keyStates,
                   double time);
   void mouse_callback(double xpos, double ypos);
-  void mouse_button_callback(int button, int action, double xpos, double ypos, double time);
-  
+  void mouse_button_callback(int button, int action, double xpos, double ypos,
+                             double time);
+  void derriere();
+
   Player *player;
   Camera camera;
   Node *scene_root;
   Node *world_node;
   bool lost = false;
-  
 
 private:
   void spawn_rectangle();
