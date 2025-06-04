@@ -1,8 +1,6 @@
 #ifndef AUDIO_MANAGER_H
 #define AUDIO_MANAGER_H
 
-#include <AL/al.h>
-#include <AL/alc.h>
 #include <string>
 #include <vector>
 #if defined(__APPLE__) && defined(__MACH__)
