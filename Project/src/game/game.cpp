@@ -4,6 +4,7 @@
 #include "glm/fwd.hpp"
 #include "hud.h"
 #include "projectile.h"
+#include "shape_model.h"
 #include <cmath>
 #include <ctime>
 #ifndef SHADER_DIR
@@ -55,6 +56,9 @@ Game::Game(int width, int height, int target_fps) {
   Node *environment_node = new Node(environment_mat);
   environment_node->add(environment_sphere);
 
+  // Bullet model
+  bullet = new ShapeModel(ressources_dir + "bullets.obj", phong_shader);
+  
   // Asteroid model
   asteroid = new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
   
@@ -77,9 +81,9 @@ Game::Game(int width, int height, int target_fps) {
     asteroidNode->add(asteroid);
     
     // Add it to the world
-    Asteroid* asteroid = new Asteroid(asteroidNode);
-    asteroids_.push_back(asteroid);
-    world_node->add(asteroid->asteroid_node);
+    Asteroid* asteroid_obj = new Asteroid(asteroidNode);
+    asteroids_.push_back(asteroid_obj);
+    world_node->add(asteroid_obj->asteroid_node);
   }
   
   // Add the player and the world to the scene root
@@ -112,8 +116,8 @@ void Game::updateGame(double time, int fps) {
   
   // Generates new asteroids
   if (latence == 0) {
-    spawn_rectangle();
-    latence = 80;
+    spawn_asteroid();
+    latence = 2;
   } else {
     latence -= 1;
   }
@@ -133,10 +137,8 @@ void Game::updateGame(double time, int fps) {
     if (sqrt(x * x + y * y + z * z) < 0.20) {
       world_node->remove(node);
       it = asteroids_.erase(it);
-      player->life -= 1;
-      if (player->life <= 0) {
-        lost = true;
-      }
+      player->damage(time);
+      lost = player->isDead();
     } else {
       ++it;
     }
@@ -144,6 +146,10 @@ void Game::updateGame(double time, int fps) {
 
   // Increments player's score
   player->score += 1.0;
+  // Updates player's shield state
+  if (player->shieldIsActive) {
+    player->updateShield(time);
+  }
 
   // Every 5000 points, player get an extra life
   if(static_cast<int>(player->score) % 5000 == 0) {
@@ -213,6 +219,7 @@ void Game::updateGame(double time, int fps) {
       if (shoot->checkCollision(glm::vec3(asteroid_position))) {
         asteroid->life -= 1;
         if (asteroid->life <= 0) {
+          spawn_bullet(asteroid_position);
           // Erase the asteroid
           world_node->remove(node);
           asteroids_.erase(asteroid_it);
@@ -232,6 +239,35 @@ void Game::updateGame(double time, int fps) {
       it = light_projectiles.erase(it);
     } else {
       ++it;
+    }
+  }
+
+  // Update bullets
+  for(auto it = bullets_.begin(); it != bullets_.end();) {
+    Node* bulletNode = *it;
+    
+    // Move bullet at asteroid speed
+    bulletNode->transform_[3].z += (asteroid_speed * 0.005 * fps_correction);
+    
+    // Check collision with player
+    glm::vec3 bullet_position = glm::vec3(bulletNode->transform_[3].x, bulletNode->transform_[3].y, bulletNode->transform_[3].z);
+    double x = (player->position.x - bullet_position.x);
+    double y = (player->position.y - bullet_position.y);
+    double z = (player->position.z - bullet_position.z);
+    
+    if (sqrt(x * x + y * y + z * z) < 0.10) {
+      // Player collected the bullet
+      scene_root->remove(bulletNode);
+      it = bullets_.erase(it);
+      player->bullets += 1;
+    } else {
+      // Remove bullet if it's too far behind
+      if (bullet_position.z < -5.0f) {
+        scene_root->remove(bulletNode);
+        it = bullets_.erase(it);
+      } else {
+        ++it;
+      }
     }
   }
 }
@@ -311,10 +347,22 @@ void Game::keyHandler(
   }
 
   if (keyStates[GLFW_KEY_W].first) {
-    asteroid_speed -= 1.0f;
+    for(auto it = bullets_.begin(); it != bullets_.end();) {
+    Node* bulletNode = *it;
+    
+    // Move bullet at asteroid speed
+    bulletNode->transform_[3].z += 0.01f;
+    ++it;
+  }
   }
   if (keyStates[GLFW_KEY_S].first) {
-    asteroid_speed += 1.0f;
+    for(auto it = bullets_.begin(); it != bullets_.end();) {
+    Node* bulletNode = *it;
+    
+    // Move bullet at asteroid speed
+    bulletNode->transform_[3].z -= 0.01f;
+    ++it;
+  }
   }
 
   if (keyStates[GLFW_KEY_U].first) { // Move Forward
@@ -524,11 +572,11 @@ void Game::keyHandler(
   player->updatePosition();
 }
 
-void Game::spawn_rectangle() {
+void Game::spawn_asteroid() {
   // Position aléatoire
   float posX = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
   float posY = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
-  float posZ = ((rand() % 200) / 100.0f) + 1.0f; // Entre 1 et 2
+  float posZ = ((rand() % 400) / 100.0f) + 1.0f; // Entre 1 et 2
 
   glm::mat4 asteroid_mat =
       glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, posZ)) *
@@ -542,8 +590,18 @@ void Game::spawn_rectangle() {
   asteroidNode->z_speed = &asteroid_speed;
   asteroidNode->add(asteroid);
 
-  Asteroid* asteroid = new Asteroid(asteroidNode);
-  asteroids_.push_back(asteroid);
-  world_node->add(asteroid->asteroid_node);
+  Asteroid* asteroid_obj = new Asteroid(asteroidNode);
+  asteroids_.push_back(asteroid_obj);
+  world_node->add(asteroid_obj->asteroid_node);
 }
 
+void Game::spawn_bullet(glm::vec3 position) {
+  std::cout << "Spawning bullet at position: (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+  glm::mat4 bullet_mat =
+      glm::translate(glm::mat4(1.0f), position) *
+      glm::scale(glm::mat4(1.0f), 2.5f * glm::vec3(1.0f, 1.0f, 1.0f));
+  Node* bulletNode = new Node(bullet_mat);
+  bulletNode->add(bullet);
+  bullets_.push_back(bulletNode);
+  scene_root->add(bulletNode);  // Add to scene_root instead of world_node
+}

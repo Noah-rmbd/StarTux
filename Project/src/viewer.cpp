@@ -67,6 +67,15 @@ Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
     
   // Initialize the startup screen
   startup_screen = new StartupScreen(windowWidth, windowHeight);
+
+  // Initialize audio manager
+  audio_manager = new AudioManager();
+  if (!audio_manager->init()) {
+    std::cerr << "Failed to initialize audio" << std::endl;
+  } else {
+    // Load and play startup music
+    audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
+  }
 }
 
 Viewer::~Viewer()
@@ -75,6 +84,7 @@ Viewer::~Viewer()
     delete game;
     //delete interface;
     delete startup_screen;
+    delete audio_manager;
     glfwDestroyWindow(win);
     glfwTerminate();
 }
@@ -96,6 +106,14 @@ void Viewer::run()
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       if(startGame) {
+          // If we just started the game, switch to game music
+          static bool musicSwitched = false;
+          if (!musicSwitched) {
+              audio_manager->stopMusic();
+              audio_manager->loadAndPlayMusic(audio_dir + "game_music.wav", true);
+              musicSwitched = true;
+          }
+
           game->keyHandler(keyStates, glfwGetTime());
           game->updateGame(glfwGetTime(), fps);
 
@@ -111,6 +129,11 @@ void Viewer::run()
             startup_screen = new StartupScreen(windowWidth, windowHeight);
             startGame = false;
             glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Hide cursor and lock it
+            
+            // Switch back to startup music
+            audio_manager->stopMusic();
+            audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
+            musicSwitched = false;
           }
          
           float currentTime = glfwGetTime();

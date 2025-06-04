@@ -6,9 +6,10 @@ project(OpenGLProgram)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find Assimp package
+# Find required packages
 find_package(assimp REQUIRED)
-find_package(Freetype REQUIRED) 
+find_package(Freetype REQUIRED)
+find_package(OpenAL REQUIRED)
 
 # Set directories
 set(SRC_DIR src)
@@ -25,6 +26,7 @@ include_directories(${GLFW_DIR}/include)
 include_directories(${GLM_DIR})
 include_directories(${ASSIMP_INCLUDE_DIRS})
 include_directories(${FREETYPE_INCLUDE_DIRS})
+include_directories(${OPENAL_INCLUDE_DIR})
 
 # Source files
 set(SOURCES
@@ -47,13 +49,14 @@ set(SOURCES
     ${SRC_DIR}/interfaces/interface.cpp
     ${SRC_DIR}/interfaces/startup_screen.cpp
     ${SRC_DIR}/interfaces/hud.cpp
-
+    ${SRC_DIR}/audio_manager.cpp
 )
 
 # Define Shader director
 add_compile_definitions(SHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/shaders/")
 add_compile_definitions(TEXTURES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/textures/")
 add_compile_definitions(RESSOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/ressources/")
+add_compile_definitions(AUDIO_DIR="${CMAKE_CURRENT_SOURCE_DIR}/audio/")
 
 # GLEW library
 add_subdirectory(${GLEW_DIR})
@@ -71,6 +74,7 @@ add_executable(opengl_program ${SOURCES})
 target_link_libraries(opengl_program ${LIBS})
 target_link_libraries(opengl_program ${ASSIMP_LIBRARIES})
 target_link_libraries(opengl_program ${FREETYPE_LIBRARIES})
+target_link_libraries(opengl_program ${OPENAL_LIBRARY})
 
 add_custom_target(run
     COMMAND opengl_program

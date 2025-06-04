@@ -19,6 +19,7 @@
 #include "interface.h"
 #include "startup_screen.h"
 #include "hud.h"
+#include "audio_manager.h"
 
 
 
@@ -34,10 +35,12 @@ public:
 
     Game *game;
     StartupScreen *startup_screen;
+    AudioManager *audio_manager;
 
 private:
     GLFWwindow *win;
     Texture* startScreenImage;
+    std::string audio_dir = AUDIO_DIR;
     
     bool startGame = false;
     int target_FPS = 30;

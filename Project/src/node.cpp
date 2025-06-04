@@ -36,21 +36,12 @@ void Node::key_handler(int key) const {
 void Node::animation(float fps_correction) {
   // Avancer selon la vélocité
   if(z_speed != nullptr) {
-    velocity_.z = *z_speed;
+    // Only update velocity if it's not already set
+    if(velocity_.z == 0.0f) {
+      velocity_.z = *z_speed;
+    }
   }
   transform_ = glm::translate(transform_, velocity_ * fps_correction);
-
-  // Si le cube est trop proche de la caméra
-  if (transform_[3].z < -1.0f) {
-    // Nouvelle position aléatoire en X et Y
-    float newX = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
-    float newY = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
-
-    // Nouvelle matrice : position random en X,Y et fond à Z = -4
-    transform_[3].z = +4.0f;
-    transform_[3].x = newX;
-    transform_[3].y = newY;
-  }
 
   // Animer les enfants
   for (Node *child : children_) {

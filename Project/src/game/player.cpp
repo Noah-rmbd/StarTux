@@ -52,3 +52,25 @@ void Player::increaseBullets(){
         bullets += 1;
     }
 }
+
+void Player::updateShield(double time) {
+    if (time - shieldStart >= shieldDuration) {
+        shieldIsActive = false;
+    }
+}
+void Player::createShield(double start, float duration) {
+    shieldIsActive = true;
+    shieldStart = start;
+    shieldDuration = duration;
+}
+
+void Player::damage(float time) {
+    if (shieldIsActive == false) {
+        life -= 1;
+        createShield(time, 5.0);
+    }
+}
+
+bool Player::isDead() {
+    return life<=0;
+}

@@ -34,7 +34,8 @@ public:
   
 
 private:
-  void spawn_rectangle();
+  void spawn_asteroid();
+  void spawn_bullet(glm::vec3 position);
   Shader *phong_shader;
   bool dev_mode = false;
   bool is_rotating = false;
@@ -73,6 +74,11 @@ private:
   const size_t max_asteroids_ = 30;
   float asteroid_speed = -2.4f;
   int latence = 0;
+
+  // Bullet elements
+  Shape *bullet;
+  std::vector<Node *> bullets_;
+
 };
 
 #endif

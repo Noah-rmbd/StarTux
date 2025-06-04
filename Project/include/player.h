@@ -12,8 +12,12 @@ class Player{
         Player(Shader* shader_program);
         ~Player();
         void updatePosition();
+        void updateShield(double time);
+        void createShield(double start, float duration);
         void increaseLife();
         void increaseBullets();
+        void damage(float time);
+        bool isDead();
 
         Shape* model;
         Shader* texture_shader;
@@ -29,6 +33,10 @@ class Player{
         float zAngle = 0.0f;
         float movement_speed = 0.04f;
         float fps_correction = 1.0f;
+
+        double shieldStart = 0.0;
+        double shieldDuration = 0.0;
+        bool shieldIsActive = false;
 
         int life = 3;
         int bullets = 10;
