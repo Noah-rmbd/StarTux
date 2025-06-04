@@ -1,6 +1,4 @@
 #include "audio_manager.h"
-#include <AL/al.h>
-#include <AL/alc.h>
 #include <cstring> // Pour memcpy
 #include <fstream>
 #include <iostream>
