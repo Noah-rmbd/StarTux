@@ -6,16 +6,10 @@ project(OpenGLProgram)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-<<<<<<< HEAD
 # Find required packages
 find_package(assimp REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(OpenAL REQUIRED)
-=======
-# Find external packages
-find_package(assimp REQUIRED)
-find_package(Freetype REQUIRED)
->>>>>>> 5f919a8205b2c7731cc82fd005db6b237f3c4d85
 
 # Set directories
 set(SRC_DIR src)
@@ -25,7 +19,6 @@ set(GLEW_DIR ${EXTERNAL_DIR}/glew-cmake)
 set(GLFW_DIR ${EXTERNAL_DIR}/glfw)
 set(GLM_DIR ${EXTERNAL_DIR}/glm)
 
-<<<<<<< HEAD
 # Include directories
 include_directories(${INCLUDE_DIR})
 include_directories(${GLEW_DIR}/include)
@@ -35,8 +28,6 @@ include_directories(${ASSIMP_INCLUDE_DIRS})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${OPENAL_INCLUDE_DIR})
 
-=======
->>>>>>> 5f919a8205b2c7731cc82fd005db6b237f3c4d85
 # Source files
 set(SOURCES
     ${SRC_DIR}/main.cpp
@@ -58,10 +49,7 @@ set(SOURCES
     ${SRC_DIR}/interfaces/interface.cpp
     ${SRC_DIR}/interfaces/startup_screen.cpp
     ${SRC_DIR}/interfaces/hud.cpp
-<<<<<<< HEAD
     ${SRC_DIR}/audio_manager.cpp
-=======
->>>>>>> 5f919a8205b2c7731cc82fd005db6b237f3c4d85
 )
 
 # Shader and resources directories as compile-time definitions
@@ -77,13 +65,10 @@ add_subdirectory(${GLM_DIR})  # GLM is header-only, but this ensures it is set u
 
 # Define executable
 add_executable(opengl_program ${SOURCES})
-<<<<<<< HEAD
 target_link_libraries(opengl_program ${LIBS})
 target_link_libraries(opengl_program ${ASSIMP_LIBRARIES})
 target_link_libraries(opengl_program ${FREETYPE_LIBRARIES})
 target_link_libraries(opengl_program ${OPENAL_LIBRARY})
-=======
->>>>>>> 5f919a8205b2c7731cc82fd005db6b237f3c4d85
 
 # Include directories (modern style)
 target_include_directories(opengl_program PRIVATE

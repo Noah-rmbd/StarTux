@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 
 class AudioManager {
 public:
