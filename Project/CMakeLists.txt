@@ -1,12 +1,19 @@
-cmake_minimum_required(VERSION 3.5)
-
+cmake_minimum_required(VERSION 3.10...3.27)  # Version moderne avec plage de compatibilité
 project(OpenGLProgram)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find required packages
+# Configuration pour libsndfile (solution alternative)
+find_path(SNDFILE_INCLUDE_DIR sndfile.h)
+find_library(SNDFILE_LIBRARY NAMES sndfile)
+
+if(NOT SNDFILE_INCLUDE_DIR OR NOT SNDFILE_LIBRARY)
+    message(FATAL_ERROR "libsndfile not found. Install with: sudo dnf install libsndfile-devel")
+endif()
+
+# Find other packages
 find_package(assimp REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(OpenAL REQUIRED)
@@ -20,13 +27,16 @@ set(GLFW_DIR ${EXTERNAL_DIR}/glfw)
 set(GLM_DIR ${EXTERNAL_DIR}/glm)
 
 # Include directories
-include_directories(${INCLUDE_DIR})
-include_directories(${GLEW_DIR}/include)
-include_directories(${GLFW_DIR}/include)
-include_directories(${GLM_DIR})
-include_directories(${ASSIMP_INCLUDE_DIRS})
-include_directories(${FREETYPE_INCLUDE_DIRS})
-include_directories(${OPENAL_INCLUDE_DIR})
+include_directories(
+    ${INCLUDE_DIR}
+    ${GLEW_DIR}/include
+    ${GLFW_DIR}/include
+    ${GLM_DIR}
+    ${ASSIMP_INCLUDE_DIRS}
+    ${FREETYPE_INCLUDE_DIRS}
+    ${OPENAL_INCLUDE_DIR}
+    ${SNDFILE_INCLUDE_DIR}
+)
 
 # Source files
 set(SOURCES
@@ -61,7 +71,6 @@ add_compile_definitions(AUDIO_DIR="${CMAKE_CURRENT_SOURCE_DIR}/audio/")
 # Add external subdirectories
 add_subdirectory(${GLEW_DIR})
 add_subdirectory(${GLFW_DIR})
-add_subdirectory(${GLM_DIR})  # GLM is header-only, but this ensures it is set up
 
 # Define executable
 add_executable(opengl_program ${SOURCES})
@@ -70,7 +79,7 @@ target_link_libraries(opengl_program ${ASSIMP_LIBRARIES})
 target_link_libraries(opengl_program ${FREETYPE_LIBRARIES})
 target_link_libraries(opengl_program ${OPENAL_LIBRARY})
 
-# Include directories (modern style)
+# Modern target-based includes
 target_include_directories(opengl_program PRIVATE
     ${INCLUDE_DIR}
     ${INCLUDE_DIR}/game
@@ -81,12 +90,24 @@ target_include_directories(opengl_program PRIVATE
     ${GLM_DIR}
     ${ASSIMP_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
+    ${SNDFILE_INCLUDE_DIR}  # Ajout des includes de libsndfile
 )
+# Chercher libsndfile de manière explicite
+find_path(SNDFILE_INCLUDE_DIR sndfile.h HINTS /usr/include /usr/local/include)
+find_library(SNDFILE_LIBRARY NAMES sndfile HINTS /usr/lib /usr/local/lib)
 
-# Link libraries
+if(NOT SNDFILE_INCLUDE_DIR OR NOT SNDFILE_LIBRARY)
+    message(FATAL_ERROR "libsndfile not found. Install with: sudo dnf install libsndfile-devel")
+else()
+    message(STATUS "Found libsndfile: ${SNDFILE_LIBRARY}")
+    include_directories(${SNDFILE_INCLUDE_DIR})
+endif()
+# Link libraries - version moderne et organisée
 target_link_libraries(opengl_program
     libglew_static
     glfw
+    OpenAL::OpenAL
+    ${SNDFILE_LIBRARIES}  # Ajout du lien vers libsndfile
     ${ASSIMP_LIBRARIES}
     ${FREETYPE_LIBRARIES}
 )
@@ -97,4 +118,3 @@ add_custom_target(run
     DEPENDS opengl_program
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
-

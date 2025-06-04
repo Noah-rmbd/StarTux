@@ -1,6 +1,8 @@
 #ifndef AUDIO_MANAGER_H
 #define AUDIO_MANAGER_H
 
+#include <AL/al.h>
+#include <AL/alc.h>
 #include <string>
 #include <vector>
 #if defined(__APPLE__) && defined(__MACH__)
@@ -13,30 +15,32 @@
 
 class AudioManager {
 public:
-    AudioManager();
-    ~AudioManager();
+  AudioManager();
+  ~AudioManager();
 
-    // Initialize audio system
-    bool init();
-    
-    // Load and play background music
-    bool loadAndPlayMusic(const std::string& filename, bool loop = true);
-    
-    // Stop current music
-    void stopMusic();
-    
-    // Set volume (0.0 to 1.0)
-    void setVolume(float volume);
-    
-    // Clean up resources
-    void cleanup();
+  // Initialize audio system
+  bool init();
+
+  // Load and play background music
+  bool loadAndPlayMusic(const std::string &filename, bool loop = true);
+
+  // Stop current music
+  void stopMusic();
+
+  // Set volume (0.0 to 1.0)
+  void setVolume(float volume);
+
+  // Clean up resources
+  void cleanup();
+
+  void debugSoundSystem();
 
 private:
-    ALCdevice* device;
-    ALCcontext* context;
-    ALuint musicSource;
-    ALuint musicBuffer;
-    bool isInitialized;
+  ALCdevice *device;
+  ALCcontext *context;
+  ALuint musicSource;
+  ALuint musicBuffer;
+  bool isInitialized;
 };
 
-#endif // AUDIO_MANAGER_H 
+#endif // AUDIO_MANAGER_H

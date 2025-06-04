@@ -252,6 +252,30 @@ update_mappings/fast:
 	$(MAKE) $(MAKESILENT) -f external/glfw/src/CMakeFiles/update_mappings.dir/build.make external/glfw/src/CMakeFiles/update_mappings.dir/build
 .PHONY : update_mappings/fast
 
+src/audio_manager.o: src/audio_manager.cpp.o
+.PHONY : src/audio_manager.o
+
+# target to build an object file
+src/audio_manager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/audio_manager.cpp.o
+.PHONY : src/audio_manager.cpp.o
+
+src/audio_manager.i: src/audio_manager.cpp.i
+.PHONY : src/audio_manager.i
+
+# target to preprocess a source file
+src/audio_manager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/audio_manager.cpp.i
+.PHONY : src/audio_manager.cpp.i
+
+src/audio_manager.s: src/audio_manager.cpp.s
+.PHONY : src/audio_manager.s
+
+# target to generate assembly for a file
+src/audio_manager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/audio_manager.cpp.s
+.PHONY : src/audio_manager.cpp.s
+
 src/game/asteroid.o: src/game/asteroid.cpp.o
 .PHONY : src/game/asteroid.o
 
@@ -727,6 +751,9 @@ help:
 	@echo "... libglew_shared"
 	@echo "... libglew_static"
 	@echo "... opengl_program"
+	@echo "... src/audio_manager.o"
+	@echo "... src/audio_manager.i"
+	@echo "... src/audio_manager.s"
 	@echo "... src/game/asteroid.o"
 	@echo "... src/game/asteroid.i"
 	@echo "... src/game/asteroid.s"

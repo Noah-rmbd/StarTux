@@ -7,13 +7,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <ostream>
 
-Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
-{
-    if (!glfwInit())    // initialize window system glfw
-    {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
-        glfwTerminate();
-    }
+Viewer::Viewer(int width, int height)
+    : windowWidth(width), windowHeight(height) {
+  if (!glfwInit()) // initialize window system glfw
+  {
+    std::cerr << "Failed to initialize GLFW" << std::endl;
+    glfwTerminate();
+  }
 
   // version hints: create GL window with >= OpenGL 3.3 and core profile
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -29,23 +29,23 @@ Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
     glfwTerminate();
   }
 
-    // make win's OpenGL context current; no OpenGL calls can happen before
-    glfwMakeContextCurrent(win);
-    
-    if (glewInit() != GLEW_OK)
-    {
-        std::cerr << "Failed to initialize GLEW" << std::endl;
-        glfwTerminate();
-    }
+  // make win's OpenGL context current; no OpenGL calls can happen before
+  glfwMakeContextCurrent(win);
+
+  if (glewInit() != GLEW_OK) {
+    std::cerr << "Failed to initialize GLEW" << std::endl;
+    glfwTerminate();
+  }
 
   // Set user pointer for GLFW window to this Viewer instance
   glfwSetWindowUserPointer(win, this);
 
-    // register event handlers
-    glfwSetKeyCallback(win, key_callback_static);
-    glfwSetCursorPosCallback(win, mouse_callback_static); // mouse inputs
-    glfwSetMouseButtonCallback(win, mouse_button_callback_static);
-    //glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide cursor and lock it
+  // register event handlers
+  glfwSetKeyCallback(win, key_callback_static);
+  glfwSetCursorPosCallback(win, mouse_callback_static); // mouse inputs
+  glfwSetMouseButtonCallback(win, mouse_button_callback_static);
+  // glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide cursor
+  // and lock it
 
   // useful message to check OpenGL renderer characteristics
   std::cout << glGetString(GL_VERSION) << ", GLSL "
@@ -64,7 +64,7 @@ Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
 
   // Initialize the game
   game = new Game(width, height, target_FPS);
-    
+
   // Initialize the startup screen
   startup_screen = new StartupScreen(windowWidth, windowHeight);
 
@@ -78,101 +78,110 @@ Viewer::Viewer(int width, int height) : windowWidth(width), windowHeight(height)
   }
 }
 
-Viewer::~Viewer()
-{ 
-    // Clean up game and window
-    delete game;
-    //delete interface;
-    delete startup_screen;
-    delete audio_manager;
-    glfwDestroyWindow(win);
-    glfwTerminate();
+Viewer::~Viewer() {
+  // Clean up game and window
+  delete game;
+  // delete interface;
+  delete startup_screen;
+  delete audio_manager;
+  glfwDestroyWindow(win);
+  glfwTerminate();
 }
 
-void Viewer::run()
-{   
-    const float targetFrameTime = 1.0f / target_FPS; // Target frame time for 60 FPS
-    // Calculate and render FPS
-    static float lastTime = 0.0f;
-    static int frameCount = 0;
-    static int fps = 30;
+void Viewer::run() {
+  const float targetFrameTime =
+      1.0f / target_FPS; // Target frame time for 60 FPS
+  // Calculate and render FPS
+  static float lastTime = 0.0f;
+  static int frameCount = 0;
+  static int fps = 30;
 
-    // Main render loop for this OpenGL window
-    while (!glfwWindowShouldClose(win))
-    {   
-      auto frameStart = std::chrono::high_resolution_clock::now(); // Stores the start of the frame
+  // Main render loop for this OpenGL window
+  while (!glfwWindowShouldClose(win)) {
+    auto frameStart =
+        std::chrono::high_resolution_clock::now(); // Stores the start of the
+                                                   // frame
 
-      // clear draw buffer
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // clear draw buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      if(startGame) {
-          // If we just started the game, switch to game music
-          static bool musicSwitched = false;
-          if (!musicSwitched) {
-              audio_manager->stopMusic();
-              audio_manager->loadAndPlayMusic(audio_dir + "game_music.wav", true);
-              musicSwitched = true;
-          }
-
-          game->keyHandler(keyStates, glfwGetTime());
-          game->updateGame(glfwGetTime(), fps);
-
-          glm::mat4 model = glm::mat4(1.0f);
-          glm::mat4 view = glm::lookAt(game->camera.cameraPos, game->camera.cameraPos + game->camera.cameraFront, game->camera.cameraUp);
-          glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-          // Draw the game + HUD
-          game->draw(model, view, projection, glfwGetTime(), fps);
-            
-          // Quit the game
-          if(game->lost){
-            game = new Game(windowWidth, windowHeight, target_FPS);
-            startup_screen = new StartupScreen(windowWidth, windowHeight);
-            startGame = false;
-            glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Hide cursor and lock it
-            
-            // Switch back to startup music
-            audio_manager->stopMusic();
-            audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
-            musicSwitched = false;
-          }
-         
-          float currentTime = glfwGetTime();
-          frameCount++;
-            
-          if (currentTime - lastTime >= 1.0f) {
-            fps = frameCount;
-            frameCount = 0;
-            lastTime = currentTime;
-          }
-
-          // Calculate frame time and sleep if necessary
-          auto frameEnd = std::chrono::high_resolution_clock::now();
-          std::chrono::duration<float> frameDuration = frameEnd - frameStart;
-          float frameTime = frameDuration.count();
-
-          if (frameTime < targetFrameTime)
-          {
-            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((targetFrameTime - frameTime) * 1000)));
-          }
+    if (startGame) {
+      // If we just started the game, switch to game music
+      static bool musicSwitched = false;
+      if (!musicSwitched) {
+        audio_manager->stopMusic();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        if (!audio_manager->loadAndPlayMusic(audio_dir + "game_music.wav",
+                                             true)) {
+          std::cerr << "Échec chargement musique menu" << std::endl;
+          audio_manager->debugSoundSystem();
+        }
+        musicSwitched = true;
       }
-      else {
-          // Render start screen
-          startup_screen->update();
-            
-          if (startup_screen->isLaunched()) {
-              startGame = true;
-              glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide cursor and lock it
-          }
-      }
-      // Poll for and process events
-      glfwPollEvents();
 
-      // flush render commands, and swap draw buffers
-      glfwSwapBuffers(win);
+      game->keyHandler(keyStates, glfwGetTime());
+      game->updateGame(glfwGetTime(), fps);
+
+      glm::mat4 model = glm::mat4(1.0f);
+      glm::mat4 view =
+          glm::lookAt(game->camera.cameraPos,
+                      game->camera.cameraPos + game->camera.cameraFront,
+                      game->camera.cameraUp);
+      glm::mat4 projection =
+          glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+      // Draw the game + HUD
+      game->draw(model, view, projection, glfwGetTime(), fps);
+
+      // Quit the game
+      if (game->lost) {
+        game = new Game(windowWidth, windowHeight, target_FPS);
+        startup_screen = new StartupScreen(windowWidth, windowHeight);
+        startGame = false;
+        glfwSetInputMode(win, GLFW_CURSOR,
+                         GLFW_CURSOR_NORMAL); // Hide cursor and lock it
+
+        // Switch back to startup music
+        audio_manager->stopMusic();
+        audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
+        musicSwitched = false;
+      }
+
+      float currentTime = glfwGetTime();
+      frameCount++;
+
+      if (currentTime - lastTime >= 1.0f) {
+        fps = frameCount;
+        frameCount = 0;
+        lastTime = currentTime;
+      }
+
+      // Calculate frame time and sleep if necessary
+      auto frameEnd = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<float> frameDuration = frameEnd - frameStart;
+      float frameTime = frameDuration.count();
+
+      if (frameTime < targetFrameTime) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(
+            static_cast<int>((targetFrameTime - frameTime) * 1000)));
+      }
+    } else {
+      // Render start screen
+      startup_screen->update();
+
+      if (startup_screen->isLaunched()) {
+        startGame = true;
+        glfwSetInputMode(win, GLFW_CURSOR,
+                         GLFW_CURSOR_DISABLED); // Hide cursor and lock it
+      }
     }
-    glfwTerminate();
-}
+    // Poll for and process events
+    glfwPollEvents();
 
+    // flush render commands, and swap draw buffers
+    glfwSwapBuffers(win);
+  }
+  glfwTerminate();
+}
 
 void Viewer::key_callback_static(GLFWwindow *window, int key, int scancode,
                                  int action, int mods) {
@@ -188,15 +197,16 @@ void Viewer::mouse_callback_static(GLFWwindow *window, double xpos,
   viewer->game->mouse_callback(xpos, ypos);
 }
 
-void Viewer::mouse_button_callback_static(GLFWwindow* window, int button, int action, int mods)
-{
-    Viewer* viewer = static_cast<Viewer*>(glfwGetWindowUserPointer(window));
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    viewer->on_mouse_button(button, action, xpos, ypos);
+void Viewer::mouse_button_callback_static(GLFWwindow *window, int button,
+                                          int action, int mods) {
+  Viewer *viewer = static_cast<Viewer *>(glfwGetWindowUserPointer(window));
+  double xpos, ypos;
+  glfwGetCursorPos(window, &xpos, &ypos);
+  viewer->on_mouse_button(button, action, xpos, ypos);
 }
 
-// Converts key pressed onto a map of all the key pressed and the time since they're pressed
+// Converts key pressed onto a map of all the key pressed and the time since
+// they're pressed
 void Viewer::on_key(int key, int action) {
   // 'Q' or 'Escape' quits
   if (key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q) {
@@ -215,13 +225,10 @@ void Viewer::on_key(int key, int action) {
 }
 
 // Send the mouse to the startup screen
-void Viewer::on_mouse_button(int button, int action, double xpos, double ypos)
-{
-    if (!startGame) {
-      startup_screen->mouse(button, action, xpos, ypos);
-    } else {
-      game->mouse_button_callback(button, action, xpos, ypos, glfwGetTime());
-    }
+void Viewer::on_mouse_button(int button, int action, double xpos, double ypos) {
+  if (!startGame) {
+    startup_screen->mouse(button, action, xpos, ypos);
+  } else {
+    game->mouse_button_callback(button, action, xpos, ypos, glfwGetTime());
+  }
 }
-
-
