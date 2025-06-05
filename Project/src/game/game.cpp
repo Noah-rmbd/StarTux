@@ -60,7 +60,10 @@ Game::Game(int width, int height, int target_fps) {
   bullet = new ShapeModel(ressources_dir + "bullets.obj", phong_shader);
   
   // Asteroid model
-  asteroid = new ShapeModel(ressources_dir + "Asteroid.obj", phong_shader);
+  Shader* asteroid_texture_shader = new Shader(shader_dir + "asteroid.vert", shader_dir + "asteroid.frag");
+  Texture* asteroid_texture = new Texture(textures_dir + "asteroid.png");
+  asteroid = new ShapeModel(ressources_dir + "Asteroid.obj", asteroid_texture_shader);
+  static_cast<ShapeModel*>(asteroid)->setTexture(asteroid_texture);
   
   // Generates 20 asteroids
   for (int i = 0; i < 20; ++i) {
@@ -125,6 +128,20 @@ void Game::updateGame(double time, int fps) {
   // Moves the world forward
   world_node->animation(fps_correction);
 
+  // Update explosions
+  for(auto it = explosions.begin(); it != explosions.end();) {
+    Explosion* explosion = *it;
+    explosion->update(time);
+    
+    if (!explosion->isActive()) {
+      scene_root->remove(explosion->getNode());
+      delete explosion;
+      it = explosions.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
   // Detect player colisions for each asteroid in asteroids_ list
   for(auto it = asteroids_.begin(); it != asteroids_.end();) {
     Asteroid *asteroid = *it;
@@ -138,6 +155,7 @@ void Game::updateGame(double time, int fps) {
       world_node->remove(node);
       it = asteroids_.erase(it);
       player->damage(time);
+      create_explosion(asteroid_position, time); // Create explosion at collision point
       lost = player->isDead();
     } else {
       ++it;
@@ -604,4 +622,10 @@ void Game::spawn_bullet(glm::vec3 position) {
   bulletNode->add(bullet);
   bullets_.push_back(bulletNode);
   scene_root->add(bulletNode);  // Add to scene_root instead of world_node
+}
+
+void Game::create_explosion(glm::vec3 position, double time) {
+    Explosion* explosion = new Explosion(phong_shader, position, time);
+    explosions.push_back(explosion);
+    scene_root->add(explosion->getNode());
 }

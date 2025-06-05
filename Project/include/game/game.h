@@ -11,6 +11,7 @@
 #include "asteroid.h"
 #include "texture.h"
 #include "textured_sphere.h"
+#include "explosion.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <unordered_map>
@@ -36,6 +37,7 @@ public:
 private:
   void spawn_asteroid();
   void spawn_bullet(glm::vec3 position);
+  void create_explosion(glm::vec3 position, double time);
   Shader *phong_shader;
   bool dev_mode = false;
   bool is_rotating = false;
@@ -79,6 +81,8 @@ private:
   Shape *bullet;
   std::vector<Node *> bullets_;
 
+  // Explosion effects
+  std::vector<Explosion*> explosions;
 };
 
 #endif

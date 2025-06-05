@@ -108,18 +108,22 @@ void ShapeModel::setupMesh() {
 
 void ShapeModel::draw(glm::mat4 &model, glm::mat4 &view,
                       glm::mat4 &projection) {
-  // Teste
-  // std::cout << "Drawing asteroid at " << glm::to_string(model) << std::endl;
   glUseProgram(this->shader_program_);
   glBindVertexArray(VAO);
 
   Shape::draw(model, view, projection);
 
-  // If we have a texture, bind it
+  // If we have a texture, bind it and set texture uniforms
   if (texture_) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_->getGLid());
     glUniform1i(glGetUniformLocation(shader_program_, "texture1"), 0);
+    
+    // Set light position and view position for textured objects
+    glm::vec3 lightPos = glm::vec3(1.0f, 1.0f, -1.0f);
+    glm::vec3 viewPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glUniform3fv(glGetUniformLocation(shader_program_, "lightPos"), 1, glm::value_ptr(lightPos));
+    glUniform3fv(glGetUniformLocation(shader_program_, "viewPos"), 1, glm::value_ptr(viewPos));
   } else {
     // Set phong shader uniforms if no texture
     glUniform3fv(light_pos_loc, 1, glm::value_ptr(light_position));

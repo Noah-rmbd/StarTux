@@ -324,6 +324,30 @@ src/game/camera.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/camera.cpp.s
 .PHONY : src/game/camera.cpp.s
 
+src/game/explosion.o: src/game/explosion.cpp.o
+.PHONY : src/game/explosion.o
+
+# target to build an object file
+src/game/explosion.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/explosion.cpp.o
+.PHONY : src/game/explosion.cpp.o
+
+src/game/explosion.i: src/game/explosion.cpp.i
+.PHONY : src/game/explosion.i
+
+# target to preprocess a source file
+src/game/explosion.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/explosion.cpp.i
+.PHONY : src/game/explosion.cpp.i
+
+src/game/explosion.s: src/game/explosion.cpp.s
+.PHONY : src/game/explosion.s
+
+# target to generate assembly for a file
+src/game/explosion.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/explosion.cpp.s
+.PHONY : src/game/explosion.cpp.s
+
 src/game/game.o: src/game/game.cpp.o
 .PHONY : src/game/game.o
 
@@ -760,6 +784,9 @@ help:
 	@echo "... src/game/camera.o"
 	@echo "... src/game/camera.i"
 	@echo "... src/game/camera.s"
+	@echo "... src/game/explosion.o"
+	@echo "... src/game/explosion.i"
+	@echo "... src/game/explosion.s"
 	@echo "... src/game/game.o"
 	@echo "... src/game/game.i"
 	@echo "... src/game/game.s"
