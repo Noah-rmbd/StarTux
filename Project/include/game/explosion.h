@@ -21,7 +21,7 @@ private:
     Shape* explosion_shape;
     Shader* shader;
     double start_time;
-    double duration = 0.5; // Duration of explosion in seconds
+    double duration = 0.2; // Duration of explosion in seconds
     bool active = true;
     glm::vec3 initial_scale = glm::vec3(0.01f);
     glm::vec3 max_scale = glm::vec3(0.2f);

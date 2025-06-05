@@ -157,6 +157,7 @@ void Game::updateGame(double time, int fps) {
       player->damage(time);
       create_explosion(asteroid_position, time); // Create explosion at collision point
       lost = player->isDead();
+      hud->newDialog(3, time);
     } else {
       ++it;
     }
@@ -209,6 +210,7 @@ void Game::updateGame(double time, int fps) {
         shoot->active = false;
         player->score += 50.0;
         hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time);
+        hud->newDialog(1, time);
       } else {
         ++it;
       }
@@ -362,6 +364,10 @@ void Game::keyHandler(
       last_shoot_time_l = time;
       
     }
+  }
+  if (keyStates[GLFW_KEY_T].first) {
+    std::cout << "T pressed" << std::endl;
+    hud->newDialog(2, time);
   }
 
   if (keyStates[GLFW_KEY_W].first) {

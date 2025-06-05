@@ -24,7 +24,7 @@ class Hud {
         float yPos;
         glm::vec3 scoreColor = glm::vec3(1.0f);
 
-        std::vector<std::string> dialogs = {"Welcum Tux, it's time to defeat MicroShip", "Nice cock", "Good job Tux, you got an extra life"};
+        std::vector<std::string> dialogs = {"Welcome Tux, it's time to defeat MicroShip", "Nice shot", "Good job Tux, you got an extra life", "Oh no, a colision"};
         std::pair<std::string, double>* currentDialog;
         std::pair<std::pair<std::string, double>, std::pair<int, int>>* scoreFeedback;
 

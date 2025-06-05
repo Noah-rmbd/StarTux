@@ -43,10 +43,10 @@ void Explosion::update(double current_time) {
                                glm::scale(glm::mat4(1.0f), current_scale);
 
     // Update colors based on progress
-    LightingSphere* sphere = static_cast<LightingSphere*>(explosion_shape);
+    /*LightingSphere* sphere = static_cast<LightingSphere*>(explosion_shape);
     glm::vec3 light_color = glm::vec3(1.0f, 0.5f, 0.0f) * (1.0f - progress);  // Fade out orange
     glm::vec3 object_color = glm::vec3(1.0f, 1.0f, 1.0f) * (1.0f - progress);  // Fade out white
-    sphere->setColors(light_color, object_color);
+    sphere->setColors(light_color, object_color);*/
 }
 
 void Explosion::draw(glm::mat4& model, glm::mat4& view, glm::mat4& projection) {
