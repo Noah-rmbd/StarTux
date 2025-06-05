@@ -43,3 +43,6 @@ In game mode :
     K = Right
     O = Left Roll
     P = Right Roll
+
+## Credit 
+Audio made by : fl.setsuko [Instagram]
