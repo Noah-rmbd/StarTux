@@ -177,10 +177,10 @@ void Game::updateGame(double time, int fps) {
   }
 
   // Every 1000 points, the ship speed increases
-  if(static_cast<int>(player->score) % 1000 == 0) {
-    if (player->score > 20000.0) {
+  if(static_cast<int>(player->score) % 500 == 0) {
+    if (player->score > 10000.0) {
       asteroid_speed -= 0.8;
-    } else if(player->score > 10000.0) {
+    } else if(player->score > 5000.0) {
       asteroid_speed -= 0.6;
     } else {
       asteroid_speed -= 0.4;
@@ -600,7 +600,7 @@ void Game::spawn_asteroid() {
   // Position aléatoire
   float posX = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
   float posY = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
-  float posZ = ((rand() % 400) / 100.0f) + 1.0f; // Entre 1 et 2
+  float posZ = ((rand() % 400) / 100.0f) + 3.0f; // Entre 1 et 2
 
   glm::mat4 asteroid_mat =
       glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, posZ)) *
