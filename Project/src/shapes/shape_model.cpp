@@ -17,7 +17,7 @@ ShapeModel::ShapeModel(const std::string &filepath, Shader *shader_program)
   // Set default values for phong lighting
   light_position = glm::vec3(1.0f, 1.0f, -1.0f);
   light_color = glm::vec3(1.0f, 1.0f, 1.0f);
-  object_color = glm::vec3(0.0f, 0.0f, 1.0f); // Blue color
+  object_color = glm::vec3(1.0f, 0.816f, 0.0f); // Yellow color to match shader
 
   loadModel(filepath);
 }
