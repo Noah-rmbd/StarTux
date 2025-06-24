@@ -60,6 +60,10 @@ private:
   int window_height;
   int targeted_fps;
 
+  // Functions related to the dev mode
+  void activate_dev_mode();
+  void deactivate_dev_mode();
+
   // List of active projectiles in the game
   std::vector<Projectile *> projectiles;
   Node *projectile_node;

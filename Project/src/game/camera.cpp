@@ -63,12 +63,12 @@ void Camera::keyboard_events(std::unordered_map<int, std::pair<bool, double>> ke
     if (keyStates[GLFW_KEY_F].first) { // Move Down
         this->cameraPos -= this->cameraSpeed * this->cameraUp; 
     }
-    if (keyStates[GLFW_KEY_X].first) { // Move Down
+    /*if (keyStates[GLFW_KEY_X].first) { // Move Down
         this->devMode = false;
     }
     if (keyStates[GLFW_KEY_C].first) { // Move Down
         this->devMode = true; 
-    }
+    }*/
     
 }
 

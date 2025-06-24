@@ -116,6 +116,7 @@ void Game::updateGame(double time, int fps) {
     fps_correction = static_cast<float>(targeted_fps) / static_cast<float>(fps);
     player->fps_correction = fps_correction;
   }
+
   
   // Generates new asteroids
   if (latence == 0) {
@@ -158,6 +159,11 @@ void Game::updateGame(double time, int fps) {
       create_explosion(asteroid_position, time); // Create explosion at collision point
       lost = player->isDead();
       hud->newDialog(3, time);
+    } else if(asteroid_position.z < 0.0) {
+      // Delete invisible asteroids
+      std::cout << "ta mère la tepu " << asteroid_position.z <<"\n";
+      world_node->remove(node);
+      it = asteroids_.erase(it);
     } else {
       ++it;
     }
@@ -296,6 +302,10 @@ void Game::updateGame(double time, int fps) {
 }
 
 void Game::mouse_callback(double xpos, double ypos){
+  if(dev_mode) {
+    camera.mouse_callback(xpos, ypos);
+  }
+
   if(xpos < 0.0){
     xpos = 0.0;
   } else if (xpos>window_width) {
@@ -333,6 +343,10 @@ void Game::keyHandler(
   float smoother = 0.0f;
   float speed = player->movement_speed * player->fps_correction;
 
+  if(dev_mode) {
+    camera.keyboard_events(keyStates);
+  }
+
   if (r_mouse_button_pressed) {
     // Shooting cooldown
     if ((last_shoot_time == 0.0 || time-last_shoot_time > 1.0) && (player->bullets > 0)) {
@@ -369,8 +383,9 @@ void Game::keyHandler(
     }
   }
   if (keyStates[GLFW_KEY_T].first) {
-    std::cout << "T pressed" << std::endl;
-    hud->newDialog(2, time);
+    activate_dev_mode();
+  } else if (keyStates[GLFW_KEY_G].first) {
+    deactivate_dev_mode();
   }
 
   if (keyStates[GLFW_KEY_W].first) {
@@ -637,4 +652,16 @@ void Game::create_explosion(glm::vec3 position, double time) {
     Explosion* explosion = new Explosion(phong_shader, position, time);
     explosions.push_back(explosion);
     scene_root->add(explosion->getNode());
+}
+
+void Game::activate_dev_mode() {
+  dev_mode = true;
+}
+
+void Game::deactivate_dev_mode() {
+  dev_mode = false;
+
+  camera.cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+  camera.cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+  camera.cameraPos = player->position + glm::vec3(0.0f, 0.05f, -0.3f);
 }
