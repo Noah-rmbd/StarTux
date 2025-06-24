@@ -50,6 +50,8 @@ void Player::increaseLife(){
 void Player::increaseBullets(){
     if (bullets < 10) {
         bullets += 1;
+    } else {
+        score += 100;
     }
 }
 

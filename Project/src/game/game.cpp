@@ -239,7 +239,10 @@ void Game::updateGame(double time, int fps) {
       if (shoot->checkCollision(glm::vec3(asteroid_position))) {
         asteroid->life -= 1;
         if (asteroid->life <= 0) {
-          spawn_bullet(asteroid_position);
+          create_explosion(asteroid_position, time);
+          if (rand() % 3 == 0) {
+            spawn_bullet(asteroid_position);
+          }
           // Erase the asteroid
           world_node->remove(node);
           asteroids_.erase(asteroid_it);
@@ -279,7 +282,7 @@ void Game::updateGame(double time, int fps) {
       // Player collected the bullet
       scene_root->remove(bulletNode);
       it = bullets_.erase(it);
-      player->bullets += 1;
+      player->increaseBullets();
     } else {
       // Remove bullet if it's too far behind
       if (bullet_position.z < -5.0f) {
@@ -337,7 +340,7 @@ void Game::keyHandler(
       double xpos = (x_mouse / (window_width)) - 0.5;
       double ypos = (y_mouse / (window_height)) - 0.5;
       
-      glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.2f); 
+      glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.15f); 
       glm::vec3 shoot_direction = glm::vec3(-xpos+camera.cameraPos.x-player->position.x, -ypos+camera.cameraPos.y-player->position.y, 1.0f);
 
       // Add new shot to projectile list
@@ -354,7 +357,7 @@ void Game::keyHandler(
       double xpos = (x_mouse / (window_width)) - 0.5;
       double ypos = (y_mouse / (window_height)) - 0.5;
       
-      glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.2f); 
+      glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.15f); 
       glm::vec3 shoot_direction = glm::vec3(-xpos+camera.cameraPos.x-player->position.x, -ypos+camera.cameraPos.y-player->position.y, 1.0f);
 
       // Add new shot to projectile list
@@ -598,7 +601,7 @@ void Game::keyHandler(
 
 void Game::spawn_asteroid() {
   // Position aléatoire
-  float posX = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
+  float posX = ((rand() % 300) / 100.0f) - 1.5f; // Entre -1.5 et 1.5
   float posY = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
   float posZ = ((rand() % 400) / 100.0f) + 3.0f; // Entre 1 et 2
 
