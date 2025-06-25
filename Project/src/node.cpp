@@ -40,6 +40,16 @@ void Node::animation(float fps_correction) {
   } else {
     velocity_.z = 0.0f;
   }
+  if(y_speed != nullptr) {
+    velocity_.y = *y_speed; 
+  } else {
+    velocity_.y = 0.0f;
+  }
+  if(x_speed != nullptr) {
+    velocity_.x = *x_speed; 
+  } else {
+    velocity_.x = 0.0f;
+  }
 
   transform_ = glm::translate(transform_, velocity_ * fps_correction);
 

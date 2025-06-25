@@ -128,7 +128,7 @@ void Viewer::run() {
                       game->camera.cameraPos + game->camera.cameraFront,
                       game->camera.cameraUp);
       glm::mat4 projection =
-          glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+          glm::perspective(glm::radians(45.0f), windowWidth / windowHeight, 0.1f, 100.0f);
       // Draw the game + HUD
       game->draw(model, view, projection, glfwGetTime(), fps);
 

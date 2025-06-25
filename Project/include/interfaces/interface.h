@@ -26,7 +26,7 @@ struct Character {
 
 class Interface {
     public:
-        Interface(int width=1280, int height=960);
+        Interface(int width=1480, int height=960);
         ~Interface();
         void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
         void renderImage(Texture* texture, float x, float y, float width, float height, glm::vec4 color = glm::vec4(1.0f));

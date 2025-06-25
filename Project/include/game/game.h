@@ -36,6 +36,7 @@ public:
 
 private:
   void spawn_asteroid();
+  void spawn_moving_asteroid();
   void spawn_bullet(glm::vec3 position);
   void create_explosion(glm::vec3 position, double time);
   Shader *phong_shader;

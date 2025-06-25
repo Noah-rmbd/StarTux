@@ -120,7 +120,12 @@ void Game::updateGame(double time, int fps) {
   
   // Generates new asteroids
   if (latence == 0) {
-    spawn_asteroid();
+    if(rand() % 10 == 0) {
+      spawn_moving_asteroid();
+    } else {
+      spawn_moving_asteroid();
+    }
+    // Two frames cooldown for generating asteroids
     latence = 2;
   } else {
     latence -= 1;
@@ -160,8 +165,11 @@ void Game::updateGame(double time, int fps) {
       lost = player->isDead();
       hud->newDialog(3, time);
     } else if(asteroid_position.z < 0.0) {
+      if(asteroid->is_moving) {
+        std::cout << "Position of the deleted asteroid : " << asteroid_position.x << " " << asteroid_position.y << "\n";
+      }
+
       // Delete invisible asteroids
-      std::cout << "ta mère la tepu " << asteroid_position.z <<"\n";
       world_node->remove(node);
       it = asteroids_.erase(it);
     } else {
@@ -617,7 +625,7 @@ void Game::keyHandler(
 void Game::spawn_asteroid() {
   // Position aléatoire
   float posX = ((rand() % 300) / 100.0f) - 1.5f; // Entre -1.5 et 1.5
-  float posY = ((rand() % 200) / 100.0f) - 1.0f; // Entre -1 et 1
+  float posY = ((rand() % 200) / 100.0f) - 1.5f; // Entre -1 et 1
   float posZ = ((rand() % 400) / 100.0f) + 3.0f; // Entre 1 et 2
 
   glm::mat4 asteroid_mat =
@@ -629,10 +637,53 @@ void Game::spawn_asteroid() {
   Node *asteroidNode = new Node(asteroid_mat);
 
   asteroidNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+  // Every asteroid move on z axis
   asteroidNode->z_speed = &asteroid_speed;
   asteroidNode->add(asteroid);
 
   Asteroid* asteroid_obj = new Asteroid(asteroidNode);
+  asteroids_.push_back(asteroid_obj);
+  world_node->add(asteroid_obj->asteroid_node);
+}
+
+void Game::spawn_moving_asteroid() {
+  // Speed of the asteroid on x and y axis
+  float x_speed = ((rand() % 6000) / 1000.0f) - 3.0f;
+  float y_speed = ((rand() % 6000) / 1000.0f) - 3.0f;
+
+  // Random position of the asteroid on z axis
+  float posZ = ((rand() % 400) / 100.0f) + 3.0f; // Between 3 and 7
+
+  // Calculate the time required for the asteroid to reach the space ship (dist/speed)
+  float time = posZ / -asteroid_speed; 
+
+  // Calculate the distance of the asteroid so that it goes in the field on time
+  float posX = -(time * x_speed) + ((rand() % 200) / 100.0f) - 1.0f;
+  float posY = -(time * y_speed) + ((rand() % 200) / 100.0f) - 1.5f;
+
+  std::cout << "New asteroid, position :  " << posX << " " << posY << " " << posZ << ", time : " << time << ", speed : " << x_speed << " " << y_speed << " " << asteroid_speed << "\n";
+
+  // Transformation matrix of the asteroid
+  glm::mat4 asteroid_mat =
+      glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, posZ)) *
+      glm::scale(glm::mat4(1.0f), 0.006f * glm::vec3(1.0f, 1.0f, 1.0f)) *
+      glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
+                  glm::vec3(1.0f, 0.0f, 0.0f));
+  
+  Node *asteroidNode = new Node(asteroid_mat);
+
+  // Generate asteroid object
+  Asteroid* asteroid_obj = new Asteroid(asteroidNode);
+  asteroid_obj->is_moving = true;
+  asteroid_obj->x_speed = x_speed;
+  asteroid_obj->y_speed = y_speed;  
+
+  asteroidNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+  asteroidNode->x_speed = &asteroid_obj->x_speed;
+  asteroidNode->y_speed = &asteroid_obj->y_speed;
+  asteroidNode->z_speed = &asteroid_speed;
+  asteroidNode->add(asteroid);
+
   asteroids_.push_back(asteroid_obj);
   world_node->add(asteroid_obj->asteroid_node);
 }

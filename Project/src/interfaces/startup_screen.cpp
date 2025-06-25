@@ -51,7 +51,7 @@ void StartupScreen::update(){
     float imageWidth = 373.0f;
     float imageHeight = 960.0f;
     
-    float centerX = 1094.0f;
+    float centerX = 1294.0f;
     float centerY = 480.0f;
     angle += 0.01f;
     background_space->transform_ = glm::translate(glm::mat4(1.0f), glm::vec3(-0.7f, -0.5f, 0.0f))
@@ -67,10 +67,10 @@ void StartupScreen::update(){
 }
 
 void StartupScreen::mouse(int button, int action, double xpos, double ypos) {
-    if (action == GLFW_PRESS && button == 0 && xpos <= 1240.0 && xpos>= 954.0 && ypos <= 692.0 && ypos >= 622.0) {
-        click_valid = true; // means the click started inhe button
+    if (action == GLFW_PRESS && button == 0 && xpos <= 1440.0 && xpos>= 1154.0 && ypos <= 692.0 && ypos >= 622.0) {
+        click_valid = true; // means the click started in the button
     }
-    if (click_valid && action == GLFW_RELEASE && button == 0 && xpos <= 1240.0 && xpos>= 954.0 && ypos <= 692.0 && ypos >= 622.0) {
+    if (click_valid && action == GLFW_RELEASE && button == 0 && xpos <= 1440.0 && xpos>= 1154.0 && ypos <= 692.0 && ypos >= 622.0) {
         click_valid = false;
         start_game = true;
     }

@@ -25,7 +25,7 @@
 
 class Viewer {
 public:
-    Viewer(int width=1280, int height=960);
+    Viewer(int width=1480, int height=960);
     ~Viewer();
     void run();
     void on_key(int key, int action);
@@ -42,6 +42,7 @@ private:
     Texture* startScreenImage;
     std::string audio_dir = AUDIO_DIR;
     
+    bool audio_activated = true;
     bool startGame = false;
     int target_FPS = 30;
 

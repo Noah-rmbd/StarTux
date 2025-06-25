@@ -16,6 +16,8 @@ public:
   void remove(Node *node);
   void animation(float fps_correction);
 
+  float* x_speed;
+  float* y_speed;
   float* z_speed;
   glm::vec3 velocity_ = glm::vec3(0.0f);
   glm::mat4 transform_;
