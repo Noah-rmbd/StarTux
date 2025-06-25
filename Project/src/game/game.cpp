@@ -116,7 +116,6 @@ void Game::updateGame(double time, int fps) {
     fps_correction = static_cast<float>(targeted_fps) / static_cast<float>(fps);
     player->fps_correction = fps_correction;
   }
-
   
   // Generates new asteroids
   if (latence == 0) {
@@ -134,6 +133,9 @@ void Game::updateGame(double time, int fps) {
   // Moves the world forward
   world_node->animation(fps_correction);
 
+  // Manage every item in the world node and its colisions
+  detect_colisions(time);
+
   // Update explosions
   for(auto it = explosions.begin(); it != explosions.end();) {
     Explosion* explosion = *it;
@@ -143,35 +145,6 @@ void Game::updateGame(double time, int fps) {
       scene_root->remove(explosion->getNode());
       delete explosion;
       it = explosions.erase(it);
-    } else {
-      ++it;
-    }
-  }
-
-  // Detect player colisions for each asteroid in asteroids_ list
-  for(auto it = asteroids_.begin(); it != asteroids_.end();) {
-    Asteroid *asteroid = *it;
-    Node* node = asteroid->asteroid_node;
-    glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
-    double x = (player->position.x - asteroid_position.x);
-    double y = (player->position.y - asteroid_position.y);
-    double z = (player->position.z - asteroid_position.z);
-    // Supprime la sphére si elle s'aproche trop
-    if (sqrt(x * x + y * y + z * z) < 0.20) {
-      world_node->remove(node);
-      it = asteroids_.erase(it);
-      player->damage(time);
-      create_explosion(asteroid_position, time); // Create explosion at collision point
-      lost = player->isDead();
-      hud->newDialog(3, time);
-    } else if(asteroid_position.z < 0.0) {
-      if(asteroid->is_moving) {
-        std::cout << "Position of the deleted asteroid : " << asteroid_position.x << " " << asteroid_position.y << "\n";
-      }
-
-      // Delete invisible asteroids
-      world_node->remove(node);
-      it = asteroids_.erase(it);
     } else {
       ++it;
     }
@@ -204,108 +177,6 @@ void Game::updateGame(double time, int fps) {
   // Adds dialogs
   if(player->position.z == 0 && player->score < 100.0) {
     hud->newDialog(0, time);
-  }
-
-  // For each projectile in projectiles list
-  for(auto it = projectiles.begin(); it != projectiles.end();) {
-    Projectile *shoot = *it;
-    shoot->update(time);
-
-    // For each asteroid in asteroids_ list
-    for(auto it = asteroids_.begin(); it != asteroids_.end();) {
-      Asteroid *asteroid = *it;
-      Node* node = asteroid->asteroid_node;
-      glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
-      // Delete the asteroid if colision
-      if (shoot->checkCollision(glm::vec3(asteroid_position))) {
-        world_node->remove(node);
-        it = asteroids_.erase(it);
-        
-        shoot->active = false;
-        player->score += 50.0;
-        hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time);
-        hud->newDialog(1, time);
-      } else {
-        ++it;
-      }
-    }
-
-    // Delete the shoot if inactive
-    if (!shoot->active) {
-      scene_root->remove(shoot->node);
-      it = projectiles.erase(it);
-    } else {
-      ++it;
-    }
-  }
-
-  // For each light projectile in light_projectiles list
-  for(auto it = light_projectiles.begin(); it != light_projectiles.end();) {
-    LightProjectile *shoot = *it;
-    shoot->update(time);
-
-    // For each asteroid in asteroids_ list
-    for(auto asteroid_it = asteroids_.begin(); asteroid_it != asteroids_.end(); ++asteroid_it) {
-      Asteroid *asteroid = *asteroid_it;
-      Node* node = asteroid->asteroid_node;
-      glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
-      // Check collision with asteroid
-      if (shoot->checkCollision(glm::vec3(asteroid_position))) {
-        asteroid->life -= 1;
-        if (asteroid->life <= 0) {
-          create_explosion(asteroid_position, time);
-          if (rand() % 3 == 0) {
-            spawn_bullet(asteroid_position);
-          }
-          // Erase the asteroid
-          world_node->remove(node);
-          asteroids_.erase(asteroid_it);
-          // Increment score
-          player->score += 50.0;
-          hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time);
-        }
-        // Delete the shoot
-        shoot->active = false;
-        break; // Exit asteroid loop since projectile hit something
-      }
-    }
-
-    // Delete the shoot if inactive
-    if (!shoot->active) {
-      scene_root->remove(shoot->node);
-      it = light_projectiles.erase(it);
-    } else {
-      ++it;
-    }
-  }
-
-  // Update bullets
-  for(auto it = bullets_.begin(); it != bullets_.end();) {
-    Node* bulletNode = *it;
-    
-    // Move bullet at asteroid speed
-    bulletNode->transform_[3].z += (asteroid_speed * 0.005 * fps_correction);
-    
-    // Check collision with player
-    glm::vec3 bullet_position = glm::vec3(bulletNode->transform_[3].x, bulletNode->transform_[3].y, bulletNode->transform_[3].z);
-    double x = (player->position.x - bullet_position.x);
-    double y = (player->position.y - bullet_position.y);
-    double z = (player->position.z - bullet_position.z);
-    
-    if (sqrt(x * x + y * y + z * z) < 0.10) {
-      // Player collected the bullet
-      scene_root->remove(bulletNode);
-      it = bullets_.erase(it);
-      player->increaseBullets();
-    } else {
-      // Remove bullet if it's too far behind
-      if (bullet_position.z < -5.0f) {
-        scene_root->remove(bulletNode);
-        it = bullets_.erase(it);
-      } else {
-        ++it;
-      }
-    }
   }
 }
 
@@ -661,8 +532,6 @@ void Game::spawn_moving_asteroid() {
   float posX = -(time * x_speed) + ((rand() % 200) / 100.0f) - 1.0f;
   float posY = -(time * y_speed) + ((rand() % 200) / 100.0f) - 1.5f;
 
-  std::cout << "New asteroid, position :  " << posX << " " << posY << " " << posZ << ", time : " << time << ", speed : " << x_speed << " " << y_speed << " " << asteroid_speed << "\n";
-
   // Transformation matrix of the asteroid
   glm::mat4 asteroid_mat =
       glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, posZ)) *
@@ -689,14 +558,18 @@ void Game::spawn_moving_asteroid() {
 }
 
 void Game::spawn_bullet(glm::vec3 position) {
-  std::cout << "Spawning bullet at position: (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
   glm::mat4 bullet_mat =
       glm::translate(glm::mat4(1.0f), position) *
       glm::scale(glm::mat4(1.0f), 2.5f * glm::vec3(1.0f, 1.0f, 1.0f));
+  
   Node* bulletNode = new Node(bullet_mat);
+
+  bulletNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+  bulletNode->z_speed = &asteroid_speed;
   bulletNode->add(bullet);
+  
   bullets_.push_back(bulletNode);
-  scene_root->add(bulletNode);  // Add to scene_root instead of world_node
+  world_node->add(bulletNode); // Add it to world_node
 }
 
 void Game::create_explosion(glm::vec3 position, double time) {
@@ -715,4 +588,193 @@ void Game::deactivate_dev_mode() {
   camera.cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
   camera.cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
   camera.cameraPos = player->position + glm::vec3(0.0f, 0.05f, -0.3f);
+}
+
+void Game::detect_colisions(double time) {
+  colisions_between_asteroids(time);
+  colisions_player_asteroids(time);
+  colisions_player_bullet(time);
+  colisions_lprojectile_asteroid(time);
+  colisions_projectile_asteroid(time);
+}
+
+void Game::colisions_between_asteroids(double time) {
+  // Detect colisions between asteroids in asteroids_ list
+  for(size_t i = 0; i < asteroids_.size(); ++i) {
+    // The first asteroid of the comparison
+    Asteroid *asteroid1 = asteroids_[i];
+    Node* node1 = asteroid1->asteroid_node;
+    glm::vec3 pos1 = glm::vec3(node1->transform_[3].x, node1->transform_[3].y, node1->transform_[3].z);
+    
+    for(size_t j = i + 1; j < asteroids_.size(); ++j) {
+      // The second asteroid to which we compare the first asteroid
+      Asteroid *asteroid2 = asteroids_[j];
+      Node* node2 = asteroid2->asteroid_node;
+      glm::vec3 pos2 = glm::vec3(node2->transform_[3].x, node2->transform_[3].y, node2->transform_[3].z);
+
+      double x = (pos2.x - pos1.x);
+      double y = (pos2.y - pos1.y);
+      double z = (pos2.z - pos1.z);
+
+      if (sqrt(x * x + y * y + z * z) < 0.20) {
+        world_node->remove(node1);
+        world_node->remove(node2);
+
+        // Erase the higher index first to avoid invalidating the lower index
+        if (j > i) {
+          asteroids_.erase(asteroids_.begin() + j);
+          asteroids_.erase(asteroids_.begin() + i);
+        } else {
+          asteroids_.erase(asteroids_.begin() + i);
+          asteroids_.erase(asteroids_.begin() + j);
+        }
+
+        glm::vec3 explosion_point = glm::vec3(x, y, z) / 2.0f + pos1;
+        create_explosion(explosion_point, time); // Create explosion at collision point
+
+        i = -1;
+        break;
+      }
+    }
+  }
+}
+
+void Game::colisions_player_asteroids(double time) {
+  // Detect player colisions for each asteroid in asteroids_ list
+  for(auto it = asteroids_.begin(); it != asteroids_.end();) {
+    Asteroid *asteroid = *it;
+    Node* node = asteroid->asteroid_node;
+    glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
+    
+    double x = (player->position.x - asteroid_position.x);
+    double y = (player->position.y - asteroid_position.y);
+    double z = (player->position.z - asteroid_position.z);
+
+    // Delete the asteroid when it colides to the player
+    if (sqrt(x * x + y * y + z * z) < 0.20) {
+      world_node->remove(node);
+      it = asteroids_.erase(it);
+      player->damage(time);
+      create_explosion(asteroid_position, time); // Create explosion at collision point
+      lost = player->isDead();
+      hud->newDialog(3, time);
+    
+    } else if(asteroid_position.z < 0.0) {
+      if(asteroid->is_moving) {
+        
+      }
+      // Delete invisible asteroids
+      world_node->remove(node);
+      it = asteroids_.erase(it);
+    
+    } else {
+      ++it;
+    }
+  }
+}
+
+void Game::colisions_player_bullet(double time) {
+  // Update bullets
+  for(auto it = bullets_.begin(); it != bullets_.end();) {
+    Node* bulletNode = *it;
+    
+    // Check collision with player
+    glm::vec3 bullet_position = glm::vec3(bulletNode->transform_[3].x, bulletNode->transform_[3].y, bulletNode->transform_[3].z);
+    std::cout << "Bullet position : " << bullet_position.x << " " << bullet_position.y << " " << bullet_position.z << "\n";
+    double x = (player->position.x - bullet_position.x);
+    double y = (player->position.y - bullet_position.y);
+    double z = (player->position.z - bullet_position.z);
+    
+    if (sqrt(x * x + y * y + z * z) < 0.10) {
+      // Player collected the bullet
+      world_node->remove(bulletNode);
+      it = bullets_.erase(it);
+      player->increaseBullets();
+    } else {
+      // Remove bullet if it's too far behind
+      if (bullet_position.z < -0.2f) {
+        world_node->remove(bulletNode);
+        it = bullets_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+}
+
+void Game::colisions_lprojectile_asteroid(double time) {
+  // For each light projectile in light_projectiles list
+  for(auto it = light_projectiles.begin(); it != light_projectiles.end();) {
+    LightProjectile *shoot = *it;
+    shoot->update(time);
+
+    // For each asteroid in asteroids_ list
+    for(auto asteroid_it = asteroids_.begin(); asteroid_it != asteroids_.end(); ++asteroid_it) {
+      Asteroid *asteroid = *asteroid_it;
+      Node* node = asteroid->asteroid_node;
+      glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
+      // Check collision with asteroid
+      if (shoot->checkCollision(glm::vec3(asteroid_position))) {
+        asteroid->life -= 1;
+        if (asteroid->life <= 0) {
+          create_explosion(asteroid_position, time);
+          if (rand() % 3 == 0) {
+            spawn_bullet(asteroid_position);
+          }
+          // Erase the asteroid
+          world_node->remove(node);
+          asteroids_.erase(asteroid_it);
+          // Increment score
+          player->score += 50.0;
+          hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time);
+        }
+        // Delete the shoot
+        shoot->active = false;
+        break; // Exit asteroid loop since projectile hit something
+      }
+    }
+
+    // Delete the shoot if inactive
+    if (!shoot->active) {
+      scene_root->remove(shoot->node);
+      it = light_projectiles.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
+
+void Game::colisions_projectile_asteroid(double time) {
+  // For each projectile in projectiles list
+  for(auto it = projectiles.begin(); it != projectiles.end();) {
+    Projectile *shoot = *it;
+    shoot->update(time);
+
+    // For each asteroid in asteroids_ list
+    for(auto it = asteroids_.begin(); it != asteroids_.end();) {
+      Asteroid *asteroid = *it;
+      Node* node = asteroid->asteroid_node;
+      glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
+      // Delete the asteroid if colision
+      if (shoot->checkCollision(glm::vec3(asteroid_position))) {
+        world_node->remove(node);
+        it = asteroids_.erase(it);
+        
+        shoot->active = false;
+        player->score += 50.0;
+        hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time);
+        hud->newDialog(1, time);
+      } else {
+        ++it;
+      }
+    }
+
+    // Delete the shoot if inactive
+    if (!shoot->active) {
+      scene_root->remove(shoot->node);
+      it = projectiles.erase(it);
+    } else {
+      ++it;
+    }
+  }
 }

@@ -32,22 +32,27 @@ public:
   Node *scene_root;
   Node *world_node;
   bool lost = false;
-  
 
 private:
   void spawn_asteroid();
   void spawn_moving_asteroid();
   void spawn_bullet(glm::vec3 position);
   void create_explosion(glm::vec3 position, double time);
+  
+  void detect_colisions(double time);
+  void colisions_between_asteroids(double time);
+  void colisions_player_asteroids(double time);
+  void colisions_player_bullet(double time);
+  void colisions_lprojectile_asteroid(double time);
+  void colisions_projectile_asteroid(double time);
+
   Shader *phong_shader;
   bool dev_mode = false;
   bool is_rotating = false;
   bool idle_rot = false;
-  bool idle_lr =
-      false; // stores if the idle animation for left/right is running
+  bool idle_lr = false; // stores if the idle animation for left/right is running
   bool idle_ud = false; // stores if the idle animation for up/down is running
-  double idle_start_lr =
-      0.0; // stores the timestamp of the beginning of the idle animation
+  double idle_start_lr = 0.0; // stores the timestamp of the beginning of the idle animation
   double idle_start_ud = 0.0;
   double idle_start_rot = 0.0;
 

@@ -36,22 +36,22 @@ void Node::key_handler(int key) const {
 void Node::animation(float fps_correction) {
   // Avancer selon la vélocité
   if(z_speed != nullptr) {
-    velocity_.z = *z_speed; 
+    velocity_.z = *z_speed * 0.006; 
   } else {
     velocity_.z = 0.0f;
   }
   if(y_speed != nullptr) {
-    velocity_.y = *y_speed; 
+    velocity_.y = *y_speed * 0.006; 
   } else {
     velocity_.y = 0.0f;
   }
   if(x_speed != nullptr) {
-    velocity_.x = *x_speed; 
+    velocity_.x = *x_speed * 0.006; 
   } else {
     velocity_.x = 0.0f;
   }
 
-  transform_ = glm::translate(transform_, velocity_ * fps_correction);
+  transform_ = glm::translate(glm::mat4(1.0f), velocity_ * fps_correction) * transform_;
 
   // Animer les enfants
   for (Node *child : children_) {
