@@ -65,28 +65,13 @@ Game::Game(int width, int height, int target_fps) {
   asteroid = new ShapeModel(ressources_dir + "Asteroid.obj", asteroid_texture_shader);
   static_cast<ShapeModel*>(asteroid)->setTexture(asteroid_texture);
   
-  // Generates 20 asteroids
-  for (int i = 0; i < 20; ++i) {
-    // Random position
-    float x = ((rand() % 200) / 100.0f) - 1.0f; // entre -1 et 1
-    float y = ((rand() % 200) / 100.0f) - 1.0f;
-    float z = -(((rand() % 300) / 100.0f) - 1.0f); // entre -1 et -4
-
-    glm::mat4 asteroid_mat1 =
-        glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z)) *
-        glm::scale(glm::mat4(1.0f), 0.006f * glm::vec3(1.0f, 1.0f, 1.0f)) *
-        glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
-                    glm::vec3(1.0f, 0.0f, 0.0f)); // asteroid
-
-    Node *asteroidNode = new Node(asteroid_mat1);
-    asteroidNode->z_speed = &asteroid_speed;
-    asteroidNode->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
-    asteroidNode->add(asteroid);
-    
-    // Add it to the world
-    Asteroid* asteroid_obj = new Asteroid(asteroidNode);
-    asteroids_.push_back(asteroid_obj);
-    world_node->add(asteroid_obj->asteroid_node);
+  // Generates 20 elements
+  for (int i = 0; i < 40; ++i) {
+    if (i%10 == 0) {
+      spawn_ring(true, i/40.0f);
+    } else if (i%2 == 0) {
+      spawn_asteroid(true, i/40.0f);
+    }
   }
   
   // Add the player and the world to the scene root
@@ -119,20 +104,23 @@ void Game::updateGame(double time, int fps) {
     player->fps_correction = fps_correction;
   }
   
-  // Generates new asteroids
-  if (latence == 0) {
-    if(rand() % 10 == 0) {
-      //spawn_moving_asteroid();
-    } else {
-      //spawn_moving_asteroid();
+  // Generate game elements
+  if (generation_cooldown > 0) {
+    if(generation_cooldown % 15 == 0) { // Fifteen frames cooldown for generating moving asteroids
+      spawn_moving_asteroid();
+      std::cout << "Moving\n";
     }
-    if (rand() % 20 == 0) {
+    else if(generation_cooldown % 3 == 0) { // Two frames cooldown for generating asteroids
+      spawn_asteroid();
+      std::cout << "Simple\n";
+    }
+    if (generation_cooldown == 60) { // Thirty frames cooldown for generating rings
       spawn_ring();
     }
-    // Two frames cooldown for generating asteroids
-    latence = 2;
+    
+    generation_cooldown -= 1;
   } else {
-    latence -= 1;
+    generation_cooldown = 60;
   }
 
   // Moves the world forward
@@ -510,14 +498,37 @@ void Game::keyHandler(
   player->updatePosition();
 }
 
-void Game::spawn_asteroid() {
-  // Position aléatoire
-  float posX = ((rand() % 300) / 100.0f) - 1.5f; // Entre -1.5 et 1.5
-  float posY = ((rand() % 200) / 100.0f) - 1.5f; // Entre -1 et 1
-  float posZ = ((rand() % 400) / 100.0f) + 3.0f; // Entre 1 et 2
-
+void Game::spawn_asteroid(bool start_generation, float generation_distance) {
+  bool is_valid_position = false;
+  float posX;
+  float posY;
+  float posZ;
+  glm::vec3 candidate_position;
+  
+  // Generate random position for the asteroid while avoiding the rings
+  while (!is_valid_position) {
+    posX = ((rand() % 300) / 100.0f) - 1.5f; // Between -1.5 and 1.5
+    posY = ((rand() % 200) / 100.0f) - 1.0f; // Between -1 and 1
+    if (!start_generation) {
+      posZ = ((rand() % 400) / 100.0f) + 3.0f; // Between 3 and 7
+    } else {
+      posZ = 6.5f * generation_distance + 0.5f;
+    } 
+    candidate_position = glm::vec3(posX, posY, posZ);
+    is_valid_position = true;
+    
+    for (Ring* ring : rings_) {
+      glm::vec3 ring_pos = glm::vec3(ring->ring_node->transform_[3]);
+      float dist = glm::distance(candidate_position, ring_pos);
+      if (dist < 0.4f) { // too close
+        is_valid_position = false;
+        break;
+      }
+    }
+  }
+  
   glm::mat4 asteroid_mat =
-      glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, posZ)) *
+      glm::translate(glm::mat4(1.0f), candidate_position) *
       glm::scale(glm::mat4(1.0f), 0.006f * glm::vec3(1.0f, 1.0f, 1.0f)) *
       glm::rotate(glm::mat4(1.0f), glm::radians(10.0f),
                   glm::vec3(1.0f, 0.0f, 0.0f));
@@ -589,11 +600,19 @@ void Game::spawn_bullet(glm::vec3 position) {
   world_node->add(bulletNode); // Add it to world_node
 }
 
-void Game::spawn_ring() {
-  glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
-  Ring* ring = new Ring(position);
+void Game::spawn_ring(bool start_generation, float generation_distance) {
+  float posX, posY, posZ;
+  
+  posX = ((rand() % 200) / 100.0f) - 1.0f; // Between -1.5 and 1.5
+  posY = ((rand() % 150) / 100.0f) - 0.75f; // Between -1 and 1
+  if (start_generation) {
+    posZ = 6.5f * generation_distance + 0.5f;  
+  } else {
+    posZ = 7.0f;
+  }
 
-  std::cout << "Ring spawned: " << ring << " at position: " << ring->ring_node->transform_[3][0] << ", " << ring->ring_node->transform_[3][1] << ", " << ring->ring_node->transform_[3][2] << std::endl;
+  glm::vec3 position = glm::vec3(posX, posY, posZ);
+  Ring* ring = new Ring(position);
 
   ring->ring_node->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
   ring->ring_node->z_speed = &asteroid_speed;

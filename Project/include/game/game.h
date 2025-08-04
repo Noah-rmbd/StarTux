@@ -35,12 +35,11 @@ public:
   bool lost = false;
 
 private:
-  void spawn_asteroid();
+  void spawn_asteroid(bool start_generation = false, float generation_distance = 0.0f);
   void spawn_moving_asteroid();
   void spawn_bullet(glm::vec3 position);
-  void spawn_ring();
+  void spawn_ring(bool start_generation = false, float generation_distance = 0.0f);
   void create_explosion(glm::vec3 position, double time);
-  
   void detect_colisions(double time);
   void colisions_between_asteroids(double time);
   void colisions_player_asteroids(double time);
@@ -88,7 +87,7 @@ private:
   std::vector<Asteroid *> asteroids_;
   const size_t max_asteroids_ = 30;
   float asteroid_speed = -2.4f;
-  int latence = 0;
+  int generation_cooldown = 0;
 
   // Bullet elements
   Shape *bullet;
