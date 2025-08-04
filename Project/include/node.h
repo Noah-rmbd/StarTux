@@ -22,7 +22,6 @@ public:
   glm::vec3 velocity_ = glm::vec3(0.0f);
   glm::mat4 transform_;
   std::vector<Node *> children_;
-
-private:
   std::vector<Shape *> children_shape_;
+  
 };

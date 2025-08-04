@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/external/glew-cmake
+# Install script for directory: /Users/noah-r/Coding/StarTux/Project/external/glew-cmake
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/OpenGLProgram")
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -34,22 +34,36 @@ endif()
 
 # Set path to fallback-tool for dependency-resolution.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/Users/cloth/AppData/Local/Programs/CLion/bin/mingw/bin/objdump.exe")
+  set(CMAKE_OBJDUMP "/usr/bin/objdump")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/cmake-build-debug/external/glew-cmake/lib/libglewd.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/Users/noah-r/Coding/StarTux/Project/cmake-build-debug/external/glew-cmake/lib/libglewd.a")
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libglewd.a" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libglewd.a")
+    execute_process(COMMAND "/usr/bin/ranlib" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libglewd.a")
+  endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY OPTIONAL FILES "C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/cmake-build-debug/external/glew-cmake/lib/libglew-sharedd.dll.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/Users/noah-r/Coding/StarTux/Project/cmake-build-debug/external/glew-cmake/lib/libglew-sharedd.2.2.0.dylib")
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libglew-sharedd.2.2.0.dylib" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libglew-sharedd.2.2.0.dylib")
+    if(CMAKE_INSTALL_DO_STRIP)
+      execute_process(COMMAND "/usr/bin/strip" -x "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libglew-sharedd.2.2.0.dylib")
+    endif()
+  endif()
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/Users/noah-r/Coding/StarTux/Project/cmake-build-debug/external/glew-cmake/lib/libglew-sharedd.dylib")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glew/glewConfig.cmake")
     file(DIFFERENT _cmake_export_file_changed FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glew/glewConfig.cmake"
-         "C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/cmake-build-debug/external/glew-cmake/CMakeFiles/Export/7a894a12241bfddc41ca6be6d0e647bd/glewConfig.cmake")
+         "/Users/noah-r/Coding/StarTux/Project/cmake-build-debug/external/glew-cmake/CMakeFiles/Export/7a894a12241bfddc41ca6be6d0e647bd/glewConfig.cmake")
     if(_cmake_export_file_changed)
       file(GLOB _cmake_old_config_files "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glew/glewConfig-*.cmake")
       if(_cmake_old_config_files)
@@ -62,18 +76,24 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
     endif()
     unset(_cmake_export_file_changed)
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/glew" TYPE FILE FILES "C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/cmake-build-debug/external/glew-cmake/CMakeFiles/Export/7a894a12241bfddc41ca6be6d0e647bd/glewConfig.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/glew" TYPE FILE FILES "/Users/noah-r/Coding/StarTux/Project/cmake-build-debug/external/glew-cmake/CMakeFiles/Export/7a894a12241bfddc41ca6be6d0e647bd/glewConfig.cmake")
   if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/glew" TYPE FILE FILES "C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/cmake-build-debug/external/glew-cmake/CMakeFiles/Export/7a894a12241bfddc41ca6be6d0e647bd/glewConfig-debug.cmake")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/glew" TYPE FILE FILES "/Users/noah-r/Coding/StarTux/Project/cmake-build-debug/external/glew-cmake/CMakeFiles/Export/7a894a12241bfddc41ca6be6d0e647bd/glewConfig-debug.cmake")
   endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/GL" TYPE FILE FILES
-    "C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/external/glew-cmake/include/GL/eglew.h"
-    "C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/external/glew-cmake/include/GL/glew.h"
-    "C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/external/glew-cmake/include/GL/glxew.h"
-    "C:/Users/cloth/Desktop/Cours/Polytech/ET3/S6/ComputerGraphics/project-master/project/external/glew-cmake/include/GL/wglew.h"
+    "/Users/noah-r/Coding/StarTux/Project/external/glew-cmake/include/GL/eglew.h"
+    "/Users/noah-r/Coding/StarTux/Project/external/glew-cmake/include/GL/glew.h"
+    "/Users/noah-r/Coding/StarTux/Project/external/glew-cmake/include/GL/glxew.h"
+    "/Users/noah-r/Coding/StarTux/Project/external/glew-cmake/include/GL/wglew.h"
     )
 endif()
 
+string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
+       "${CMAKE_INSTALL_MANIFEST_FILES}")
+if(CMAKE_INSTALL_LOCAL_ONLY)
+  file(WRITE "/Users/noah-r/Coding/StarTux/Project/cmake-build-debug/external/glew-cmake/install_local_manifest.txt"
+     "${CMAKE_INSTALL_MANIFEST_CONTENT}")
+endif()

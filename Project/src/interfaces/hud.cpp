@@ -56,9 +56,9 @@ void Hud::mouse(double xpos, double ypos){
     yPos = ypos;
 }
 
-void Hud::scoreIncrement(int xpos, int ypos, double time){
+void Hud::scoreIncrement(int xpos, int ypos, double time, int score){
     scoreFeedback = new std::pair<std::pair<std::string, double>, std::pair<int, int>>(
-        std::make_pair("+50p", time),
+        std::make_pair("+" + std::to_string(score) + "p", time),
         std::make_pair(xpos, ypos)
     );
 }

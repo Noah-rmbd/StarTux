@@ -52,6 +52,7 @@ set(SOURCES
     ${SRC_DIR}/game/projectile.cpp
     ${SRC_DIR}/game/asteroid.cpp
     ${SRC_DIR}/game/explosion.cpp
+    ${SRC_DIR}/game/ring.cpp
     ${SRC_DIR}/shapes/shape_model.cpp
     ${SRC_DIR}/shapes/sphere.cpp
     ${SRC_DIR}/graphics/texture.cpp
@@ -104,14 +105,34 @@ else()
     include_directories(${SNDFILE_INCLUDE_DIR})
 endif()
 # Link libraries - version moderne et organisée
-target_link_libraries(opengl_program
-    libglew_static
-    glfw
-    OpenAL::OpenAL
-    ${SNDFILE_LIBRARIES}  # Ajout du lien vers libsndfile
-    ${ASSIMP_LIBRARIES}
-    ${FREETYPE_LIBRARIES}
-)
+if(APPLE)
+    # macOS specific linking
+    target_link_libraries(opengl_program
+        libglew_static
+        glfw
+        OpenAL::OpenAL
+        ${SNDFILE_LIBRARY}
+        ${ASSIMP_LIBRARIES}
+        ${FREETYPE_LIBRARIES}
+    )
+    
+    # Add macOS frameworks explicitly
+    find_library(OPENGL_LIBRARY OpenGL)
+    find_library(COCOA_LIBRARY Cocoa)
+    find_library(IOKIT_LIBRARY IOKit)
+    find_library(COREVIDEO_LIBRARY CoreVideo)
+    target_link_libraries(opengl_program ${OPENGL_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY} ${COREVIDEO_LIBRARY})
+else()
+    # Non-macOS linking
+    target_link_libraries(opengl_program
+        libglew_static
+        glfw
+        OpenAL::OpenAL
+        ${SNDFILE_LIBRARY}
+        ${ASSIMP_LIBRARIES}
+        ${FREETYPE_LIBRARIES}
+    )
+endif()
 
 # Custom run target
 add_custom_target(run

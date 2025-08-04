@@ -102,6 +102,8 @@ Game::Game(int width, int height, int target_fps) {
 
   // Initialize the shoot cooldown variable
   last_shoot_time = 0.0;
+
+  spawn_ring();
 }
 
 void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps) {
@@ -120,9 +122,12 @@ void Game::updateGame(double time, int fps) {
   // Generates new asteroids
   if (latence == 0) {
     if(rand() % 10 == 0) {
-      spawn_moving_asteroid();
+      //spawn_moving_asteroid();
     } else {
-      spawn_moving_asteroid();
+      //spawn_moving_asteroid();
+    }
+    if (rand() % 20 == 0) {
+      spawn_ring();
     }
     // Two frames cooldown for generating asteroids
     latence = 2;
@@ -150,6 +155,14 @@ void Game::updateGame(double time, int fps) {
     }
   }
 
+  // Update boost mode
+  if(is_boost_mode) {
+    if(time - boost_time > 3.0) {
+      asteroid_speed /= 2.0f;
+      is_boost_mode = false;
+    }
+  }
+
   // Increments player's score
   player->score += 1.0;
   // Updates player's shield state
@@ -165,12 +178,16 @@ void Game::updateGame(double time, int fps) {
 
   // Every 1000 points, the ship speed increases
   if(static_cast<int>(player->score) % 500 == 0) {
+    int boost_multiplicator = 1.0f;
+    if(is_boost_mode) {
+      boost_multiplicator = 2.0f;
+    }
     if (player->score > 10000.0) {
-      asteroid_speed -= 0.8;
+      asteroid_speed -= 0.8 * boost_multiplicator;
     } else if(player->score > 5000.0) {
-      asteroid_speed -= 0.6;
+      asteroid_speed -= 0.6 * boost_multiplicator;
     } else {
-      asteroid_speed -= 0.4;
+      asteroid_speed -= 0.4 * boost_multiplicator;
     }
   }
 
@@ -572,6 +589,19 @@ void Game::spawn_bullet(glm::vec3 position) {
   world_node->add(bulletNode); // Add it to world_node
 }
 
+void Game::spawn_ring() {
+  glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
+  Ring* ring = new Ring(position);
+
+  std::cout << "Ring spawned: " << ring << " at position: " << ring->ring_node->transform_[3][0] << ", " << ring->ring_node->transform_[3][1] << ", " << ring->ring_node->transform_[3][2] << std::endl;
+
+  ring->ring_node->velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
+  ring->ring_node->z_speed = &asteroid_speed;
+  
+  rings_.push_back(ring);
+  world_node->add(ring->ring_node);
+}
+
 void Game::create_explosion(glm::vec3 position, double time) {
     Explosion* explosion = new Explosion(phong_shader, position, time);
     explosions.push_back(explosion);
@@ -594,6 +624,7 @@ void Game::detect_colisions(double time) {
   colisions_between_asteroids(time);
   colisions_player_asteroids(time);
   colisions_player_bullet(time);
+  colisions_player_ring(time);
   colisions_lprojectile_asteroid(time);
   colisions_projectile_asteroid(time);
 }
@@ -660,9 +691,6 @@ void Game::colisions_player_asteroids(double time) {
       hud->newDialog(3, time);
     
     } else if(asteroid_position.z < 0.0) {
-      if(asteroid->is_moving) {
-        
-      }
       // Delete invisible asteroids
       world_node->remove(node);
       it = asteroids_.erase(it);
@@ -702,6 +730,47 @@ void Game::colisions_player_bullet(double time) {
   }
 }
 
+void Game::colisions_player_ring(double time) {
+  // Update bullets
+  for(auto it = rings_.begin(); it != rings_.end();) {
+    Ring* ring = *it;
+    Node* ringNode = ring->ring_node;
+
+    // Check collision with player
+    glm::vec3 ring_position = glm::vec3(ringNode->transform_[3].x, ringNode->transform_[3].y, ringNode->transform_[3].z);
+    //std::cout << "Bullet position : " << bullet_position.x << " " << bullet_position.y << " " << bullet_position.z << "\n";
+    double x = (player->position.x - ring_position.x);
+    double y = (player->position.y - ring_position.y);
+    double z = (player->position.z - ring_position.z);
+    
+    ring->update(time);
+    
+    bool collision = (sqrt(x * x + y * y) < 0.055 && z > 0.03 && z < 0.05); 
+
+    if (collision && !ring->animating) {
+      std::cout << "Collision detected with ring: " << ring << " at position: " << ring_position.x << ", " << ring_position.y << ", " << ring_position.z << std::endl;
+        // Player collected the bullet
+        if (!is_boost_mode) {
+          is_boost_mode = true;
+          boost_time = time;
+          asteroid_speed *= 2.0f;
+        } else {
+          boost_time = time;
+        }
+        ring->startAnimation(time);
+    }
+    
+    if (ring->to_delete || ring_position.z < -0.1f) {
+      world_node->remove(ringNode);
+      delete ring;
+      it = rings_.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
+
+
 void Game::colisions_lprojectile_asteroid(double time) {
   // For each light projectile in light_projectiles list
   for(auto it = light_projectiles.begin(); it != light_projectiles.end();) {
@@ -721,12 +790,17 @@ void Game::colisions_lprojectile_asteroid(double time) {
           if (rand() % 3 == 0) {
             spawn_bullet(asteroid_position);
           }
+          // Increment score
+          if (asteroid->is_moving) {
+            player->score += 100.0;
+            hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time, 100);
+          } else {
+            player->score += 50.0;
+            hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time, 50);
+          }
           // Erase the asteroid
           world_node->remove(node);
           asteroids_.erase(asteroid_it);
-          // Increment score
-          player->score += 50.0;
-          hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time);
         }
         // Delete the shoot
         shoot->active = false;
@@ -757,13 +831,19 @@ void Game::colisions_projectile_asteroid(double time) {
       glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
       // Delete the asteroid if colision
       if (shoot->checkCollision(glm::vec3(asteroid_position))) {
+        // Increment score
+        if (asteroid->is_moving) {
+          player->score += 100.0;
+          hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time, 100);
+        } else {
+          player->score += 50.0;
+          hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time, 50);
+        }
+        hud->newDialog(1, time);
+        
         world_node->remove(node);
         it = asteroids_.erase(it);
-        
         shoot->active = false;
-        player->score += 50.0;
-        hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time);
-        hud->newDialog(1, time);
       } else {
         ++it;
       }

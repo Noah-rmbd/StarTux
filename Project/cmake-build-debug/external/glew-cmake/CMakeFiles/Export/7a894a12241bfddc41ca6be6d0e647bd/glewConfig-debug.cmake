@@ -18,11 +18,12 @@ list(APPEND _cmake_import_check_files_for_libglew_static "${_IMPORT_PREFIX}/lib/
 # Import target "libglew_shared" for configuration "Debug"
 set_property(TARGET libglew_shared APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(libglew_shared PROPERTIES
-  IMPORTED_IMPLIB_DEBUG "${_IMPORT_PREFIX}/lib/libglew-sharedd.dll.a"
+  IMPORTED_LOCATION_DEBUG "${_IMPORT_PREFIX}/lib/libglew-sharedd.2.2.0.dylib"
+  IMPORTED_SONAME_DEBUG "@rpath/libglew-sharedd.2.2.0.dylib"
   )
 
 list(APPEND _cmake_import_check_targets libglew_shared )
-list(APPEND _cmake_import_check_files_for_libglew_shared "${_IMPORT_PREFIX}/lib/libglew-sharedd.dll.a" )
+list(APPEND _cmake_import_check_files_for_libglew_shared "${_IMPORT_PREFIX}/lib/libglew-sharedd.2.2.0.dylib" )
 
 # Commands beyond this point should not need to know the version.
 set(CMAKE_IMPORT_FILE_VERSION)

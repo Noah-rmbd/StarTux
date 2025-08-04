@@ -118,8 +118,9 @@ endif()
 
 # OS Specific dependencies
 if(APPLE)
-	find_library(AGL_LIBRARY AGL REQUIRED)
-	list(APPEND LIBRARIES ${AGL_LIBRARY})
+	# AGL is deprecated on macOS, so we'll skip it
+	# find_library(AGL_LIBRARY AGL REQUIRED)
+	# list(APPEND LIBRARIES ${AGL_LIBRARY})
 elseif(NOT WIN32)
 	if(GLEW_OSMESA)
 		find_library(OSMESA_LIBRARY OSMesa REQUIRED)

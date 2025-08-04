@@ -9,6 +9,7 @@
 #include "light_projectile.h"
 #include "projectile.h"
 #include "asteroid.h"
+#include "ring.h"
 #include "texture.h"
 #include "textured_sphere.h"
 #include "explosion.h"
@@ -37,12 +38,14 @@ private:
   void spawn_asteroid();
   void spawn_moving_asteroid();
   void spawn_bullet(glm::vec3 position);
+  void spawn_ring();
   void create_explosion(glm::vec3 position, double time);
   
   void detect_colisions(double time);
   void colisions_between_asteroids(double time);
   void colisions_player_asteroids(double time);
   void colisions_player_bullet(double time);
+  void colisions_player_ring(double time);
   void colisions_lprojectile_asteroid(double time);
   void colisions_projectile_asteroid(double time);
 
@@ -91,8 +94,16 @@ private:
   Shape *bullet;
   std::vector<Node *> bullets_;
 
+  // Ring elements
+  Ring *ring;
+  std::vector<Ring *> rings_;
+
   // Explosion effects
   std::vector<Explosion*> explosions;
+
+  // Boost mode
+  bool is_boost_mode = false;
+  double boost_time;
 };
 
 #endif
