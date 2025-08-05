@@ -57,10 +57,10 @@ RM = /opt/homebrew/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/noah-r/Projects/StarTux/Project
+CMAKE_SOURCE_DIR = /Users/noah-r/Coding/StarTux/Project
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/noah-r/Projects/StarTux/Project
+CMAKE_BINARY_DIR = /Users/noah-r/Coding/StarTux/Project
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,14 +132,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /Users/noah-r/Projects/StarTux/Project && $(CMAKE_COMMAND) -E cmake_progress_start /Users/noah-r/Projects/StarTux/Project/CMakeFiles /Users/noah-r/Projects/StarTux/Project/external/glew-cmake//CMakeFiles/progress.marks
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/noah-r/Projects/StarTux/Project/CMakeFiles 0
+	cd /Users/noah-r/Coding/StarTux/Project && $(CMAKE_COMMAND) -E cmake_progress_start /Users/noah-r/Coding/StarTux/Project/CMakeFiles /Users/noah-r/Coding/StarTux/Project/external/glew-cmake//CMakeFiles/progress.marks
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/noah-r/Coding/StarTux/Project/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/clean
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/clean
 .PHONY : clean
 
 # The main clean target
@@ -148,22 +148,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/preinstall
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/preinstall
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /Users/noah-r/Projects/StarTux/Project && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /Users/noah-r/Coding/StarTux/Project && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 external/glew-cmake/CMakeFiles/libglew_static.dir/rule:
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/CMakeFiles/libglew_static.dir/rule
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/CMakeFiles/libglew_static.dir/rule
 .PHONY : external/glew-cmake/CMakeFiles/libglew_static.dir/rule
 
 # Convenience name for target.
@@ -172,12 +172,12 @@ libglew_static: external/glew-cmake/CMakeFiles/libglew_static.dir/rule
 
 # fast build rule for target.
 libglew_static/fast:
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_static.dir/build.make external/glew-cmake/CMakeFiles/libglew_static.dir/build
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_static.dir/build.make external/glew-cmake/CMakeFiles/libglew_static.dir/build
 .PHONY : libglew_static/fast
 
 # Convenience name for target.
 external/glew-cmake/CMakeFiles/libglew_shared.dir/rule:
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/CMakeFiles/libglew_shared.dir/rule
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 external/glew-cmake/CMakeFiles/libglew_shared.dir/rule
 .PHONY : external/glew-cmake/CMakeFiles/libglew_shared.dir/rule
 
 # Convenience name for target.
@@ -186,7 +186,7 @@ libglew_shared: external/glew-cmake/CMakeFiles/libglew_shared.dir/rule
 
 # fast build rule for target.
 libglew_shared/fast:
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_shared.dir/build.make external/glew-cmake/CMakeFiles/libglew_shared.dir/build
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_shared.dir/build.make external/glew-cmake/CMakeFiles/libglew_shared.dir/build
 .PHONY : libglew_shared/fast
 
 src/glew.o: src/glew.c.o
@@ -194,8 +194,8 @@ src/glew.o: src/glew.c.o
 
 # target to build an object file
 src/glew.c.o:
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_static.dir/build.make external/glew-cmake/CMakeFiles/libglew_static.dir/src/glew.c.o
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_shared.dir/build.make external/glew-cmake/CMakeFiles/libglew_shared.dir/src/glew.c.o
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_static.dir/build.make external/glew-cmake/CMakeFiles/libglew_static.dir/src/glew.c.o
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_shared.dir/build.make external/glew-cmake/CMakeFiles/libglew_shared.dir/src/glew.c.o
 .PHONY : src/glew.c.o
 
 src/glew.i: src/glew.c.i
@@ -203,8 +203,8 @@ src/glew.i: src/glew.c.i
 
 # target to preprocess a source file
 src/glew.c.i:
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_static.dir/build.make external/glew-cmake/CMakeFiles/libglew_static.dir/src/glew.c.i
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_shared.dir/build.make external/glew-cmake/CMakeFiles/libglew_shared.dir/src/glew.c.i
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_static.dir/build.make external/glew-cmake/CMakeFiles/libglew_static.dir/src/glew.c.i
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_shared.dir/build.make external/glew-cmake/CMakeFiles/libglew_shared.dir/src/glew.c.i
 .PHONY : src/glew.c.i
 
 src/glew.s: src/glew.c.s
@@ -212,8 +212,8 @@ src/glew.s: src/glew.c.s
 
 # target to generate assembly for a file
 src/glew.c.s:
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_static.dir/build.make external/glew-cmake/CMakeFiles/libglew_static.dir/src/glew.c.s
-	cd /Users/noah-r/Projects/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_shared.dir/build.make external/glew-cmake/CMakeFiles/libglew_shared.dir/src/glew.c.s
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_static.dir/build.make external/glew-cmake/CMakeFiles/libglew_static.dir/src/glew.c.s
+	cd /Users/noah-r/Coding/StarTux/Project && $(MAKE) $(MAKESILENT) -f external/glew-cmake/CMakeFiles/libglew_shared.dir/build.make external/glew-cmake/CMakeFiles/libglew_shared.dir/src/glew.c.s
 .PHONY : src/glew.c.s
 
 # Help Target
@@ -244,6 +244,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /Users/noah-r/Projects/StarTux/Project && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /Users/noah-r/Coding/StarTux/Project && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

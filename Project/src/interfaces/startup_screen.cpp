@@ -51,8 +51,8 @@ void StartupScreen::update(){
     float imageWidth = 373.0f;
     float imageHeight = 960.0f;
     
-    float centerX = 1294.0f;
-    float centerY = 480.0f;
+    float centerX = 1110.0f;
+    float centerY = 0.0f;
     angle += 0.01f;
     background_space->transform_ = glm::translate(glm::mat4(1.0f), glm::vec3(-0.7f, -0.5f, 0.0f))
         * glm::scale(glm::mat4(1.0f), 1.0f * glm::vec3(1.0f, 1.0f, 1.0f))

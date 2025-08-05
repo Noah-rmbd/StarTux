@@ -57,10 +57,10 @@ RM = /opt/homebrew/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/noah-r/Projects/StarTux/Project
+CMAKE_SOURCE_DIR = /Users/noah-r/Coding/StarTux/Project
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/noah-r/Projects/StarTux/Project
+CMAKE_BINARY_DIR = /Users/noah-r/Coding/StarTux/Project
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,9 +132,9 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/noah-r/Projects/StarTux/Project/CMakeFiles /Users/noah-r/Projects/StarTux/Project//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/noah-r/Coding/StarTux/Project/CMakeFiles /Users/noah-r/Coding/StarTux/Project//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/noah-r/Projects/StarTux/Project/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/noah-r/Coding/StarTux/Project/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -443,6 +443,30 @@ src/game/projectile.s: src/game/projectile.cpp.s
 src/game/projectile.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/projectile.cpp.s
 .PHONY : src/game/projectile.cpp.s
+
+src/game/ring.o: src/game/ring.cpp.o
+.PHONY : src/game/ring.o
+
+# target to build an object file
+src/game/ring.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/ring.cpp.o
+.PHONY : src/game/ring.cpp.o
+
+src/game/ring.i: src/game/ring.cpp.i
+.PHONY : src/game/ring.i
+
+# target to preprocess a source file
+src/game/ring.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/ring.cpp.i
+.PHONY : src/game/ring.cpp.i
+
+src/game/ring.s: src/game/ring.cpp.s
+.PHONY : src/game/ring.s
+
+# target to generate assembly for a file
+src/game/ring.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/ring.cpp.s
+.PHONY : src/game/ring.cpp.s
 
 src/graphics/shader.o: src/graphics/shader.cpp.o
 .PHONY : src/graphics/shader.o
@@ -799,6 +823,9 @@ help:
 	@echo "... src/game/projectile.o"
 	@echo "... src/game/projectile.i"
 	@echo "... src/game/projectile.s"
+	@echo "... src/game/ring.o"
+	@echo "... src/game/ring.i"
+	@echo "... src/game/ring.s"
 	@echo "... src/graphics/shader.o"
 	@echo "... src/graphics/shader.i"
 	@echo "... src/graphics/shader.s"

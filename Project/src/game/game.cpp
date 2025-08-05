@@ -93,7 +93,7 @@ Game::Game(int width, int height, int target_fps) {
 
 void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps) {
   scene_root->draw(model, view, projection);
-  hud->update(player->life, player->score, player->bullets, time, -asteroid_speed*50, fps);
+  hud->update(player->life, player->score, player->bullets, time, -asteroid_speed*50, fps, view, projection);
 }
 
 void Game::updateGame(double time, int fps) {
@@ -108,11 +108,9 @@ void Game::updateGame(double time, int fps) {
   if (generation_cooldown > 0) {
     if(generation_cooldown % 15 == 0) { // Fifteen frames cooldown for generating moving asteroids
       spawn_moving_asteroid();
-      std::cout << "Moving\n";
     }
     else if(generation_cooldown % 3 == 0) { // Two frames cooldown for generating asteroids
       spawn_asteroid();
-      std::cout << "Simple\n";
     }
     if (generation_cooldown == 60) { // Thirty frames cooldown for generating rings
       spawn_ring();
