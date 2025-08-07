@@ -78,6 +78,8 @@ Interface::Interface(int width, int height) : windowWidth(width), windowHeight(h
                             shader_dir + "text.fs");
     imageShader = new Shader(shader_dir + "texture.vert", 
                            shader_dir + "texture.frag");
+    colorShader = new Shader(shader_dir + "ui_color.vert", 
+                            shader_dir + "ui_color.frag");
     
     // Initialize 3D shaders for new system
     text3DShader = new Shader(shader_dir + "text.vs", 
@@ -97,6 +99,11 @@ Interface::Interface(int width, int height) : windowWidth(width), windowHeight(h
     glm::mat4 view2D = glm::mat4(1.0f);
     imageShader->setMat4("view", view2D);
     imageShader->setInt("diffuse_map", 0);
+    
+    // Set up color shader projection and view
+    colorShader->use();
+    colorShader->setMat4("projection", projection2D);
+    colorShader->setMat4("view", view2D);
     
     // Set up 3D shaders (will be configured per frame)
     text3DShader->use();
@@ -237,6 +244,7 @@ void Interface::beginFrame(glm::mat4 view, glm::mat4 projection) {
     // Clear previous frame elements
     textOverlays.clear();
     imageElements.clear();
+    coloredRectangles.clear();
     cursorElements.clear();
 }
 
@@ -299,6 +307,17 @@ void Interface::addImageElement(Texture* texture, glm::vec3 position, glm::vec2 
     imageElements.push_back(element);
 }
 
+void Interface::addColoredRectangle(glm::vec3 position, glm::vec2 size, glm::vec4 color, bool is3D, int panelId) {
+    ColoredRectangle rect;
+    rect.position = position;
+    rect.size = size;
+    rect.color = color;
+    rect.is3D = is3D;
+    rect.panelId = panelId;
+    
+    coloredRectangles.push_back(rect);
+}
+
 void Interface::addCursorElement(Texture* texture, glm::vec3 position, glm::vec2 size, glm::vec4 color) {
     ImageElement element;
     element.texture = texture;
@@ -318,6 +337,10 @@ void Interface::clearTextOverlays() {
 
 void Interface::clearImageElements() {
     imageElements.clear();
+}
+
+void Interface::clearColoredRectangles() {
+    coloredRectangles.clear();
 }
 
 void Interface::clearCursorElements() {
@@ -350,6 +373,11 @@ void Interface::renderLayer(RenderLayer layer) {
             break;
             
         case RenderLayer::HUD_ELEMENTS:
+            // Render colored rectangles first (behind images)
+            for (const auto& rect : coloredRectangles) {
+                renderColoredRectangle(rect);
+            }
+            
             // Render image elements
             for (const auto& element : imageElements) {
                 if (element.is3D) {
@@ -612,6 +640,43 @@ void Interface::disableBlending() {
     glDisable(GL_BLEND);
 }
 
+void Interface::renderColoredRectangle(const ColoredRectangle& rect) {
+    // Use color shader
+    colorShader->use();
+    
+    // Set up matrices
+    if (rect.is3D) {
+        colorShader->setMat4("projection", currentProjection);
+        colorShader->setMat4("view", currentView);
+    } else {
+        // For 2D rectangles, use orthographic projection
+        glm::mat4 projection2D = glm::ortho(0.0f, static_cast<float>(windowWidth), 
+                                           0.0f, static_cast<float>(windowHeight), -1.0f, 1.0f);
+        glm::mat4 view2D = glm::mat4(1.0f);
+        colorShader->setMat4("projection", projection2D);
+        colorShader->setMat4("view", view2D);
+    }
+    
+    // Create model matrix
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, rect.position);
+    model = glm::scale(model, glm::vec3(rect.size.x, rect.size.y, 1.0f));
+    colorShader->setMat4("model", model);
+    
+    // Set color uniform
+    colorShader->setVec4("color", rect.color);
+    
+    // Enable blending
+    setupBlending();
+    
+    // Draw quad using image VAO (same geometry, different shader)
+    glBindVertexArray(imageVAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    
+    disableBlending();
+}
+
 Interface::~Interface()
 {
     // Clean up FreeType resources
@@ -627,6 +692,7 @@ Interface::~Interface()
     // Clean up shaders
     delete textShader;
     delete imageShader;
+    delete colorShader;
     delete text3DShader;
     delete image3DShader;
 }

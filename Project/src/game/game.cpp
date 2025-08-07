@@ -93,10 +93,23 @@ Game::Game(int width, int height, int target_fps) {
 
 void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps) {
   scene_root->draw(model, view, projection);
-  hud->update(player->life, player->score, player->bullets, time, -asteroid_speed*50, fps, view, projection);
+  
+  // Prepare player rotation data
+  glm::vec3 playerRotation(player->xAngle, player->yAngle, player->zAngle);
+  
+  // Determine ship state (for now just normal, can be expanded later)
+  //int shipState = 0;  // NORMAL
+  
+  hud->update(player->life, player->score, player->bullets, time, -asteroid_speed*50, fps, 
+              view, projection, player->position, playerRotation, player->shipState, paused, invincible);
 }
 
 void Game::updateGame(double time, int fps) {
+  // Don't update game logic if paused
+  if (paused) {
+    return;
+  }
+  
   // Adjust game speed to the number of fps
   float fps_correction = 1.0f;
   if (fps > 15) {
@@ -146,6 +159,7 @@ void Game::updateGame(double time, int fps) {
     if(time - boost_time > 3.0) {
       asteroid_speed /= 2.0f;
       is_boost_mode = false;
+      player->shipState = player->NORMAL;
     }
   }
 
@@ -268,6 +282,22 @@ void Game::keyHandler(
     activate_dev_mode();
   } else if (keyStates[GLFW_KEY_G].first) {
     deactivate_dev_mode();
+  }
+  
+  // Pause toggle (V key)
+  if (keyStates[GLFW_KEY_V].first && !pause_key_pressed) {
+    paused = !paused;
+    pause_key_pressed = true;
+  } else if (!keyStates[GLFW_KEY_V].first) {
+    pause_key_pressed = false;
+  }
+  
+  // Invincibility toggle (B key)
+  if (keyStates[GLFW_KEY_B].first && !invincible_key_pressed) {
+    invincible = !invincible;
+    invincible_key_pressed = true;
+  } else if (!keyStates[GLFW_KEY_B].first) {
+    invincible_key_pressed = false;
   }
 
   if (keyStates[GLFW_KEY_W].first) {
@@ -698,20 +728,22 @@ void Game::colisions_player_asteroids(double time) {
     double y = (player->position.y - asteroid_position.y);
     double z = (player->position.z - asteroid_position.z);
 
-    // Delete the asteroid when it colides to the player
+    // Delete the asteroid when it colides to the player (unless invincible)
     if (sqrt(x * x + y * y + z * z) < 0.20) {
       world_node->remove(node);
       it = asteroids_.erase(it);
-      player->damage(time);
-      create_explosion(asteroid_position, time); // Create explosion at collision point
-      lost = player->isDead();
-      hud->newDialog(3, time);
-    
+      create_explosion(asteroid_position, time); // Always create explosion on collision
+      
+      if (!invincible) {
+        player->damage(time);
+        player->shipState = player -> DAMAGED_TOP;
+        lost = player->isDead();
+        hud->newDialog(3, time);
+      }
     } else if(asteroid_position.z < 0.0) {
       // Delete invisible asteroids
       world_node->remove(node);
       it = asteroids_.erase(it);
-    
     } else {
       ++it;
     }
@@ -771,6 +803,7 @@ void Game::colisions_player_ring(double time) {
           is_boost_mode = true;
           boost_time = time;
           asteroid_speed *= 2.0f;
+          player->shipState = player->ACCELERATING;
         } else {
           boost_time = time;
         }

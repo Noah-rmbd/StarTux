@@ -29,6 +29,8 @@ public:
     ~Viewer();
     void run();
     void on_key(int key, int action);
+    void setAudioEnabled(bool enabled);
+    bool isAudioEnabled() const;
 
     float windowWidth;
     float windowHeight;
@@ -42,7 +44,7 @@ private:
     Texture* startScreenImage;
     std::string audio_dir = AUDIO_DIR;
     
-    bool audio_activated = true;
+    bool audio_activated = false;
     bool startGame = false;
     int target_FPS = 30;
 

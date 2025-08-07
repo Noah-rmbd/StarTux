@@ -19,6 +19,16 @@ class Player{
         void damage(float time);
         bool isDead();
 
+        enum ShipState {
+            NORMAL = 0,
+            ACCELERATING = 1,
+            DAMAGED_LEFT = 2,
+            DAMAGED_RIGHT = 3,
+            DAMAGED_TOP = 4,
+            DAMAGED_BOTTOM = 5
+        };
+        int shipState = NORMAL;
+
         Shape* model;
         Shader* texture_shader;
         Texture* ship_texture;

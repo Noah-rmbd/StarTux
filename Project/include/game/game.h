@@ -33,6 +33,8 @@ public:
   Node *scene_root;
   Node *world_node;
   bool lost = false;
+  bool paused = false;
+  bool invincible = false;
 
 private:
   void spawn_asteroid(bool start_generation = false, float generation_distance = 0.0f);
@@ -103,6 +105,10 @@ private:
   // Boost mode
   bool is_boost_mode = false;
   double boost_time;
+  
+  // Pause and developer features
+  bool pause_key_pressed = false;
+  bool invincible_key_pressed = false;
 };
 
 #endif

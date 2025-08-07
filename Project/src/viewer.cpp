@@ -72,8 +72,8 @@ Viewer::Viewer(int width, int height)
   audio_manager = new AudioManager();
   if (!audio_manager->init()) {
     std::cerr << "Failed to initialize audio" << std::endl;
-  } else {
-    // Load and play startup music
+  } else if (audio_activated) {
+    // Load and play startup music only if audio is enabled
     audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
   }
 }
@@ -108,7 +108,7 @@ void Viewer::run() {
     if (startGame) {
       // If we just started the game, switch to game music
       static bool musicSwitched = false;
-      if (!musicSwitched) {
+      if (!musicSwitched && audio_activated) {
         audio_manager->stopMusic();
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         if (!audio_manager->loadAndPlayMusic(audio_dir + "game_music.wav",
@@ -116,6 +116,8 @@ void Viewer::run() {
           std::cerr << "Échec chargement musique menu" << std::endl;
           audio_manager->debugSoundSystem();
         }
+        musicSwitched = true;
+      } else if (!musicSwitched && !audio_activated) {
         musicSwitched = true;
       }
 
@@ -141,8 +143,10 @@ void Viewer::run() {
                          GLFW_CURSOR_NORMAL); // Hide cursor and lock it
 
         // Switch back to startup music
-        audio_manager->stopMusic();
-        audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
+        if (audio_activated) {
+          audio_manager->stopMusic();
+          audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
+        }
         musicSwitched = false;
       }
 
@@ -231,4 +235,19 @@ void Viewer::on_mouse_button(int button, int action, double xpos, double ypos) {
   } else {
     game->mouse_button_callback(button, action, xpos, ypos, glfwGetTime());
   }
+}
+
+void Viewer::setAudioEnabled(bool enabled) {
+  audio_activated = enabled;
+  if (!enabled && audio_manager) {
+    audio_manager->stopMusic();
+  } else if (enabled && audio_manager && !startGame) {
+    audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
+  } else if (enabled && audio_manager && startGame) {
+    audio_manager->loadAndPlayMusic(audio_dir + "game_music.wav", true);
+  }
+}
+
+bool Viewer::isAudioEnabled() const {
+  return audio_activated;
 }

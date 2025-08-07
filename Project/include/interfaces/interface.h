@@ -62,6 +62,15 @@ struct ImageElement {
     int panelId;
 };
 
+// Structure for colored rectangle element (no texture)
+struct ColoredRectangle {
+    glm::vec3 position;
+    glm::vec2 size;
+    glm::vec4 color;
+    bool is3D;
+    int panelId;
+};
+
 class Interface {
     public:
         Interface(int width=1480, int height=960);
@@ -82,11 +91,13 @@ class Interface {
         // Element management
         void addTextOverlay(const std::string& text, glm::vec3 position, float scale, glm::vec3 color, bool is3D = false, int panelId = -1);
         void addImageElement(Texture* texture, glm::vec3 position, glm::vec2 size, glm::vec4 color = glm::vec4(1.0f), bool is3D = false, int panelId = -1);
+        void addColoredRectangle(glm::vec3 position, glm::vec2 size, glm::vec4 color, bool is3D = false, int panelId = -1);
         void addCursorElement(Texture* texture, glm::vec3 position, glm::vec2 size, glm::vec4 color = glm::vec4(1.0f));
         
         // Clear methods
         void clearTextOverlays();
         void clearImageElements();
+        void clearColoredRectangles();
         void clearCursorElements();
         void clearPanel(int panelId);
         
@@ -97,6 +108,7 @@ class Interface {
         int windowHeight;
         Shader* textShader;
         Shader* imageShader;
+        Shader* colorShader;  // New shader for solid color rectangles
         Shader* text3DShader;
         Shader* image3DShader;
 
@@ -115,11 +127,13 @@ class Interface {
         std::vector<HudPanel> panels;
         std::vector<TextOverlay> textOverlays;
         std::vector<ImageElement> imageElements;
+        std::vector<ColoredRectangle> coloredRectangles;  // Storage for solid color rectangles
         std::vector<ImageElement> cursorElements;  // Separate storage for cursor elements
         
         // Internal rendering methods
         void renderText3D(const TextOverlay& textOverlay);
         void renderImage3D(const ImageElement& imageElement);
+        void renderColoredRectangle(const ColoredRectangle& rect);
         void renderPanel(const HudPanel& panel);
         
         // Helper methods

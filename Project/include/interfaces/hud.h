@@ -14,7 +14,8 @@ class Hud {
         
         // Main update method - now takes view and projection matrices for 3D HUD
         void update(int life, double score, int bullets, double time, int speed, int fps, 
-                   glm::mat4 view, glm::mat4 projection);
+                   glm::mat4 view, glm::mat4 projection, glm::vec3 playerPos = glm::vec3(0.0f), 
+                   glm::vec3 playerRotation = glm::vec3(0.0f), int shipState = 0, bool paused = false, bool invincible = false);
         void mouse(double xpos, double ypos);
         void newDialog(int number, double time);
         void scoreIncrement(int xpos, int ypos, double time, int score);
@@ -59,12 +60,39 @@ class Hud {
         glm::vec3 leftPanelRot;
         glm::vec3 rightPanelRot;
         
+        // Position bar configuration
+        static const float BAR_THICKNESS;
+        static const float TOP_BAR_WIDTH;
+        static const float SIDE_BAR_HEIGHT;
+        static const float X_POSITION_RANGE;  // X position range: -1.5 to 1.5
+        static const float Y_POSITION_RANGE;  // Y position range: -1.0 to 1.0
+        static const float Z_POSITION_RANGE;  // Z position range (estimated)
+        static const float ROTATION_RANGE;  // Maximum rotation angle in degrees
+        
+        enum ShipState {
+            NORMAL = 0,
+            ACCELERATING = 1,
+            DAMAGED_LEFT = 2,
+            DAMAGED_RIGHT = 3,
+            DAMAGED_TOP = 4,
+            DAMAGED_BOTTOM = 5
+        };
+        
         // Helper methods for 3D HUD
         void calculatePanelPositions();
-        void renderLeftPanelContent(double time);
-        void renderRightPanelContent(int life, double score, int fps);
-        void renderCenterContent(int bullets, int speed, double time);
+        void renderLeftPanelContent(int life, int bullets, double time);
+        void renderRightPanelContent(double score, int speed, int fps);
+        void renderCenterContent(double time, bool paused = false, bool invincible = false);
         void renderCursor();
+        
+        // Position and rotation bar methods
+        void renderPositionBars(glm::vec3 playerPos, glm::vec3 playerRotation, int shipState);
+        void renderTopPositionBar(float xPosition, int shipState);
+        void renderLeftPositionBar(float zPosition, float yRotation, float zRotation, int shipState);
+        void renderRightPositionBar(float yPosition, float yRotation, float xRotation, int shipState);
+        glm::vec3 getBarColor(int shipState);
+        void drawGraduatedBar(glm::vec3 position, glm::vec2 size, bool horizontal, float cursorPos, glm::vec3 color, bool showCursor = true);
+        void drawRotationGauge(glm::vec3 position, glm::vec2 barSize, float rotation, glm::vec3 color, bool leftSide = true);
         
         // Legacy 2D methods (for backward compatibility)
         void render2DHUD(int life, double score, int bullets, double time, int speed, int fps);
