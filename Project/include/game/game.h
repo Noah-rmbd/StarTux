@@ -109,6 +109,7 @@ private:
   // Pause and developer features
   bool pause_key_pressed = false;
   bool invincible_key_pressed = false;
+  bool debug_key_pressed = false;
 };
 
 #endif

@@ -80,6 +80,9 @@ Game::Game(int width, int height, int target_fps) {
   scene_root->add(world_node);
   scene_root->add(environment_node);
   
+  // Add collision debug spheres to the scene
+  player->addDebugSpheresToScene(scene_root);
+  
   // Place the camera
   camera.cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
   camera.cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -298,6 +301,19 @@ void Game::keyHandler(
     invincible_key_pressed = true;
   } else if (!keyStates[GLFW_KEY_B].first) {
     invincible_key_pressed = false;
+  }
+  
+  // Debug collision spheres toggle (D key)
+  if (keyStates[GLFW_KEY_D].first && !debug_key_pressed) {
+    player->showCollisionDebug = !player->showCollisionDebug;
+    if (player->showCollisionDebug) {
+      player->addDebugSpheresToScene(scene_root);
+    } else {
+      player->removeDebugSpheresFromScene(scene_root);
+    }
+    debug_key_pressed = true;
+  } else if (!keyStates[GLFW_KEY_D].first) {
+    debug_key_pressed = false;
   }
 
   if (keyStates[GLFW_KEY_W].first) {
@@ -728,15 +744,36 @@ void Game::colisions_player_asteroids(double time) {
     double y = (player->position.y - asteroid_position.y);
     double z = (player->position.z - asteroid_position.z);
 
-    // Delete the asteroid when it colides to the player (unless invincible)
+    // OLD COLLISION SYSTEM (commented but kept for safety)
+    /*
     if (sqrt(x * x + y * y + z * z) < 0.20) {
+      world_node->remove(node);
+      it = asteroids_.erase(it);
+      create_explosion(asteroid_position, time);
+      
+      if (!invincible) {
+        player->damage(time);
+        player->shipState = player -> DAMAGED_TOP;
+        lost = player->isDead();
+        hud->newDialog(3, time);
+      }
+    }
+    */
+    
+    // NEW MULTI-POINT COLLISION SYSTEM (testing)
+    float asteroidRadius = 0.10f; // Asteroid collision radius
+    int collisionPointIndex = player->checkCollisionPoint(asteroid_position, asteroidRadius);
+    
+    if (collisionPointIndex >= 0) {
+      // Collision detected at specific point
       world_node->remove(node);
       it = asteroids_.erase(it);
       create_explosion(asteroid_position, time); // Always create explosion on collision
       
       if (!invincible) {
         player->damage(time);
-        player->shipState = player -> DAMAGED_TOP;
+        // Set ship state based on which collision point was hit
+        player->shipState = player->collisionPoints[collisionPointIndex].damageType;
         lost = player->isDead();
         hud->newDialog(3, time);
       }

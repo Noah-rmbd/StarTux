@@ -5,6 +5,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "shape_model.h"
+#include "lighting_sphere.h"
 #include <glm/glm.hpp>
 
 class Player{
@@ -37,6 +38,32 @@ class Player{
         glm::vec3 scale = glm::vec3(0.005f, 0.005f, 0.005f);
         glm::mat4 playerMat;
         Node* node;
+        
+        // Multi-point collision system
+        struct CollisionPoint {
+            glm::vec3 localOffset;    // Position relative to player center
+            float radius;             // Collision radius
+            ShipState damageType;     // What damage this collision causes
+            std::string name;         // For debugging
+        };
+        
+        std::vector<CollisionPoint> collisionPoints;
+        bool showCollisionDebug = true;  // Toggle for debug spheres
+        
+        // Debug visualization
+        std::vector<LightingSphere*> debugSpheres;
+        std::vector<Node*> debugNodes;
+        Shader* debugShader;
+        
+        // Collision point management
+        void setupCollisionPoints();
+        void setupDebugSpheres();
+        void updateCollisionPoints();
+        void updateDebugSpheres();
+        void addDebugSpheresToScene(Node* sceneRoot);
+        void removeDebugSpheresFromScene(Node* sceneRoot);
+        glm::vec3 getWorldCollisionPoint(int index) const;
+        int checkCollisionPoint(glm::vec3 objectPos, float objectRadius) const;
 
         float xAngle = 0.0f;
         float yAngle = 0.0f;
