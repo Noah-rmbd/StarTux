@@ -104,7 +104,7 @@ void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double ti
   //int shipState = 0;  // NORMAL
   
   hud->update(player->life, player->score, player->bullets, time, -asteroid_speed*50, fps, 
-              view, projection, player->position, playerRotation, player->shipState, paused, invincible);
+              view, projection, player->position, playerRotation, player->shipState, paused, invincible, player->shieldIsActive, player->isDeathAnimationActive());
 }
 
 void Game::updateGame(double time, int fps) {
@@ -116,6 +116,7 @@ void Game::updateGame(double time, int fps) {
   // Update death animation
   if (player->isDeathAnimationActive()) {
     player->updateDeathAnimation(time);
+    player->updatePosition(); // CRITICAL: Update visual position during death animation
     // Check if death animation finished and trigger explosion
     if (time - player->deathAnimationStart >= player->deathAnimationDuration) {
       create_explosion(player->position, time);
@@ -184,12 +185,17 @@ void Game::updateGame(double time, int fps) {
   // Updates player's shield state
   if (player->shieldIsActive) {
     player->updateShield(time);
+    // Add shield visual if not already added
+    player->addShieldToScene(scene_root);
+  } else {
+    // Remove shield visual if shield is not active
+    player->removeShieldFromScene(scene_root);
   }
 
   // Every 5000 points, player get an extra life
   if(static_cast<int>(player->score) % 5000 == 0) {
     player->increaseLife();
-    hud->newDialog(2, time);
+    hud->newDialog(hud->EXTRA_LIFE, time);
   }
 
   // Every 1000 points, the ship speed increases
@@ -209,7 +215,7 @@ void Game::updateGame(double time, int fps) {
 
   // Adds dialogs
   if(player->position.z == 0 && player->score < 100.0) {
-    hud->newDialog(0, time);
+    hud->newDialog(hud->WELCOME, time);
   }
 }
 
@@ -252,6 +258,11 @@ void Game::mouse_button_callback(int button, int action, double xpos, double ypo
 
 void Game::keyHandler(
     std::unordered_map<int, std::pair<bool, double>> keyStates, double time) {
+  // Disable all controls during death animation
+  if (player->isDeathAnimationActive()) {
+    return;
+  }
+    
   float smoother = 0.0f;
   float speed = player->movement_speed * player->fps_correction;
 
@@ -790,10 +801,18 @@ void Game::colisions_player_asteroids(double time) {
         Player::ShipState damageType = player->collisionPoints[collisionPointIndex].damageType;
         player->damageWithType(time, damageType);
         player->shipState = damageType;
+        hud->newDialog(hud->COLLISION_1, time);
+
+        // Stop the acceleration if accelerating
+        if (is_boost_mode) {
+          is_boost_mode = false;
+          asteroid_speed /= 2;
+        }
+
+        // Verify if the player is still alive
         if (player->isDead() && !player->isDeathAnimationActive()) {
           player->startDeathAnimation(time);
         }
-        hud->newDialog(3, time);
       }
     } else if(asteroid_position.z < 0.0) {
       // Delete invisible asteroids
@@ -859,6 +878,7 @@ void Game::colisions_player_ring(double time) {
           boost_time = time;
           asteroid_speed *= 2.0f;
           player->shipState = player->ACCELERATING;
+          hud->newDialog(hud->ACCELERATION_1, time);
         } else {
           boost_time = time;
         }
@@ -944,7 +964,7 @@ void Game::colisions_projectile_asteroid(double time) {
           player->score += 50.0;
           hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time, 50);
         }
-        hud->newDialog(1, time);
+        hud->newDialog(hud->SHOOT_1, time);
         
         world_node->remove(node);
         it = asteroids_.erase(it);

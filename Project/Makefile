@@ -756,6 +756,30 @@ src/shapes/textured_sphere.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/textured_sphere.cpp.s
 .PHONY : src/shapes/textured_sphere.cpp.s
 
+src/shapes/transparent_sphere.o: src/shapes/transparent_sphere.cpp.o
+.PHONY : src/shapes/transparent_sphere.o
+
+# target to build an object file
+src/shapes/transparent_sphere.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/transparent_sphere.cpp.o
+.PHONY : src/shapes/transparent_sphere.cpp.o
+
+src/shapes/transparent_sphere.i: src/shapes/transparent_sphere.cpp.i
+.PHONY : src/shapes/transparent_sphere.i
+
+# target to preprocess a source file
+src/shapes/transparent_sphere.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/transparent_sphere.cpp.i
+.PHONY : src/shapes/transparent_sphere.cpp.i
+
+src/shapes/transparent_sphere.s: src/shapes/transparent_sphere.cpp.s
+.PHONY : src/shapes/transparent_sphere.s
+
+# target to generate assembly for a file
+src/shapes/transparent_sphere.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/shapes/transparent_sphere.cpp.s
+.PHONY : src/shapes/transparent_sphere.cpp.s
+
 src/viewer.o: src/viewer.cpp.o
 .PHONY : src/viewer.o
 
@@ -862,6 +886,9 @@ help:
 	@echo "... src/shapes/textured_sphere.o"
 	@echo "... src/shapes/textured_sphere.i"
 	@echo "... src/shapes/textured_sphere.s"
+	@echo "... src/shapes/transparent_sphere.o"
+	@echo "... src/shapes/transparent_sphere.i"
+	@echo "... src/shapes/transparent_sphere.s"
 	@echo "... src/viewer.o"
 	@echo "... src/viewer.i"
 	@echo "... src/viewer.s"

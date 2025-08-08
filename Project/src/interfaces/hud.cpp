@@ -28,6 +28,7 @@ Hud::Hud(int width, int height) : windowWidth(width), windowHeight(height){
     dialogBoxTexture = new Texture(textures_dir + "text_box.png");
     leftPanelTexture = new Texture(textures_dir + "HUD_container_L.png");   // Will be loaded when you create the panel backgrounds
     rightPanelTexture = new Texture(textures_dir + "HUD_container_R.png");
+    shieldIconTexture = new Texture(textures_dir + "shield_icon.png");
     cockpitFrameTexture = nullptr;
     
     game_interface = new Interface(windowWidth, windowHeight);
@@ -54,7 +55,16 @@ Hud::Hud(int width, int height) : windowWidth(width), windowHeight(height){
 
 void Hud::update(int life, double score, int bullets, double time, int speed, int fps, 
                 glm::mat4 view, glm::mat4 projection, glm::vec3 playerPos, 
-                glm::vec3 playerRotation, int shipState, bool paused, bool invincible) {
+                glm::vec3 playerRotation, int shipState, bool paused, bool invincible, bool shieldActive, bool playerDying) {
+    
+    // Update fade state
+    updateFade(time, playerDying);
+    
+    // Don't render HUD if nearly invisible
+    if (currentAlpha < 0.01f) {
+        return;
+    }
+    
     if (is3DHudEnabled) {
         // Use new 3D HUD system
         game_interface->beginFrame(view, projection);
@@ -63,7 +73,7 @@ void Hud::update(int life, double score, int bullets, double time, int speed, in
         update3DPanels();
         
         // Render different sections of the HUD (cursor last since it uses CURSOR layer)
-        renderLeftPanelContent(life, bullets, time);
+        renderLeftPanelContent(life, bullets, time, shieldActive);
         renderRightPanelContent(score, speed, fps);
         renderCenterContent(time, paused, invincible);
         renderPositionBars(playerPos, playerRotation, shipState);
@@ -91,7 +101,7 @@ void Hud::update(int life, double score, int bullets, double time, int speed, in
         game_interface->endFrame();
     } else {
         // Fallback to 2D HUD for compatibility
-        render2DHUD(life, score, bullets, time, speed, fps);
+        render2DHUD(life, score, bullets, time, speed, fps, shieldActive, playerDying);
     }
 }
 
@@ -164,7 +174,7 @@ void Hud::calculatePanelPositions() {
     rightPanelRot = glm::vec3(0.0f, -panelAngle, 0.0f); // Rotate to face camera
 }
 
-void Hud::renderLeftPanelContent(int life, int bullets, double time) {
+void Hud::renderLeftPanelContent(int life, int bullets, double time, bool shieldActive) {
     // Calculate left panel screen position (simulate 3D positioning with increased angle)
     // Create a more dramatic perspective effect
     float baseX = windowWidth * 0.02f;   // Start very close to left edge
@@ -177,32 +187,47 @@ void Hud::renderLeftPanelContent(int life, int bullets, double time) {
     float containerWidth = 204.0f;
     float containerHeight = 123.0f;
 
-    // Render left panel container
+    // Render left panel container (with fade effect)
     game_interface->addImageElement(
         leftPanelTexture,
         glm::vec3(baseX + 10.0f, baseY + angleOffset - containerHeight/2 - 15.0f, -0.1f), // Angled position
         glm::vec2(containerWidth, containerHeight),                          // Size based on text
-        glm::vec4(1.0f, 1.0f, 1.0f, 0.8f),                                                             // White with transparency
+        glm::vec4(1.0f, 1.0f, 1.0f, 0.8f * currentAlpha),                                                             // White with transparency
         false,                                                                                           // 2D image (screen space)
         -1                                                                                               // No panel attachment
     );
 
-    // Life display on left panel with perspective
+    // Life display on left panel with perspective (with fade effect)
     game_interface->addTextOverlay(
         "LIFE: " + std::to_string(life),
         glm::vec3(baseX + 45.0f, baseY + angleOffset, 0.0f),                // Angled position
         0.5f,                                                         // Scale
-        glm::vec3(1.0f, 0.3f, 0.3f),                                // Red color
+        glm::vec3(1.0f, 0.3f, 0.3f) * currentAlpha,                                // Red color with fade
         false,                                                        // 2D text (screen space)
         -1                                                            // No panel attachment
     );
 
-    // Render ammunition counter with perspective
+    float iconWidth = 26.0f;
+    float iconHeight = 28.0f;
+
+    // Shield icon next to life display (with fade effect)
+    if (shieldActive) {
+        game_interface->addImageElement(
+            shieldIconTexture,  // Simple shield icon
+            glm::vec3(baseX + 130.0f, baseY + angleOffset - 5.0f, 0.0f),           // Next to life display
+            glm::vec2(iconWidth, iconHeight),                               // Size of the icon
+            glm::vec4(1.0f, 1.0f, 1.0f, 0.8f * currentAlpha),                            
+            false,                                                    // 2D image (screen space)
+            -1                                                        // No panel attachment
+        );
+    }
+
+    // Render ammunition counter with perspective (with fade effect)
     game_interface->addTextOverlay(
         std::to_string(bullets) + "/10",
         glm::vec3(baseX + 100.0f, baseY + angleOffset - 50.0f, 0.0f),  // Slightly offset and angled
         0.7f,                                                 // Scale
-        glm::vec3(1.0f, 1.0f, 0.0f),                        // Yellow color
+        glm::vec3(1.0f, 1.0f, 0.0f) * currentAlpha,                        // Yellow color with fade
         false,                                                // 2D text (screen space)
         -1                                                    // No panel attachment
     ); // 65.0f and 0.8f
@@ -363,28 +388,58 @@ void Hud::renderCursor() {
 }
 
 // Legacy 2D HUD for backward compatibility
-void Hud::render2DHUD(int life, double score, int bullets, double time, int speed, int fps) {
+void Hud::updateFade(double time, bool playerDying) {
+    if (playerDying && !isFading) {
+        // Start fading
+        isFading = true;
+        fadeStartTime = time;
+    }
+    
+    if (isFading) {
+        double elapsedTime = time - fadeStartTime;
+        float progress = std::min(1.0f, static_cast<float>(elapsedTime / fadeDuration));
+        currentAlpha = 1.0f - progress; // Fade from 1.0 to 0.0
+    } else {
+        currentAlpha = 1.0f; // Full opacity when not fading
+    }
+}
+
+void Hud::render2DHUD(int life, double score, int bullets, double time, int speed, int fps, bool shieldActive, bool playerDying) {
     // Format score string
     std::string scoreString = std::to_string(score);
     if (scoreString.length() > 5) {
         scoreString = scoreString.substr(0, scoreString.length()-5);
     }
     
-    // Render main stats with proper spacing
-    game_interface->renderText("Life : " + std::to_string(life), 25.0f, windowHeight-60, 0.5f, glm::vec3(1.0f, 0.3f, 0.3f));
-    game_interface->renderText("FPS : " + std::to_string(fps), windowWidth-150, windowHeight-60, 0.5f, glm::vec3(0.7f, 0.7f, 0.7f));
-    game_interface->renderText("Score : " + scoreString, 25.0f, windowHeight-100, 0.5f, scoreColor);
+    // Apply fade to all HUD elements by reducing their opacity
+    if (currentAlpha < 0.01f) {
+        // Don't render HUD if nearly invisible
+        return;
+    }
+    
+    // Render main stats with proper spacing (with fade effect)
+    std::string lifeText = "Life : " + std::to_string(life);
+    if (shieldActive) {
+        lifeText += " [SHIELD]";
+    }
+    game_interface->renderText(lifeText, 25.0f, windowHeight-60, 0.5f, glm::vec3(1.0f, 0.3f, 0.3f) * currentAlpha);
+    if (shieldActive) {
+        // Render shield indicator in cyan color
+        game_interface->renderText("[SHIELD]", 25.0f + lifeText.length() * 12.0f - 70.0f, windowHeight-60, 0.5f, glm::vec3(0.0f, 0.8f, 1.0f) * currentAlpha);
+    }
+    game_interface->renderText("FPS : " + std::to_string(fps), windowWidth-150, windowHeight-60, 0.5f, glm::vec3(0.7f, 0.7f, 0.7f) * currentAlpha);
+    game_interface->renderText("Score : " + scoreString, 25.0f, windowHeight-100, 0.5f, scoreColor * currentAlpha);
     
     // Render bottom info with better spacing
-    game_interface->renderText(std::to_string(bullets) + " /10", 25.0f, windowHeight-750, 0.5f, glm::vec3(1.0f, 1.0f, 0.0f));
-    game_interface->renderText(std::to_string(speed) + " Km/h", 25.0f, windowHeight-800, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f));
+    game_interface->renderText(std::to_string(bullets) + " /10", 25.0f, windowHeight-750, 0.5f, glm::vec3(1.0f, 1.0f, 0.0f) * currentAlpha);
+    game_interface->renderText(std::to_string(speed) + " Km/h", 25.0f, windowHeight-800, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f) * currentAlpha);
     
-    // Render cursor
-    game_interface->renderImage(aim_image, xPos, windowHeight-yPos, 50.0f, 50.0f);
+    // Render cursor (with fade effect)
+    game_interface->renderImage(aim_image, xPos, windowHeight-yPos, 50.0f, 50.0f, glm::vec4(1.0f, 1.0f, 1.0f, currentAlpha));
     
-    // Render dialogs
+    // Render dialogs (with fade effect)
     if (currentDialog != nullptr) {
-        game_interface->renderText(currentDialog->first, 25.0f, windowHeight-500, 0.5f, glm::vec3(0.0f, 1.0f, 1.0f));
+        game_interface->renderText(currentDialog->first, 25.0f, windowHeight-500, 0.5f, glm::vec3(0.0f, 1.0f, 1.0f) * currentAlpha);
         if(time - currentDialog->second > 10.0) {
             delete currentDialog;
             currentDialog = nullptr;

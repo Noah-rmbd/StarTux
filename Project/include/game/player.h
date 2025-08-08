@@ -6,6 +6,7 @@
 #include "texture.h"
 #include "shape_model.h"
 #include "lighting_sphere.h"
+#include "transparent_sphere.h"
 #include <glm/glm.hpp>
 
 class Player{
@@ -19,6 +20,9 @@ class Player{
         void increaseBullets();
         void damage(float time);
         bool isDead();
+        void updateShieldVisual(double time);
+        void addShieldToScene(Node* sceneRoot);
+        void removeShieldFromScene(Node* sceneRoot);
 
         enum ShipState {
             NORMAL = 0,
@@ -102,6 +106,13 @@ class Player{
         glm::vec3 deathVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
         float deathRotationSpeed = 0.0f;
 
+        // Shield visual system
+        TransparentSphere* shieldSphere;
+        Node* shieldNode;
+        Shader* transparentShader;
+        bool shieldVisualActive = false;
+        float shieldOpacity = 0.3f;
+        
         int life = 3;
         int bullets = 10;
         double score = 0;

@@ -33,6 +33,20 @@ Player::Player(Shader* shader_program)
     // Set up debug visualization
     debugShader = shader_program;  // Reuse the main shader for now
     setupDebugSpheres();
+    
+    // Set up shield visual with transparent shader
+    std::string transparent_shader_dir = SHADER_DIR;
+    transparentShader = new Shader(transparent_shader_dir + "phong.vert", transparent_shader_dir + "transparent_phong.frag");
+    
+    glm::vec3 lightPos = glm::vec3(0.0f, 2.0f, 2.0f);
+    glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 shieldColor = glm::vec3(0.0f, 0.8f, 1.0f); // Blue/cyan shield
+    shieldSphere = new TransparentSphere(transparentShader, lightPos, lightColor, shieldColor, shieldOpacity);
+    
+    // Create shield node with larger scale to surround the ship
+    glm::mat4 shieldTransform = glm::scale(glm::mat4(1.0f), glm::vec3(0.08f)); // Scale up the shield
+    shieldNode = new Node(shieldTransform);
+    shieldNode->add(shieldSphere);
 }
 
 Player::~Player() {
@@ -43,6 +57,11 @@ Player::~Player() {
     for (auto debugNode : debugNodes) {
         delete debugNode;
     }
+    
+    // Clean up shield
+    delete shieldSphere;
+    delete shieldNode;
+    delete transparentShader;
     
     delete node;
     delete model;
@@ -91,6 +110,9 @@ void Player::updateShield(double time) {
             shipState = PROTECTED;
         }
     }
+    
+    // Update shield visual
+    updateShieldVisual(time);
 }
 void Player::createShield(double start, float duration) {
     shieldIsActive = true;
@@ -222,6 +244,43 @@ void Player::updateDeathAnimation(double currentTime) {
 
 bool Player::isDeathAnimationActive() const {
     return deathAnimationActive;
+}
+
+void Player::updateShieldVisual(double time) {
+    if (shieldIsActive && shieldVisualActive) {
+        // Update shield position to follow player
+        glm::mat4 shieldTransform = glm::translate(glm::mat4(1.0f), position) * 
+                                   glm::scale(glm::mat4(1.0f), glm::vec3(0.08f));
+        shieldNode->transform_ = shieldTransform;
+        
+        // Calculate flashing as shield expires (last 1 second)
+        double remainingTime = shieldDuration - (time - shieldStart);
+        if (remainingTime <= 1.0 && remainingTime > 0.0) {
+            // Flash faster as time runs out
+            float flashFreq = 5.0f + (1.0f - remainingTime) * 10.0f; // 5-15 Hz
+            float flash = (sin(time * flashFreq) + 1.0f) * 0.5f; // 0.0 to 1.0
+            shieldOpacity = 0.1f + flash * 0.4f; // 0.1 to 0.5 opacity
+        } else {
+            shieldOpacity = 0.4f; // Normal shield opacity - more visible
+        }
+        
+        // Update the shield sphere's alpha
+        shieldSphere->setAlpha(shieldOpacity);
+    }
+}
+
+void Player::addShieldToScene(Node* sceneRoot) {
+    if (shieldIsActive && !shieldVisualActive) {
+        sceneRoot->add(shieldNode);
+        shieldVisualActive = true;
+    }
+}
+
+void Player::removeShieldFromScene(Node* sceneRoot) {
+    if (shieldVisualActive) {
+        sceneRoot->remove(shieldNode);
+        shieldVisualActive = false;
+    }
 }
 
 // Multi-point collision system implementation

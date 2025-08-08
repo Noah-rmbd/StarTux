@@ -58,6 +58,7 @@ set(SOURCES
     ${SRC_DIR}/graphics/texture.cpp
     ${SRC_DIR}/shapes/textured_sphere.cpp
     ${SRC_DIR}/shapes/lighting_sphere.cpp
+    ${SRC_DIR}/shapes/transparent_sphere.cpp
     ${SRC_DIR}/interfaces/interface.cpp
     ${SRC_DIR}/interfaces/startup_screen.cpp
     ${SRC_DIR}/interfaces/hud.cpp
