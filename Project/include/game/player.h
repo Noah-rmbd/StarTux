@@ -26,8 +26,17 @@ class Player{
             DAMAGED_LEFT = 2,
             DAMAGED_RIGHT = 3,
             DAMAGED_TOP = 4,
-            DAMAGED_BOTTOM = 5
+            DAMAGED_BOTTOM = 5,
+            PROTECTED = 6,
+            DYING = 7
         };
+        
+        void damageWithType(float time, ShipState damageType);
+        void updateDamageAnimation(double currentTime);
+        void startDamageAnimation(double startTime, ShipState damageType);
+        void startDeathAnimation(double startTime);
+        void updateDeathAnimation(double currentTime);
+        bool isDeathAnimationActive() const;
         int shipState = NORMAL;
 
         Shape* model;
@@ -72,8 +81,26 @@ class Player{
         float fps_correction = 1.0f;
 
         double shieldStart = 0.0;
-        double shieldDuration = 0.0;
+        double shieldDuration = 5.0;
         bool shieldIsActive = false;
+
+        // Damage animation system
+        bool damageAnimationActive = false;
+        double damageAnimationStart = 0.0;
+        double damageAnimationDuration = 0.6; // 0.8 second
+        ShipState currentDamageType = NORMAL;
+        
+        // Animation rotation offsets (in degrees)
+        float damageRotationX = 0.0f;
+        float damageRotationY = 0.0f;
+        float damageRotationZ = 0.0f;
+
+        // Death animation system
+        bool deathAnimationActive = false;
+        double deathAnimationStart = 0.0;
+        double deathAnimationDuration = 3.0; // 3 seconds for death animation
+        glm::vec3 deathVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
+        float deathRotationSpeed = 0.0f;
 
         int life = 3;
         int bullets = 10;

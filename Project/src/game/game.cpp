@@ -113,6 +113,18 @@ void Game::updateGame(double time, int fps) {
     return;
   }
   
+  // Update death animation
+  if (player->isDeathAnimationActive()) {
+    player->updateDeathAnimation(time);
+    // Check if death animation finished and trigger explosion
+    if (time - player->deathAnimationStart >= player->deathAnimationDuration) {
+      create_explosion(player->position, time);
+      lost = true; // Set game as lost after death animation
+    }
+    // Don't update other game elements during death animation
+    return;
+  }
+  
   // Adjust game speed to the number of fps
   float fps_correction = 1.0f;
   if (fps > 15) {
@@ -157,6 +169,9 @@ void Game::updateGame(double time, int fps) {
     }
   }
 
+  // Increments player's score
+  player->score += 1.0;
+
   // Update boost mode
   if(is_boost_mode) {
     if(time - boost_time > 3.0) {
@@ -166,8 +181,6 @@ void Game::updateGame(double time, int fps) {
     }
   }
 
-  // Increments player's score
-  player->score += 1.0;
   // Updates player's shield state
   if (player->shieldIsActive) {
     player->updateShield(time);
@@ -539,6 +552,8 @@ void Game::keyHandler(
     }
   }
 
+  // Update damage animation
+  player->updateDamageAnimation(time);
   player->updatePosition();
 }
 
@@ -770,11 +785,14 @@ void Game::colisions_player_asteroids(double time) {
       it = asteroids_.erase(it);
       create_explosion(asteroid_position, time); // Always create explosion on collision
       
-      if (!invincible) {
-        player->damage(time);
-        // Set ship state based on which collision point was hit
-        player->shipState = player->collisionPoints[collisionPointIndex].damageType;
-        lost = player->isDead();
+      if (!invincible && !player->shieldIsActive) {
+        // Get damage type from collision point and trigger animation
+        Player::ShipState damageType = player->collisionPoints[collisionPointIndex].damageType;
+        player->damageWithType(time, damageType);
+        player->shipState = damageType;
+        if (player->isDead() && !player->isDeathAnimationActive()) {
+          player->startDeathAnimation(time);
+        }
         hud->newDialog(3, time);
       }
     } else if(asteroid_position.z < 0.0) {

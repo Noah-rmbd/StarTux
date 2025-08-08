@@ -75,7 +75,9 @@ class Hud {
             DAMAGED_LEFT = 2,
             DAMAGED_RIGHT = 3,
             DAMAGED_TOP = 4,
-            DAMAGED_BOTTOM = 5
+            DAMAGED_BOTTOM = 5,
+            PROTECTED = 6,
+            DYING = 7
         };
         
         // Helper methods for 3D HUD

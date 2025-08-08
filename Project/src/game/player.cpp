@@ -1,4 +1,5 @@
 #include "player.h"
+#include <cmath>
 #ifndef RESSOURCES_DIR
 #error "RESSOURCES_DIR not defined"
 #endif
@@ -50,10 +51,15 @@ Player::~Player() {
 }
 
 void Player::updatePosition(){
+    // Combine normal rotation with damage animation rotation
+    float totalXAngle = xAngle + damageRotationX;
+    float totalYAngle = yAngle + damageRotationY;
+    float totalZAngle = zAngle + damageRotationZ;
+    
     node->transform_ = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale) 
-    * glm::rotate(glm::mat4(1.0f), glm::radians(xAngle), glm::vec3(1.0f, 0.0f, 0.0f))
-    * glm::rotate(glm::mat4(1.0f), glm::radians(yAngle), glm::vec3(0.0f, 1.0f, 0.0f))
-    * glm::rotate(glm::mat4(1.0f), glm::radians(zAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+    * glm::rotate(glm::mat4(1.0f), glm::radians(totalXAngle), glm::vec3(1.0f, 0.0f, 0.0f))
+    * glm::rotate(glm::mat4(1.0f), glm::radians(totalYAngle), glm::vec3(0.0f, 1.0f, 0.0f))
+    * glm::rotate(glm::mat4(1.0f), glm::radians(totalZAngle), glm::vec3(0.0f, 0.0f, 1.0f));
     
     // Update debug collision spheres
     updateDebugSpheres();
@@ -76,12 +82,23 @@ void Player::increaseBullets(){
 void Player::updateShield(double time) {
     if (time - shieldStart >= shieldDuration) {
         shieldIsActive = false;
+        if (!damageAnimationActive) {
+            shipState = NORMAL;
+        }
+    } else {
+        // Ensure ship state is PROTECTED while shield is active
+        if (!damageAnimationActive && shipState != PROTECTED) {
+            shipState = PROTECTED;
+        }
     }
 }
 void Player::createShield(double start, float duration) {
     shieldIsActive = true;
     shieldStart = start;
     shieldDuration = duration;
+    if (!damageAnimationActive) {
+        shipState = PROTECTED;
+    }
 }
 
 void Player::damage(float time) {
@@ -91,8 +108,120 @@ void Player::damage(float time) {
     }
 }
 
+void Player::damageWithType(float time, ShipState damageType) {
+    if (shieldIsActive == false) {
+        life -= 1;
+        createShield(time, 5.0);
+        startDamageAnimation(time, damageType);
+    }
+}
+
+void Player::startDamageAnimation(double startTime, ShipState damageType) {
+    damageAnimationActive = true;
+    damageAnimationStart = startTime;
+    currentDamageType = damageType;
+    
+    // Reset damage rotation offsets
+    damageRotationX = 0.0f;
+    damageRotationY = 0.0f;
+    damageRotationZ = 0.0f;
+}
+
+void Player::updateDamageAnimation(double currentTime) {
+    if (!damageAnimationActive) return;
+    
+    double elapsedTime = currentTime - damageAnimationStart;
+    
+    // Check if animation is finished
+    if (elapsedTime >= damageAnimationDuration) {
+        damageAnimationActive = false;
+        damageRotationX = 0.0f;
+        damageRotationY = 0.0f;
+        damageRotationZ = 0.0f;
+        currentDamageType = PROTECTED;
+        // Update ship state to PROTECTED if shield is still active
+        if (shieldIsActive) {
+            shipState = PROTECTED;
+        }
+        return;
+    }
+    
+    // Calculate animation progress (0.0 to 1.0)
+    double progress = elapsedTime / damageAnimationDuration;
+    
+    // Use sine wave for smooth animation that peaks in the middle and returns to normal
+    double animationStrength = sin(progress * M_PI);
+    
+    // Maximum rotation angles for different damage types
+    const float maxWingRotation = 25.0f;    // degrees for wing lean
+    const float maxCenterRotation = 10.0f;  // degrees for nose dip
+    
+    // Apply different animations based on damage type
+    switch (currentDamageType) {
+        case DAMAGED_LEFT:
+            // Ship leans to the left (rotate around Z-axis)
+            damageRotationZ = maxWingRotation * animationStrength;
+            break;
+            
+        case DAMAGED_RIGHT:
+            // Ship leans to the right (rotate around Z-axis)
+            damageRotationZ = -maxWingRotation * animationStrength;
+            break;
+            
+        case DAMAGED_TOP:
+        case DAMAGED_BOTTOM:
+            // Nose dips down (rotate around X-axis)
+            damageRotationX = -maxCenterRotation * animationStrength;
+            break;
+            
+        default:
+            // No animation for normal state
+            break;
+    }
+}
+
 bool Player::isDead() {
     return life<=0;
+}
+
+void Player::startDeathAnimation(double startTime) {
+    deathAnimationActive = true;
+    deathAnimationStart = startTime;
+    shipState = DYING;
+    
+    // Set random death velocity (falling down and slightly sideways)
+    deathVelocity.x = ((rand() % 200) / 100.0f) - 1.0f; // Random -1.0 to 1.0
+    deathVelocity.y = -1.5f; // Fall downward
+    deathVelocity.z = -0.5f; // Move slightly backward
+    
+    // Set random rotation speed
+    deathRotationSpeed = ((rand() % 600) / 100.0f) + 2.0f; // Random 2.0 to 8.0 degrees per frame
+}
+
+void Player::updateDeathAnimation(double currentTime) {
+    if (!deathAnimationActive) return;
+    
+    double elapsedTime = currentTime - deathAnimationStart;
+    
+    // Update position with death velocity
+    position += deathVelocity * 0.02f; // Apply velocity with time scaling
+    
+    // Add gravity effect (accelerate downward)
+    deathVelocity.y -= 0.04f; // Gravity acceleration
+    
+    // Add spinning rotation
+    zAngle += deathRotationSpeed;
+    yAngle += deathRotationSpeed * 0.5f;
+    xAngle += deathRotationSpeed * 0.3f;
+    
+    // Keep angles in reasonable range
+    if (zAngle > 360.0f) zAngle -= 360.0f;
+    if (yAngle > 360.0f) yAngle -= 360.0f;
+    if (xAngle > 360.0f) xAngle -= 360.0f;
+}
+
+bool Player::isDeathAnimationActive() const {
+    return deathAnimationActive;
 }
 
 // Multi-point collision system implementation

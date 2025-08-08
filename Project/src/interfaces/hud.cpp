@@ -413,11 +413,11 @@ void Hud::renderPositionBars(glm::vec3 playerPos, glm::vec3 playerRotation, int 
     
     // Render left vertical position bar (Z position + rotation)
     renderLeftPositionBar(playerPos.z, playerRotation.y, playerRotation.z, 
-                         (shipState == DAMAGED_LEFT) ? DAMAGED_LEFT : ((shipState == ACCELERATING) ? ACCELERATING : NORMAL));
+                         (shipState == DAMAGED_RIGHT) ? DAMAGED_RIGHT : ((shipState == ACCELERATING) ? ACCELERATING : NORMAL));
     
     // Render right vertical position bar (Y position + rotation)
     renderRightPositionBar(playerPos.y, playerRotation.y, playerRotation.x, 
-                          (shipState == DAMAGED_RIGHT) ? DAMAGED_RIGHT : ((shipState == ACCELERATING) ? ACCELERATING : NORMAL));
+                          (shipState == DAMAGED_LEFT) ? DAMAGED_LEFT : ((shipState == ACCELERATING) ? ACCELERATING : NORMAL));
 }
 
 void Hud::renderTopPositionBar(float xPosition, int shipState) {
@@ -508,6 +508,10 @@ glm::vec3 Hud::getBarColor(int shipState) {
         case DAMAGED_TOP:
         case DAMAGED_BOTTOM:
             return glm::vec3(1.0f, 0.0f, 0.0f);  // Red
+        case PROTECTED:
+            return glm::vec3(0.0f, 1.0f, 0.0f);  // Green
+        case DYING:
+            return glm::vec3(0.5f, 0.0f, 0.5f);  // Purple
         default:
             return glm::vec3(0.8f, 0.8f, 0.8f);  // Light gray
     }
