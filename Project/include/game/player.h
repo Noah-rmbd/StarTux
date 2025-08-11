@@ -61,7 +61,7 @@ class Player{
         };
         
         std::vector<CollisionPoint> collisionPoints;
-        bool showCollisionDebug = true;  // Toggle for debug spheres
+        bool showCollisionDebug = false;  // Toggle for debug spheres
         
         // Debug visualization
         std::vector<LightingSphere*> debugSpheres;
@@ -110,7 +110,7 @@ class Player{
         TransparentSphere* shieldSphere;
         Node* shieldNode;
         Shader* transparentShader;
-        bool shieldVisualActive = false;
+        bool shieldVisualActive = true;
         float shieldOpacity = 0.3f;
         
         int life = 3;

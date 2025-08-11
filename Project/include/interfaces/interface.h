@@ -17,6 +17,12 @@
 #include "shader.h"
 #include "texture.h"
 
+// Enum for font types
+enum class FontType {
+    ROBOTO = 0,
+    NASALIZATION
+};
+
 // Structure to hold character information
 struct Character {
     unsigned int TextureID;  // ID handle of the glyph texture
@@ -50,6 +56,7 @@ struct TextOverlay {
     glm::vec3 color;
     bool is3D;  // If true, renders in 3D space, otherwise screen space
     int panelId;  // Which panel this text belongs to (-1 for screen space)
+    FontType font;  // Which font to use
 };
 
 // Structure for image element
@@ -77,7 +84,7 @@ class Interface {
         ~Interface();
         
         // Legacy 2D rendering methods (for backward compatibility)
-        void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
+        void renderText(std::string text, float x, float y, float scale, glm::vec3 color, FontType font = FontType::ROBOTO);
         void renderImage(Texture* texture, float x, float y, float width, float height, glm::vec4 color = glm::vec4(1.0f));
         
         // New layered rendering system
@@ -89,7 +96,7 @@ class Interface {
         void updatePanel(int panelId, glm::vec3 position, glm::vec3 rotation);
         
         // Element management
-        void addTextOverlay(const std::string& text, glm::vec3 position, float scale, glm::vec3 color, bool is3D = false, int panelId = -1);
+        void addTextOverlay(const std::string& text, glm::vec3 position, float scale, glm::vec3 color, bool is3D = false, int panelId = -1, FontType font = FontType::ROBOTO);
         void addImageElement(Texture* texture, glm::vec3 position, glm::vec2 size, glm::vec4 color = glm::vec4(1.0f), bool is3D = false, int panelId = -1);
         void addColoredRectangle(glm::vec3 position, glm::vec2 size, glm::vec4 color, bool is3D = false, int panelId = -1);
         void addCursorElement(Texture* texture, glm::vec3 position, glm::vec2 size, glm::vec4 color = glm::vec4(1.0f));
@@ -113,8 +120,8 @@ class Interface {
         Shader* image3DShader;
 
         FT_Library ft;
-        FT_Face face;
-        std::map<char, Character> Characters;
+        FT_Face faces[2];  // Array to hold both font faces
+        std::map<char, Character> Characters[2];  // Array to hold character maps for both fonts
         unsigned int VAO, VBO;
         unsigned int imageVAO, imageVBO;
         

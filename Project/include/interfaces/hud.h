@@ -13,7 +13,7 @@ class Hud {
         ~Hud();
         
         // Main update method - now takes view and projection matrices for 3D HUD
-        void update(int life, double score, int bullets, double time, int speed, int fps, 
+        void update(int life, int score, int bullets, double time, int speed, int fps, 
                    glm::mat4 view, glm::mat4 projection, glm::vec3 playerPos = glm::vec3(0.0f), 
                    glm::vec3 playerRotation = glm::vec3(0.0f), int shipState = 0, bool paused = false, bool invincible = false, bool shieldActive = false, bool playerDying = false);
         void mouse(double xpos, double ypos);
@@ -83,6 +83,7 @@ class Hud {
         static const float Y_POSITION_RANGE;  // Y position range: -1.0 to 1.0
         static const float Z_POSITION_RANGE;  // Z position range (estimated)
         static const float ROTATION_RANGE;  // Maximum rotation angle in degrees
+        static const float ROTATION_BAR_THICKNESS;
         
         enum ShipState {
             NORMAL = 0,
@@ -98,7 +99,7 @@ class Hud {
         // Helper methods for 3D HUD
         void calculatePanelPositions();
         void renderLeftPanelContent(int life, int bullets, double time, bool shieldActive = false);
-        void renderRightPanelContent(double score, int speed, int fps);
+        void renderRightPanelContent(int score, int speed, int fps);
         void renderCenterContent(double time, bool paused = false, bool invincible = false);
         void updateFade(double time, bool playerDying);
         void renderCursor();

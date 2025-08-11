@@ -12,13 +12,14 @@
 #endif
 
 // Define static constants
-const float Hud::BAR_THICKNESS = 20.0f;
-const float Hud::TOP_BAR_WIDTH = 400.0f;
-const float Hud::SIDE_BAR_HEIGHT = 300.0f;
+const float Hud::BAR_THICKNESS = 2.0f;   // 20
+const float Hud::TOP_BAR_WIDTH = 1260.0f; // 400
+const float Hud::SIDE_BAR_HEIGHT = 760.0f; // 300
 const float Hud::X_POSITION_RANGE = 1.5f;  // X: -1.5 to 1.5
 const float Hud::Y_POSITION_RANGE = 1.0f;  // Y: -1.0 to 1.0  
 const float Hud::Z_POSITION_RANGE = 2.0f;  // Z: estimated range
 const float Hud::ROTATION_RANGE = 45.0f;
+const float Hud::ROTATION_BAR_THICKNESS = 4.0f; // 15
 
 Hud::Hud(int width, int height) : windowWidth(width), windowHeight(height){
     std::string textures_dir = TEXTURES_DIR;
@@ -53,7 +54,7 @@ Hud::Hud(int width, int height) : windowWidth(width), windowHeight(height){
     setup3DHUD();
 }
 
-void Hud::update(int life, double score, int bullets, double time, int speed, int fps, 
+void Hud::update(int life, int score, int bullets, double time, int speed, int fps, 
                 glm::mat4 view, glm::mat4 projection, glm::vec3 playerPos, 
                 glm::vec3 playerRotation, int shipState, bool paused, bool invincible, bool shieldActive, bool playerDying) {
     
@@ -200,11 +201,12 @@ void Hud::renderLeftPanelContent(int life, int bullets, double time, bool shield
     // Life display on left panel with perspective (with fade effect)
     game_interface->addTextOverlay(
         "LIFE: " + std::to_string(life),
-        glm::vec3(baseX + 45.0f, baseY + angleOffset, 0.0f),                // Angled position
-        0.5f,                                                         // Scale
-        glm::vec3(1.0f, 0.3f, 0.3f) * currentAlpha,                                // Red color with fade
+        glm::vec3(baseX + 45.0f, baseY + angleOffset, 0.0f),          // Angled position
+        0.4f,                                                         // Scale
+        glm::vec3(1.0f, 1.0f, 1.0f) * currentAlpha,                   // Red color with fade 1.0 0.3f 0.3f
         false,                                                        // 2D text (screen space)
-        -1                                                            // No panel attachment
+        -1,                                                           // No panel attachment
+        FontType::NASALIZATION                                        // Use Nasalization font for headers
     );
 
     float iconWidth = 26.0f;
@@ -214,7 +216,7 @@ void Hud::renderLeftPanelContent(int life, int bullets, double time, bool shield
     if (shieldActive) {
         game_interface->addImageElement(
             shieldIconTexture,  // Simple shield icon
-            glm::vec3(baseX + 130.0f, baseY + angleOffset - 5.0f, 0.0f),           // Next to life display
+            glm::vec3(baseX + 120.0f, baseY + angleOffset - 6.0f, 0.0f),           // Next to life display
             glm::vec2(iconWidth, iconHeight),                               // Size of the icon
             glm::vec4(1.0f, 1.0f, 1.0f, 0.8f * currentAlpha),                            
             false,                                                    // 2D image (screen space)
@@ -225,11 +227,12 @@ void Hud::renderLeftPanelContent(int life, int bullets, double time, bool shield
     // Render ammunition counter with perspective (with fade effect)
     game_interface->addTextOverlay(
         std::to_string(bullets) + "/10",
-        glm::vec3(baseX + 100.0f, baseY + angleOffset - 50.0f, 0.0f),  // Slightly offset and angled
-        0.7f,                                                 // Scale
-        glm::vec3(1.0f, 1.0f, 0.0f) * currentAlpha,                        // Yellow color with fade
+        glm::vec3(baseX + 100.0f, baseY + angleOffset - 48.0f, 0.0f),  // Slightly offset and angled
+        0.6f,                                                 // Scale
+        glm::vec3(1.0f, 1.0f, 1.0f) * currentAlpha,           // Yellow color with fade glm::vec3(1.0f, 1.0f, 0.0f)
         false,                                                // 2D text (screen space)
-        -1                                                    // No panel attachment
+        -1,                                                   // No panel attachment
+        FontType::NASALIZATION                                // Use Nasalization font for headers
     ); // 65.0f and 0.8f
     
     // Render dialogs on the left panel area
@@ -255,7 +258,8 @@ void Hud::renderLeftPanelContent(int life, int bullets, double time, bool shield
             0.5f,                                                                   // Scale
             glm::vec3(1.0f, 1.0f, 1.0f),                                          // White text for readability on dark box
             false,                                                                  // 2D text (screen space)
-            -1                                                                      // No panel attachment
+            -1,                                                                     // No panel attachment
+            FontType::ROBOTO                                                       // Use Roboto for dialog text
         ); // + 130
 
         // Render captain text with perspective
@@ -265,17 +269,18 @@ void Hud::renderLeftPanelContent(int life, int bullets, double time, bool shield
             0.4f,                                                                   // Scale
             glm::vec3(0.8f, 0.8f, 0.8f),                                          // White text for readability on dark box
             false,                                                                  // 2D text (screen space)
-            -1                                                                      // No panel attachment
+            -1,                                                                     // No panel attachment
+            FontType::NASALIZATION                                                 // Use Nasalization for titles
         ); // +110
     }
 }
 
-void Hud::renderRightPanelContent(double score, int speed, int fps) {
+void Hud::renderRightPanelContent(int score, int speed, int fps) {
     // Format score string
     std::string scoreString = std::to_string(score);
-    if (scoreString.length() > 5) {
+    /*if (scoreString.length() > 5) {
         scoreString = scoreString.substr(0, scoreString.length()-5);
-    }
+    }*/
     
     // Calculate right panel screen position (simulate 3D positioning with increased angle)
     float baseX = windowWidth * 0.98f;   // Very close to right edge
@@ -306,17 +311,19 @@ void Hud::renderRightPanelContent(double score, int speed, int fps) {
         0.4f,                                                           // Scale
         scoreColor,                                                     // Dynamic color
         false,                                                          // 2D text (screen space)
-        -1                                                              // No panel attachment
+        -1,                                                             // No panel attachment
+        FontType::NASALIZATION                                          // Use Nasalization font for headers
     );
 
     // Render speed indicator with perspective
     game_interface->addTextOverlay(
         std::to_string(speed) + " KM/h",
-        glm::vec3(baseX - 85.0f - containerWidth/2, baseY + angleOffset - 50.0f, 0.0f),          // Angled position
-        0.6f,                                                 // Scale
-        glm::vec3(0.0f, 1.0f, 0.0f),                        // Green color
+        glm::vec3(baseX - 85.0f - containerWidth/2, baseY + angleOffset - 48.0f, 0.0f),          // Angled position
+        0.5f,                                                 // Scale
+        glm::vec3(1.0f, 1.0f, 1.0f),                          // White color glm::vec3(0.0f, 1.0f, 0.0f)
         false,                                                // 2D text (screen space)
-        -1                                                    // No panel attachment
+        -1,                                                   // No panel attachment
+        FontType::NASALIZATION                                // Use Nasalization font for headers
     );
     
     // FPS display on right panel with perspective
@@ -326,7 +333,8 @@ void Hud::renderRightPanelContent(double score, int speed, int fps) {
         0.3f,                                                            // Smaller scale
         glm::vec3(0.7f, 0.7f, 0.7f),                                   // Gray color
         false,                                                           // 2D text (screen space)
-        -1                                                               // No panel attachment
+        -1,                                                              // No panel attachment
+        FontType::ROBOTO                                                // Use Roboto for regular content
     );
 }
 
@@ -339,7 +347,8 @@ void Hud::renderCenterContent(double time, bool paused, bool invincible) {
             0.6f,                                                         // Larger scale for emphasis
             glm::vec3(0.0f, 1.0f, 0.0f),                                // Green color
             false,                                                        // 2D text (screen space)
-            -1                                                            // No panel attachment
+            -1,                                                           // No panel attachment
+            FontType::NASALIZATION                                       // Use Nasalization for feedback
         );
     }
     
@@ -351,7 +360,8 @@ void Hud::renderCenterContent(double time, bool paused, bool invincible) {
             1.2f,                                                             // Large scale
             glm::vec3(1.0f, 0.0f, 0.0f),                                    // Red color
             false,                                                            // 2D text (screen space)
-            -1                                                                // No panel attachment
+            -1,                                                               // No panel attachment
+            FontType::NASALIZATION                                            // Use Nasalization font for important status
         );
         
         game_interface->addTextOverlay(
@@ -360,7 +370,8 @@ void Hud::renderCenterContent(double time, bool paused, bool invincible) {
             0.6f,                                                             // Medium scale
             glm::vec3(1.0f, 1.0f, 1.0f),                                    // White color
             false,                                                            // 2D text (screen space)
-            -1                                                                // No panel attachment
+            -1,                                                               // No panel attachment
+            FontType::ROBOTO                                                 // Use Roboto for instructions
         );
     }
     
@@ -372,7 +383,8 @@ void Hud::renderCenterContent(double time, bool paused, bool invincible) {
             0.8f,                                                             // Medium-large scale
             glm::vec3(0.0f, 1.0f, 1.0f),                                    // Cyan color
             false,                                                            // 2D text (screen space)
-            -1                                                                // No panel attachment
+            -1,                                                               // No panel attachment
+            FontType::NASALIZATION                                            // Use Nasalization font for important status
         );
     }
 }
@@ -422,24 +434,24 @@ void Hud::render2DHUD(int life, double score, int bullets, double time, int spee
     if (shieldActive) {
         lifeText += " [SHIELD]";
     }
-    game_interface->renderText(lifeText, 25.0f, windowHeight-60, 0.5f, glm::vec3(1.0f, 0.3f, 0.3f) * currentAlpha);
+    game_interface->renderText(lifeText, 25.0f, windowHeight-60, 0.5f, glm::vec3(1.0f, 0.3f, 0.3f) * currentAlpha, FontType::ROBOTO);
     if (shieldActive) {
         // Render shield indicator in cyan color
-        game_interface->renderText("[SHIELD]", 25.0f + lifeText.length() * 12.0f - 70.0f, windowHeight-60, 0.5f, glm::vec3(0.0f, 0.8f, 1.0f) * currentAlpha);
+        game_interface->renderText("[SHIELD]", 25.0f + lifeText.length() * 12.0f - 70.0f, windowHeight-60, 0.5f, glm::vec3(0.0f, 0.8f, 1.0f) * currentAlpha, FontType::ROBOTO);
     }
-    game_interface->renderText("FPS : " + std::to_string(fps), windowWidth-150, windowHeight-60, 0.5f, glm::vec3(0.7f, 0.7f, 0.7f) * currentAlpha);
-    game_interface->renderText("Score : " + scoreString, 25.0f, windowHeight-100, 0.5f, scoreColor * currentAlpha);
+    game_interface->renderText("FPS : " + std::to_string(fps), windowWidth-150, windowHeight-60, 0.5f, glm::vec3(0.7f, 0.7f, 0.7f) * currentAlpha, FontType::ROBOTO);
+    game_interface->renderText("Score : " + scoreString, 25.0f, windowHeight-100, 0.5f, scoreColor * currentAlpha, FontType::ROBOTO);
     
     // Render bottom info with better spacing
-    game_interface->renderText(std::to_string(bullets) + " /10", 25.0f, windowHeight-750, 0.5f, glm::vec3(1.0f, 1.0f, 0.0f) * currentAlpha);
-    game_interface->renderText(std::to_string(speed) + " Km/h", 25.0f, windowHeight-800, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f) * currentAlpha);
+    game_interface->renderText(std::to_string(bullets) + " /10", 25.0f, windowHeight-750, 0.5f, glm::vec3(1.0f, 1.0f, 0.0f) * currentAlpha, FontType::ROBOTO);
+    game_interface->renderText(std::to_string(speed) + " Km/h", 25.0f, windowHeight-800, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f) * currentAlpha, FontType::ROBOTO);
     
     // Render cursor (with fade effect)
     game_interface->renderImage(aim_image, xPos, windowHeight-yPos, 50.0f, 50.0f, glm::vec4(1.0f, 1.0f, 1.0f, currentAlpha));
     
     // Render dialogs (with fade effect)
     if (currentDialog != nullptr) {
-        game_interface->renderText(currentDialog->first, 25.0f, windowHeight-500, 0.5f, glm::vec3(0.0f, 1.0f, 1.0f) * currentAlpha);
+        game_interface->renderText(currentDialog->first, 25.0f, windowHeight-500, 0.5f, glm::vec3(0.0f, 1.0f, 1.0f) * currentAlpha, FontType::ROBOTO);
         if(time - currentDialog->second > 10.0) {
             delete currentDialog;
             currentDialog = nullptr;
@@ -448,7 +460,7 @@ void Hud::render2DHUD(int life, double score, int bullets, double time, int spee
     
     // Render score feedback
     if (scoreFeedback != nullptr) {
-        game_interface->renderText(scoreFeedback->first.first, scoreFeedback->second.first, windowHeight-scoreFeedback->second.second, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+        game_interface->renderText(scoreFeedback->first.first, scoreFeedback->second.first, windowHeight-scoreFeedback->second.second, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f), FontType::ROBOTO);
         scoreColor = glm::vec3(0.0f, 1.0f, 0.0f);
         if(time - scoreFeedback->first.second > 1.0) {
             delete scoreFeedback;
@@ -477,7 +489,7 @@ void Hud::renderPositionBars(glm::vec3 playerPos, glm::vec3 playerRotation, int 
 
 void Hud::renderTopPositionBar(float xPosition, int shipState) {
     float centerX = windowWidth * 0.5f;
-    float topY = windowHeight * 0.05f;
+    float topY = windowHeight * 0.975f;
     
     glm::vec3 barColor = getBarColor((shipState == DAMAGED_TOP) ? DAMAGED_TOP : ((shipState == ACCELERATING) ? ACCELERATING : NORMAL));
     
@@ -495,7 +507,7 @@ void Hud::renderTopPositionBar(float xPosition, int shipState) {
 }
 
 void Hud::renderLeftPositionBar(float zPosition, float yRotation, float zRotation, int shipState) {
-    float leftX = windowWidth * 0.05f;
+    float leftX = windowWidth * 0.015f; // 0.05
     float centerY = windowHeight * 0.5f;
     
     glm::vec3 barColor = getBarColor(shipState);
@@ -518,7 +530,7 @@ void Hud::renderLeftPositionBar(float zPosition, float yRotation, float zRotatio
     float combinedRotation = yRotation + zRotation;  // Combine Y and Z rotation for left wing
     drawRotationGauge(
         glm::vec3(leftX + BAR_THICKNESS + 5.0f, centerY, 0.0f),
-        glm::vec2(15.0f, SIDE_BAR_HEIGHT),
+        glm::vec2(ROTATION_BAR_THICKNESS, SIDE_BAR_HEIGHT),
         combinedRotation,
         barColor,
         true  // left side
@@ -526,7 +538,7 @@ void Hud::renderLeftPositionBar(float zPosition, float yRotation, float zRotatio
 }
 
 void Hud::renderRightPositionBar(float yPosition, float yRotation, float xRotation, int shipState) {
-    float rightX = windowWidth * 0.95f;
+    float rightX = windowWidth * 0.985f; // 0.95
     float centerY = windowHeight * 0.5f;
     
     glm::vec3 barColor = getBarColor(shipState);
@@ -546,8 +558,8 @@ void Hud::renderRightPositionBar(float yPosition, float yRotation, float xRotati
     // Add rotation gauge
     float combinedRotation = yRotation + xRotation;  // Combine Y and X rotation for right wing
     drawRotationGauge(
-        glm::vec3(rightX - BAR_THICKNESS - 20.0f, centerY, 0.0f),
-        glm::vec2(15.0f, SIDE_BAR_HEIGHT),
+        glm::vec3(rightX - BAR_THICKNESS - 10.0f, centerY, 0.0f),
+        glm::vec2(ROTATION_BAR_THICKNESS, SIDE_BAR_HEIGHT),
         combinedRotation,
         barColor,
         false  // right side
@@ -557,7 +569,7 @@ void Hud::renderRightPositionBar(float yPosition, float yRotation, float xRotati
 glm::vec3 Hud::getBarColor(int shipState) {
     switch(shipState) {
         case ACCELERATING:
-            return glm::vec3(0.0f, 0.5f, 1.0f);  // Blue
+            return glm::vec3(0.0f, 0.0f, 1.0f);  // Blue
         case DAMAGED_LEFT:
         case DAMAGED_RIGHT:
         case DAMAGED_TOP:
@@ -577,7 +589,7 @@ void Hud::drawGraduatedBar(glm::vec3 position, glm::vec2 size, bool horizontal, 
     game_interface->addColoredRectangle(
         position,
         size,
-        glm::vec4(color * 0.3f, 0.8f),  // Darker version with transparency
+        glm::vec4(color, 1.0f),  // Darker version with transparency glm::vec4(color * 0.3f, 0.8f)
         false,  // 2D
         -1      // No panel
     );
@@ -615,7 +627,7 @@ void Hud::drawGraduatedBar(glm::vec3 position, glm::vec2 size, bool horizontal, 
             game_interface->addColoredRectangle(
                 glm::vec3(cursorX - 3.0f, position.y - 8.0f, position.z + 0.2f),
                 glm::vec2(6.0f, size.y + 16.0f),
-                glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),  // Yellow cursor
+                glm::vec4(1.0f, 0.549f, 0.0f, 1.0f),  // Orange cursor
                 false, -1
             );
         } else {
@@ -623,7 +635,7 @@ void Hud::drawGraduatedBar(glm::vec3 position, glm::vec2 size, bool horizontal, 
             game_interface->addColoredRectangle(
                 glm::vec3(position.x - 8.0f, cursorY - 3.0f, position.z + 0.2f),
                 glm::vec2(size.x + 16.0f, 6.0f),
-                glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),  // Yellow cursor
+                glm::vec4(1.0f, 0.549f, 0.0f, 1.0f),  // Orange cursor
                 false, -1
             );
         }
@@ -636,7 +648,7 @@ void Hud::drawRotationGauge(glm::vec3 position, glm::vec2 barSize, float rotatio
     normalizedRotation = std::max(-1.0f, std::min(1.0f, normalizedRotation));
     
     // Calculate gauge height based on rotation
-    float gaugeHeight = std::abs(normalizedRotation) * (barSize.y * 0.4f);  // Max 40% of bar height
+    float gaugeHeight = std::abs(normalizedRotation) * (barSize.y * 0.5f);  // Max 50% of bar height
     
     // Determine gauge position (above or below center based on rotation direction)
     float gaugeY = centerY + (normalizedRotation > 0 ? gaugeHeight/2 : -gaugeHeight/2);
@@ -653,7 +665,7 @@ void Hud::drawRotationGauge(glm::vec3 position, glm::vec2 barSize, float rotatio
         game_interface->addColoredRectangle(
             glm::vec3(position.x - 2.0f, centerY - 1.0f, position.z + 0.2f),
             glm::vec2(barSize.x + 4.0f, 2.0f),
-            glm::vec4(1.0f, 1.0f, 1.0f, 0.7f),  // White reference line
+            glm::vec4(color, 1.0f),  // Reference line
             false, -1
         );
     }

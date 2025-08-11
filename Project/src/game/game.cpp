@@ -103,7 +103,7 @@ void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double ti
   // Determine ship state (for now just normal, can be expanded later)
   //int shipState = 0;  // NORMAL
   
-  hud->update(player->life, player->score, player->bullets, time, -asteroid_speed*50, fps, 
+  hud->update(player->life, int(player->score), player->bullets, time, -asteroid_speed*50, fps, 
               view, projection, player->position, playerRotation, player->shipState, paused, invincible, player->shieldIsActive, player->isDeathAnimationActive());
 }
 

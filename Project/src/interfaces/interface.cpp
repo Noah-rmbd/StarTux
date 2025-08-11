@@ -21,56 +21,64 @@ Interface::Interface(int width, int height) : windowWidth(width), windowHeight(h
     if (FT_Init_FreeType(&ft))
         std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 
-    std::string font_path = ressources_dir + "Roboto-Medium.ttf";
+    // Load Roboto font (index 0)
+    std::string roboto_path = ressources_dir + "Roboto-Medium.ttf";
+    if (FT_New_Face(ft, roboto_path.c_str(), 0, &faces[0]))
+        std::cerr << "ERROR::FREETYPE: Failed to load Roboto font" << std::endl;
 
-    if (FT_New_Face(ft, font_path.c_str(), 0, &face))
-        std::cerr << "ERROR::FREETYPE: Failed to load font" << std::endl;
-
-    if (FT_Set_Pixel_Sizes(face, 0, 48)){
-        std::cerr << "ERROR::FREETYPE: Failed to set pixel size" << std::endl;
-        return;
-    }
+    // Load Nasalization font (index 1)
+    std::string nasalization_path = ressources_dir + "Nasalization_Rg.otf";
+    if (FT_New_Face(ft, nasalization_path.c_str(), 0, &faces[1]))
+        std::cerr << "ERROR::FREETYPE: Failed to load Nasalization font" << std::endl;
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
-    for (unsigned char c = 0; c < 128; c++)
-    {
-        // Load character glyph
-        if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-        {
-            std::cerr << "ERROR::FREETYPE: Failed to load Glyph" << std::endl;
+    // Load characters for both fonts
+    for (int fontIndex = 0; fontIndex < 2; fontIndex++) {
+        if (FT_Set_Pixel_Sizes(faces[fontIndex], 0, 48)){
+            std::cerr << "ERROR::FREETYPE: Failed to set pixel size for font " << fontIndex << std::endl;
             continue;
         }
-        // Generate texture
-        unsigned int texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RED,
-            face->glyph->bitmap.width,
-            face->glyph->bitmap.rows,
-            0,
-            GL_RED,
-            GL_UNSIGNED_BYTE,
-            face->glyph->bitmap.buffer
-        );
 
-        // Set texture options
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        for (unsigned char c = 0; c < 128; c++)
+        {
+            // Load character glyph
+            if (FT_Load_Char(faces[fontIndex], c, FT_LOAD_RENDER))
+            {
+                std::cerr << "ERROR::FREETYPE: Failed to load Glyph " << c << " for font " << fontIndex << std::endl;
+                continue;
+            }
+            // Generate texture
+            unsigned int texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RED,
+                faces[fontIndex]->glyph->bitmap.width,
+                faces[fontIndex]->glyph->bitmap.rows,
+                0,
+                GL_RED,
+                GL_UNSIGNED_BYTE,
+                faces[fontIndex]->glyph->bitmap.buffer
+            );
 
-        // Store character for later use
-        Character character = {
-            texture,
-            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            static_cast<unsigned int>(face->glyph->advance.x)
-        };
-        Characters.insert(std::pair<char, Character>(c, character));
+            // Set texture options
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            // Store character for later use
+            Character character = {
+                texture,
+                glm::ivec2(faces[fontIndex]->glyph->bitmap.width, faces[fontIndex]->glyph->bitmap.rows),
+                glm::ivec2(faces[fontIndex]->glyph->bitmap_left, faces[fontIndex]->glyph->bitmap_top),
+                static_cast<unsigned int>(faces[fontIndex]->glyph->advance.x)
+            };
+            Characters[fontIndex].insert(std::pair<char, Character>(c, character));
+        }
     }
 
     // Initialize 2D shaders (legacy support)
@@ -158,7 +166,7 @@ Interface::Interface(int width, int height) : windowWidth(width), windowHeight(h
 
 }
 
-void Interface::renderText(std::string text, float x, float y, float scale, glm::vec3 color)
+void Interface::renderText(std::string text, float x, float y, float scale, glm::vec3 color, FontType font)
 {
     // Activate corresponding render state
     glEnable(GL_BLEND);
@@ -169,11 +177,14 @@ void Interface::renderText(std::string text, float x, float y, float scale, glm:
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
 
+    // Get the font index
+    int fontIndex = static_cast<int>(font);
+    
     // Iterate through all characters
     std::string::const_iterator c;
     for (c = text.begin(); c != text.end(); c++)
     {
-        Character ch = Characters[*c];
+        Character ch = Characters[fontIndex][*c];
 
         float xpos = x + ch.Bearing.x * scale;
         float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
@@ -283,7 +294,7 @@ void Interface::updatePanel(int panelId, glm::vec3 position, glm::vec3 rotation)
 }
 
 // Element management
-void Interface::addTextOverlay(const std::string& text, glm::vec3 position, float scale, glm::vec3 color, bool is3D, int panelId) {
+void Interface::addTextOverlay(const std::string& text, glm::vec3 position, float scale, glm::vec3 color, bool is3D, int panelId, FontType font) {
     TextOverlay overlay;
     overlay.text = text;
     overlay.position = position;
@@ -291,6 +302,7 @@ void Interface::addTextOverlay(const std::string& text, glm::vec3 position, floa
     overlay.color = color;
     overlay.is3D = is3D;
     overlay.panelId = panelId;
+    overlay.font = font;
     
     textOverlays.push_back(overlay);
 }
@@ -427,11 +439,14 @@ void Interface::renderLayer(RenderLayer layer) {
                     glActiveTexture(GL_TEXTURE0);
                     glBindVertexArray(VAO);
 
+                    // Get the font index
+                    int fontIndex = static_cast<int>(overlay.font);
+                    
                     // Iterate through all characters
                     float x = overlay.position.x;
                     float z = overlay.position.z;  // Use Z from position
                     for (char c : overlay.text) {
-                        Character ch = Characters[c];
+                        Character ch = Characters[fontIndex][c];
 
                         float xpos = x + ch.Bearing.x * overlay.scale;
                         float ypos = overlay.position.y - (ch.Size.y - ch.Bearing.y) * overlay.scale;
@@ -523,10 +538,13 @@ void Interface::renderText3D(const TextOverlay& textOverlay) {
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
     
+    // Get the font index
+    int fontIndex = static_cast<int>(textOverlay.font);
+    
     // Render each character
     float x = 0.0f;
     for (char c : textOverlay.text) {
-        Character ch = Characters[c];
+        Character ch = Characters[fontIndex][c];
         
         float xpos = x + ch.Bearing.x * textOverlay.scale;
         float ypos = -(ch.Size.y - ch.Bearing.y) * textOverlay.scale;
@@ -680,7 +698,8 @@ void Interface::renderColoredRectangle(const ColoredRectangle& rect) {
 Interface::~Interface()
 {
     // Clean up FreeType resources
-    FT_Done_Face(face);
+    FT_Done_Face(faces[0]);
+    FT_Done_Face(faces[1]);
     FT_Done_FreeType(ft);
     
     // Clean up OpenGL resources
