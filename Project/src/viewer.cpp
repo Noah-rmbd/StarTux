@@ -123,6 +123,17 @@ void Viewer::run() {
 
       game->keyHandler(keyStates, glfwGetTime());
       game->updateGame(glfwGetTime(), fps);
+      
+      // Enable cursor when death menu is active, disable during normal gameplay
+      if (game->isDeathMenuActive()) {
+        if (!cursorStateSet) {
+          glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+          cursorStateSet = true;
+        }
+      } else if (cursorStateSet) {
+        glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        cursorStateSet = false;
+      }
 
       glm::mat4 model = glm::mat4(1.0f);
       glm::mat4 view =
@@ -134,15 +145,35 @@ void Viewer::run() {
       // Draw the game + HUD
       game->draw(model, view, projection, glfwGetTime(), fps);
 
-      // Quit the game
-      if (game->lost) {
+      // Handle game over - check if player chose quit to menu
+      if (game->shouldQuitToMenu()) {
+        game->resetQuitFlag();
+        delete game;
         game = new Game(windowWidth, windowHeight, target_FPS);
         startup_screen = new StartupScreen(windowWidth, windowHeight);
         startGame = false;
+        cursorStateSet = false; // Reset cursor state tracking
         glfwSetInputMode(win, GLFW_CURSOR,
-                         GLFW_CURSOR_NORMAL); // Hide cursor and lock it
+                         GLFW_CURSOR_NORMAL); // Show cursor for menu
 
         // Switch back to startup music
+        if (audio_activated) {
+          audio_manager->stopMusic();
+          audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
+        }
+        musicSwitched = false;
+      }
+      // Legacy auto-restart when lost (now handled by death menu)
+      // Note: Keep this for backward compatibility if needed
+      else if (game->lost && !game->isDeathMenuActive()) {
+        delete game;
+        game = new Game(windowWidth, windowHeight, target_FPS);
+        startup_screen = new StartupScreen(windowWidth, windowHeight);
+        startGame = false;
+        cursorStateSet = false; // Reset cursor state tracking
+        glfwSetInputMode(win, GLFW_CURSOR,
+                         GLFW_CURSOR_NORMAL);
+
         if (audio_activated) {
           audio_manager->stopMusic();
           audio_manager->loadAndPlayMusic(audio_dir + "start_music.wav", true);
@@ -174,6 +205,7 @@ void Viewer::run() {
 
       if (startup_screen->isLaunched()) {
         startGame = true;
+        cursorStateSet = false; // Reset cursor state when starting game
         glfwSetInputMode(win, GLFW_CURSOR,
                          GLFW_CURSOR_DISABLED); // Hide cursor and lock it
       }

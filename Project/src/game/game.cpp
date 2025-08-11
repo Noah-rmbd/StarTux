@@ -103,8 +103,13 @@ void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double ti
   // Determine ship state (for now just normal, can be expanded later)
   //int shipState = 0;  // NORMAL
   
+  // Set final score when game is lost (do this before calling hud->update)
+  if (lost) {
+      hud->setFinalScore(int(player->score));
+  }
+  
   hud->update(player->life, int(player->score), player->bullets, time, -asteroid_speed*50, fps, 
-              view, projection, player->position, playerRotation, player->shipState, paused, invincible, player->shieldIsActive, player->isDeathAnimationActive());
+              view, projection, player->position, playerRotation, player->shipState, paused, invincible, player->shieldIsActive, player->isDeathAnimationActive(), lost);
 }
 
 void Game::updateGame(double time, int fps) {
@@ -243,7 +248,12 @@ void Game::mouse_callback(double xpos, double ypos){
 
 void Game::mouse_button_callback(int button, int action, double xpos, double ypos, double time){
   mouse_callback(xpos, ypos);
+  
+  // Handle death menu clicks first
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    if (handleDeathMenuClick(xpos, ypos)) {
+      return; // Death menu handled the click
+    }
     l_mouse_button_pressed = true;
   } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE){
     l_mouse_button_pressed = false;
@@ -982,4 +992,111 @@ void Game::colisions_projectile_asteroid(double time) {
       ++it;
     }
   }
+}
+
+// Death menu handling methods
+bool Game::handleDeathMenuClick(double xpos, double ypos) {
+  if (!hud->isDeathMenuActive()) return false;
+  
+  bool clicked = hud->checkDeathMenuClick(xpos, ypos);
+  if (clicked) {
+    Hud::DeathMenuAction action = hud->getLastMenuAction();
+    
+    if (action == Hud::DEATH_MENU_QUIT) {
+      quitToMenu = true;
+    } else if (action == Hud::DEATH_MENU_PLAY) {
+      resetGame();
+    }
+    
+    hud->resetMenuAction();
+    return true;
+  }
+  
+  return false;
+}
+
+void Game::resetGame() {
+  // Reset player state
+  player->life = 3;
+  player->bullets = 10;
+  player->score = 0;
+  player->position = glm::vec3(0.0f, 0.0f, 0.0f);
+  player->xAngle = 0.0f;
+  player->yAngle = 0.0f;
+  player->zAngle = 0.0f;
+  player->shipState = Player::NORMAL;
+  
+  // Reset death animation state
+  player->deathAnimationActive = false;
+  player->deathAnimationStart = 0.0;
+  
+  // Reset damage animation state
+  player->damageAnimationActive = false;
+  player->damageAnimationStart = 0.0;
+  
+  // Reset shield state
+  player->shieldIsActive = false;
+  player->shieldStart = 0.0;
+  
+  // Reset game state
+  lost = false;
+  paused = false;
+  
+  // Reset camera position
+  camera.cameraPos = player->position + glm::vec3(0.0f, 0.05f, -0.3f);
+  
+  // Clear all projectiles
+  for (auto* projectile : projectiles) {
+    scene_root->remove(projectile->node);
+    delete projectile;
+  }
+  projectiles.clear();
+  
+  for (auto* light_projectile : light_projectiles) {
+    scene_root->remove(light_projectile->node);
+    delete light_projectile;
+  }
+  light_projectiles.clear();
+  
+  // Clear all asteroids
+  for (auto* asteroid : asteroids_) {
+    world_node->remove(asteroid->asteroid_node);
+    delete asteroid;
+  }
+  asteroids_.clear();
+  
+  // Clear all rings
+  for (auto* ring : rings_) {
+    world_node->remove(ring->ring_node);
+    delete ring;
+  }
+  rings_.clear();
+  
+  // Clear all explosions
+  for (auto* explosion : explosions) {
+    scene_root->remove(explosion->getNode());
+    delete explosion;
+  }
+  explosions.clear();
+  
+  // Reset asteroid speed
+  asteroid_speed = -2.4f;
+  
+  // Reset HUD state
+  hud->resetDeathMenuState();
+  
+  // Regenerate initial objects
+  for (int i = 0; i < 40; ++i) {
+    if (i%10 == 0) {
+      spawn_ring(true, i/40.0f);
+    } else if (i%2 == 0) {
+      spawn_asteroid(true, i/40.0f);
+    }
+  }
+  
+  spawn_ring();
+}
+
+bool Game::isDeathMenuActive() const {
+  return hud->isDeathMenuActive();
 }

@@ -47,6 +47,7 @@ private:
     bool audio_activated = false;
     bool startGame = false;
     int target_FPS = 30;
+    bool cursorStateSet = false; // Track cursor state for death menu
 
     // Store key states
     std::unordered_map<int, std::pair<bool, double>> keyStates;

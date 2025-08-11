@@ -102,7 +102,7 @@ class Player{
         // Death animation system
         bool deathAnimationActive = false;
         double deathAnimationStart = 0.0;
-        double deathAnimationDuration = 3.0; // 3 seconds for death animation
+        double deathAnimationDuration = 1.0; // 3 seconds for death animation
         glm::vec3 deathVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
         float deathRotationSpeed = 0.0f;
 

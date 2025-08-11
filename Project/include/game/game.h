@@ -28,6 +28,13 @@ public:
   void mouse_callback(double xpos, double ypos);
   void mouse_button_callback(int button, int action, double xpos, double ypos, double time);
   
+  // Death menu handling
+  bool handleDeathMenuClick(double xpos, double ypos);
+  void resetGame();
+  bool shouldQuitToMenu() const { return quitToMenu; }
+  void resetQuitFlag() { quitToMenu = false; }
+  bool isDeathMenuActive() const;
+  
   Player *player;
   Camera camera;
   Node *scene_root;
@@ -35,6 +42,7 @@ public:
   bool lost = false;
   bool paused = false;
   bool invincible = false;
+  bool quitToMenu = false;
 
 private:
   void spawn_asteroid(bool start_generation = false, float generation_distance = 0.0f);

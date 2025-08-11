@@ -50,16 +50,30 @@ Hud::Hud(int width, int height) : windowWidth(width), windowHeight(height){
     currentDialog = nullptr;
     scoreFeedback = nullptr;
     
+    // Initialize death menu button areas
+    calculateButtonAreas();
+    
     // Set up 3D HUD panels
     setup3DHUD();
 }
 
 void Hud::update(int life, int score, int bullets, double time, int speed, int fps, 
                 glm::mat4 view, glm::mat4 projection, glm::vec3 playerPos, 
-                glm::vec3 playerRotation, int shipState, bool paused, bool invincible, bool shieldActive, bool playerDying) {
+                glm::vec3 playerRotation, int shipState, bool paused, bool invincible, bool shieldActive, bool playerDying, bool gameLost) {
     
     // Update fade state
     updateFade(time, playerDying);
+    
+    // Update death menu state
+    updateDeathMenu(time, gameLost);
+    
+    // If death menu is active, render it instead of normal HUD
+    if (showDeathMenu) {
+        game_interface->beginFrame(view, projection);
+        renderDeathMenu(time);
+        game_interface->endFrame();
+        return;
+    }
     
     // Don't render HUD if nearly invisible
     if (currentAlpha < 0.01f) {
@@ -669,6 +683,178 @@ void Hud::drawRotationGauge(glm::vec3 position, glm::vec2 barSize, float rotatio
             false, -1
         );
     }
+}
+
+// Death menu implementation
+void Hud::updateDeathMenu(double time, bool gameLost) {
+    if (gameLost && !showDeathMenu && !deathMenuAnimationActive) {
+        // Game just ended, start death menu animation
+        showDeathMenu = true;
+        deathMenuAnimationActive = true;
+        deathMenuAnimationStart = time;
+        deathMenuAlpha = 0.0f;
+        // finalScore should already be set by setFinalScore() call from game
+    }
+    
+    if (deathMenuAnimationActive) {
+        double elapsedTime = time - deathMenuAnimationStart;
+        float progress = std::min(1.0f, static_cast<float>(elapsedTime / deathMenuAnimationDuration));
+        deathMenuAlpha = progress; // Fade from 0.0 to 1.0
+        
+        if (progress >= 1.0f) {
+            deathMenuAnimationActive = false;
+        }
+    }
+}
+
+void Hud::renderDeathMenu(double time) {
+    // Semi-transparent dark overlay
+    game_interface->addColoredRectangle(
+        glm::vec3(0.0f, 0.0f, -0.5f),
+        glm::vec2(windowWidth, windowHeight),
+        glm::vec4(0.0f, 0.0f, 0.0f, 0.7f * deathMenuAlpha),
+        false, -1
+    );
+    
+    // Calculate menu dimensions
+    float menuWidth = 600.0f;
+    float menuHeight = 400.0f;
+    float menuX = (windowWidth - menuWidth) / 2.0f;
+    float menuY = (windowHeight - menuHeight) / 2.0f;
+    
+    // Death menu background using colored rectangle
+    game_interface->addColoredRectangle(
+        glm::vec3(menuX, menuY, -0.2f),
+        glm::vec2(menuWidth, menuHeight),
+        glm::vec4(0.1f, 0.1f, 0.1f, 0.6f * deathMenuAlpha), // Dark gray background
+        false, -1
+    );
+    
+    // Death menu border
+    float borderWidth = 4.0f;
+    game_interface->addColoredRectangle(
+        glm::vec3(menuX - borderWidth, menuY - borderWidth, -0.1f),
+        glm::vec2(menuWidth + 2*borderWidth, menuHeight + 2*borderWidth),
+        glm::vec4(0.3f, 0.3f, 0.3f, 0.8f * deathMenuAlpha), // Lighter border
+        false, -1
+    );
+    
+    // "GAME OVER" title
+    game_interface->addTextOverlay(
+        "GAME OVER",
+        glm::vec3(menuX + menuWidth/2.0f - 180.0f, menuY + menuHeight - 80.0f, 0.2f),
+        1.2f,
+        glm::vec3(1.0f, 0.2f, 0.2f) * deathMenuAlpha, // Red color
+        false, -1,
+        FontType::NASALIZATION
+    );
+    
+    // Final score display
+    std::string scoreText = "FINAL SCORE: " + std::to_string(finalScore);
+    game_interface->addTextOverlay(
+        scoreText,
+        glm::vec3(menuX + menuWidth/2 - 100.0f, menuY + menuHeight - 140.0f, 0.2f),
+        0.6f,
+        glm::vec3(1.0f, 1.0f, 1.0f) * deathMenuAlpha,
+        false, -1,
+        FontType::ROBOTO
+    );
+    
+    // Quit button background
+    game_interface->addColoredRectangle(
+        glm::vec3(quitButton.x, quitButton.y, 0.1f),
+        glm::vec2(quitButton.width, quitButton.height),
+        glm::vec4(0.8f, 0.2f, 0.2f, 0.9f * deathMenuAlpha), // Red button
+        false, -1
+    );
+    
+    // Quit button text
+    game_interface->addTextOverlay(
+        "QUIT",
+        glm::vec3(quitButton.x + quitButton.width/2 - 30.0f, quitButton.y + quitButton.height/2 - 10.0f, 0.2f),
+        0.5f,
+        glm::vec3(1.0f, 1.0f, 1.0f) * deathMenuAlpha,
+        false, -1,
+        FontType::NASALIZATION
+    );
+    
+    // Play button background  
+    game_interface->addColoredRectangle(
+        glm::vec3(playButton.x, playButton.y, 0.1f),
+        glm::vec2(playButton.width, playButton.height),
+        glm::vec4(0.2f, 0.8f, 0.2f, 0.9f * deathMenuAlpha), // Green button
+        false, -1
+    );
+    
+    // Play button text
+    game_interface->addTextOverlay(
+        "PLAY AGAIN",
+        glm::vec3(playButton.x + playButton.width/2 - 76.0f, playButton.y + playButton.height/2 - 10.0f, 0.2f),
+        0.5f,
+        glm::vec3(1.0f, 1.0f, 1.0f) * deathMenuAlpha,
+        false, -1,
+        FontType::NASALIZATION
+    );
+}
+
+void Hud::calculateButtonAreas() {
+    float menuWidth = 600.0f;
+    float menuHeight = 400.0f;
+    float menuX = (windowWidth - menuWidth) / 2.0f;
+    float menuY = (windowHeight - menuHeight) / 2.0f;
+    
+    float buttonWidth = 200.0f;
+    float buttonHeight = 50.0f;
+    float buttonSpacing = 50.0f;
+    
+    // Quit button on the left
+    quitButton.x = menuX + menuWidth/2 - buttonWidth - buttonSpacing/2;
+    quitButton.y = menuY + 50.0f;
+    quitButton.width = buttonWidth;
+    quitButton.height = buttonHeight;
+    
+    // Play button on the right  
+    playButton.x = menuX + menuWidth/2 + buttonSpacing/2;
+    playButton.y = menuY + 50.0f;
+    playButton.width = buttonWidth;
+    playButton.height = buttonHeight;
+}
+
+bool Hud::checkDeathMenuClick(double xpos, double ypos) {
+    if (!showDeathMenu || deathMenuAnimationActive) return false;
+    
+    // Convert mouse coordinates (Y is flipped)
+    float mouseY = windowHeight - ypos;
+    
+    // Check quit button
+    if (xpos >= quitButton.x && xpos <= quitButton.x + quitButton.width &&
+        mouseY >= quitButton.y && mouseY <= quitButton.y + quitButton.height) {
+        lastMenuAction = DEATH_MENU_QUIT;
+        return true;
+    }
+    
+    // Check play button
+    if (xpos >= playButton.x && xpos <= playButton.x + playButton.width &&
+        mouseY >= playButton.y && mouseY <= playButton.y + playButton.height) {
+        lastMenuAction = DEATH_MENU_PLAY;
+        return true;
+    }
+    
+    return false;
+}
+
+void Hud::resetDeathMenuState() {
+    showDeathMenu = false;
+    deathMenuAnimationActive = false;
+    deathMenuAnimationStart = 0.0;
+    deathMenuAlpha = 0.0f;
+    lastMenuAction = DEATH_MENU_NONE;
+    finalScore = 0;
+    
+    // Reset fade state
+    isFading = false;
+    fadeStartTime = 0.0;
+    currentAlpha = 1.0f;
 }
 
 Hud::~Hud() {

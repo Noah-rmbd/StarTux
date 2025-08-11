@@ -15,8 +15,21 @@ class Hud {
         // Main update method - now takes view and projection matrices for 3D HUD
         void update(int life, int score, int bullets, double time, int speed, int fps, 
                    glm::mat4 view, glm::mat4 projection, glm::vec3 playerPos = glm::vec3(0.0f), 
-                   glm::vec3 playerRotation = glm::vec3(0.0f), int shipState = 0, bool paused = false, bool invincible = false, bool shieldActive = false, bool playerDying = false);
+                   glm::vec3 playerRotation = glm::vec3(0.0f), int shipState = 0, bool paused = false, bool invincible = false, bool shieldActive = false, bool playerDying = false, bool gameLost = false);
         void mouse(double xpos, double ypos);
+        
+        // Death menu interaction
+        bool checkDeathMenuClick(double xpos, double ypos);
+        enum DeathMenuAction {
+            DEATH_MENU_NONE = 0,
+            DEATH_MENU_QUIT = 1,
+            DEATH_MENU_PLAY = 2
+        };
+        DeathMenuAction getLastMenuAction() const { return lastMenuAction; }
+        void resetMenuAction() { lastMenuAction = DEATH_MENU_NONE; }
+        void setFinalScore(int score) { finalScore = score; }
+        bool isDeathMenuActive() const { return showDeathMenu; }
+        void resetDeathMenuState();
         void newDialog(int number, double time);
         void scoreIncrement(int xpos, int ypos, double time, int score);
         
@@ -52,6 +65,22 @@ class Hud {
         double fadeStartTime = 0.0;
         float fadeDuration = 0.5f; // 0.5 seconds to fade out
         float currentAlpha = 1.0f;
+        
+        // Death menu system
+        bool showDeathMenu = false;
+        bool deathMenuAnimationActive = false;
+        double deathMenuAnimationStart = 0.0;
+        float deathMenuAnimationDuration = 1.0f; // 1 second to fade in
+        float deathMenuAlpha = 0.0f;
+        DeathMenuAction lastMenuAction = DEATH_MENU_NONE;
+        int finalScore = 0;
+        
+        // Death menu button areas (screen coordinates)
+        struct ButtonArea {
+            float x, y, width, height;
+        };
+        ButtonArea quitButton;
+        ButtonArea playButton;
         
         std::vector<std::string> dialogs = {"Welcome Tux, it's time to defeat MicroShip", "Nice shot", "Good job Tux, you got an extra life", "Oh no, a colision", "Gotta go fast Son.. Hum Tux the hedgehog"};
         std::pair<std::string, double>* currentDialog;
@@ -103,6 +132,11 @@ class Hud {
         void renderCenterContent(double time, bool paused = false, bool invincible = false);
         void updateFade(double time, bool playerDying);
         void renderCursor();
+        
+        // Death menu methods
+        void updateDeathMenu(double time, bool gameLost);
+        void renderDeathMenu(double time);
+        void calculateButtonAreas();
         
         // Position and rotation bar methods
         void renderPositionBars(glm::vec3 playerPos, glm::vec3 playerRotation, int shipState);
