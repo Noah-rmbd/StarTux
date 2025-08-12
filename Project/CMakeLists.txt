@@ -53,6 +53,8 @@ set(SOURCES
     ${SRC_DIR}/game/asteroid.cpp
     ${SRC_DIR}/game/explosion.cpp
     ${SRC_DIR}/game/ring.cpp
+    ${SRC_DIR}/game/statistics.cpp
+    ${SRC_DIR}/game/missions.cpp
     ${SRC_DIR}/shapes/shape_model.cpp
     ${SRC_DIR}/shapes/sphere.cpp
     ${SRC_DIR}/graphics/texture.cpp

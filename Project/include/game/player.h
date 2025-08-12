@@ -7,6 +7,7 @@
 #include "shape_model.h"
 #include "lighting_sphere.h"
 #include "transparent_sphere.h"
+#include "statistics.h"
 #include <glm/glm.hpp>
 
 class Player{
@@ -116,6 +117,10 @@ class Player{
         int life = 3;
         int bullets = 10;
         double score = 0;
+        
+        // Statistics tracking
+        GameStatistics* gameStats;
+        double gameStartTime = 0.0;
 
     private:
         std::string ship_dir;

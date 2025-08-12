@@ -396,6 +396,30 @@ src/game/light_projectile.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/light_projectile.cpp.s
 .PHONY : src/game/light_projectile.cpp.s
 
+src/game/missions.o: src/game/missions.cpp.o
+.PHONY : src/game/missions.o
+
+# target to build an object file
+src/game/missions.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/missions.cpp.o
+.PHONY : src/game/missions.cpp.o
+
+src/game/missions.i: src/game/missions.cpp.i
+.PHONY : src/game/missions.i
+
+# target to preprocess a source file
+src/game/missions.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/missions.cpp.i
+.PHONY : src/game/missions.cpp.i
+
+src/game/missions.s: src/game/missions.cpp.s
+.PHONY : src/game/missions.s
+
+# target to generate assembly for a file
+src/game/missions.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/missions.cpp.s
+.PHONY : src/game/missions.cpp.s
+
 src/game/player.o: src/game/player.cpp.o
 .PHONY : src/game/player.o
 
@@ -467,6 +491,30 @@ src/game/ring.s: src/game/ring.cpp.s
 src/game/ring.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/ring.cpp.s
 .PHONY : src/game/ring.cpp.s
+
+src/game/statistics.o: src/game/statistics.cpp.o
+.PHONY : src/game/statistics.o
+
+# target to build an object file
+src/game/statistics.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/statistics.cpp.o
+.PHONY : src/game/statistics.cpp.o
+
+src/game/statistics.i: src/game/statistics.cpp.i
+.PHONY : src/game/statistics.i
+
+# target to preprocess a source file
+src/game/statistics.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/statistics.cpp.i
+.PHONY : src/game/statistics.cpp.i
+
+src/game/statistics.s: src/game/statistics.cpp.s
+.PHONY : src/game/statistics.s
+
+# target to generate assembly for a file
+src/game/statistics.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/statistics.cpp.s
+.PHONY : src/game/statistics.cpp.s
 
 src/graphics/shader.o: src/graphics/shader.cpp.o
 .PHONY : src/graphics/shader.o
@@ -841,6 +889,9 @@ help:
 	@echo "... src/game/light_projectile.o"
 	@echo "... src/game/light_projectile.i"
 	@echo "... src/game/light_projectile.s"
+	@echo "... src/game/missions.o"
+	@echo "... src/game/missions.i"
+	@echo "... src/game/missions.s"
 	@echo "... src/game/player.o"
 	@echo "... src/game/player.i"
 	@echo "... src/game/player.s"
@@ -850,6 +901,9 @@ help:
 	@echo "... src/game/ring.o"
 	@echo "... src/game/ring.i"
 	@echo "... src/game/ring.s"
+	@echo "... src/game/statistics.o"
+	@echo "... src/game/statistics.i"
+	@echo "... src/game/statistics.s"
 	@echo "... src/graphics/shader.o"
 	@echo "... src/graphics/shader.i"
 	@echo "... src/graphics/shader.s"

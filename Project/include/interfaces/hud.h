@@ -3,6 +3,8 @@
 
 #include "interface.h"
 #include "texture.h"
+#include "statistics.h"
+#include "missions.h"
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
@@ -28,6 +30,8 @@ class Hud {
         DeathMenuAction getLastMenuAction() const { return lastMenuAction; }
         void resetMenuAction() { lastMenuAction = DEATH_MENU_NONE; }
         void setFinalScore(int score) { finalScore = score; }
+        void setGameStatistics(GameStatistics* stats) { gameStatistics = stats; }
+        void setMissionsManager(DailyMissions* missions) { dailyMissions = missions; }
         bool isDeathMenuActive() const { return showDeathMenu; }
         void resetDeathMenuState();
         void newDialog(int number, double time);
@@ -74,6 +78,8 @@ class Hud {
         float deathMenuAlpha = 0.0f;
         DeathMenuAction lastMenuAction = DEATH_MENU_NONE;
         int finalScore = 0;
+        GameStatistics* gameStatistics = nullptr;
+        DailyMissions* dailyMissions = nullptr;
         
         // Death menu button areas (screen coordinates)
         struct ButtonArea {
@@ -137,6 +143,9 @@ class Hud {
         void updateDeathMenu(double time, bool gameLost);
         void renderDeathMenu(double time);
         void calculateButtonAreas();
+        
+        // Mission progress display
+        void renderMissionProgress();
         
         // Position and rotation bar methods
         void renderPositionBars(glm::vec3 playerPos, glm::vec3 playerRotation, int shipState);

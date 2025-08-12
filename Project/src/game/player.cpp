@@ -47,6 +47,11 @@ Player::Player(Shader* shader_program)
     glm::mat4 shieldTransform = glm::scale(glm::mat4(1.0f), glm::vec3(0.08f)); // Scale up the shield
     shieldNode = new Node(shieldTransform);
     shieldNode->add(shieldSphere);
+    
+    // Initialize statistics tracking
+    gameStats = new GameStatistics();
+    gameStats->resetSession(); // Start fresh session
+    gameStartTime = 0.0; // Will be set when game actually starts
 }
 
 Player::~Player() {
@@ -67,6 +72,9 @@ Player::~Player() {
     delete model;
     delete ship_texture;
     delete texture_shader;
+    
+    // Clean up statistics (will automatically save to file)
+    delete gameStats;
 }
 
 void Player::updatePosition(){

@@ -17,13 +17,22 @@
 #error "RESSOURCES_DIR not defined"
 #endif
 
-Game::Game(int width, int height, int target_fps) {
+Game::Game(int width, int height, int target_fps, DailyMissions* missions) {
   std::string shader_dir = SHADER_DIR;
   std::string textures_dir = TEXTURES_DIR;
   std::string ressources_dir = RESSOURCES_DIR;
 
+  // Store missions reference first
+  dailyMissions = missions;
+  
   // Generates HUD
   hud = new Hud(width, height);
+  
+  // Set up HUD with missions manager if available
+  if (dailyMissions) {
+    hud->setMissionsManager(dailyMissions);
+  }
+  
   window_width = width;
   window_height = height;
   targeted_fps = target_fps;
@@ -92,6 +101,9 @@ Game::Game(int width, int height, int target_fps) {
   last_shoot_time = 0.0;
 
   spawn_ring();
+  
+  // Set game start time for statistics tracking
+  player->gameStartTime = glfwGetTime();
 }
 
 void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps) {
@@ -103,12 +115,26 @@ void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double ti
   // Determine ship state (for now just normal, can be expanded later)
   //int shipState = 0;  // NORMAL
   
-  // Set final score when game is lost (do this before calling hud->update)
+  // Set final score and statistics when game is lost (do this before calling hud->update)
   if (lost) {
       hud->setFinalScore(int(player->score));
+      hud->setGameStatistics(player->gameStats);
+      hud->setMissionsManager(dailyMissions);
   }
   
-  hud->update(player->life, int(player->score), player->bullets, time, -asteroid_speed*50, fps, 
+  // Track current speed for statistics
+  int currentSpeed = -asteroid_speed * 50;
+  player->gameStats->recordSpeedReached(currentSpeed);
+  
+  // Track missions progress
+  if (dailyMissions) {
+    dailyMissions->recordSpeedReached(currentSpeed);
+    dailyMissions->recordScoreReached(static_cast<int>(player->score));
+    dailyMissions->updatePlayTime(time);
+    
+  }
+  
+  hud->update(player->life, int(player->score), player->bullets, time, currentSpeed, fps, 
               view, projection, player->position, playerRotation, player->shipState, paused, invincible, player->shieldIsActive, player->isDeathAnimationActive(), lost);
 }
 
@@ -125,6 +151,11 @@ void Game::updateGame(double time, int fps) {
     // Check if death animation finished and trigger explosion
     if (time - player->deathAnimationStart >= player->deathAnimationDuration) {
       create_explosion(player->position, time);
+      
+      // Record game end statistics before setting lost
+      double gameTime = time - player->gameStartTime;
+      player->gameStats->recordGameEnd(int(player->score), gameTime);
+      
       lost = true; // Set game as lost after death animation
     }
     // Don't update other game elements during death animation
@@ -792,6 +823,11 @@ void Game::colisions_player_asteroids(double time) {
         player->shipState = player -> DAMAGED_TOP;
         lost = player->isDead();
         hud->newDialog(3, time);
+        
+        // Track missions progress - damage resets damage-free time
+        if (dailyMissions) {
+          dailyMissions->recordDamage();
+        }
       }
     }
     */
@@ -812,6 +848,11 @@ void Game::colisions_player_asteroids(double time) {
         player->damageWithType(time, damageType);
         player->shipState = damageType;
         hud->newDialog(hud->COLLISION_1, time);
+        
+        // Track missions progress - damage resets damage-free time
+        if (dailyMissions) {
+          dailyMissions->recordDamage();
+        }
 
         // Stop the acceleration if accelerating
         if (is_boost_mode) {
@@ -893,9 +934,26 @@ void Game::colisions_player_ring(double time) {
           boost_time = time;
         }
         ring->startAnimation(time);
+        
+        // Record ring collection for statistics
+        player->gameStats->recordRingTaken();
+        
+        // Track missions progress
+        if (dailyMissions) {
+          dailyMissions->recordRingCollected();
+          dailyMissions->recordConsecutiveRings(player->gameStats->getCurrentConsecutiveRings());
+        }
     }
     
     if (ring->to_delete || ring_position.z < -0.1f) {
+      // Check if ring was missed (not collected and going behind player)
+      if (!ring->animating && ring_position.z < -0.1f) {
+        player->gameStats->recordRingMissed();
+        
+        // Missions progress: missing a ring doesn't need specific tracking
+        // (consecutive ring missions are handled by the statistics system)
+      }
+      
       world_node->remove(ringNode);
       delete ring;
       it = rings_.erase(it);
@@ -933,6 +991,18 @@ void Game::colisions_lprojectile_asteroid(double time) {
             player->score += 50.0;
             hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time, 50);
           }
+          
+          // Record asteroid destruction for statistics
+          player->gameStats->recordAsteroidDestroyed(asteroid->is_moving);
+          
+          // Track missions progress
+          if (dailyMissions) {
+            dailyMissions->recordAsteroidDestroyed();
+            if (asteroid->is_moving) {
+              dailyMissions->recordMovingAsteroidDestroyed();
+            }
+          }
+          
           // Erase the asteroid
           world_node->remove(node);
           asteroids_.erase(asteroid_it);
@@ -975,6 +1045,17 @@ void Game::colisions_projectile_asteroid(double time) {
           hud->scoreIncrement(shoot->cursorPosition.x, shoot->cursorPosition.y, time, 50);
         }
         hud->newDialog(hud->SHOOT_1, time);
+        
+        // Record asteroid destruction for statistics
+        player->gameStats->recordAsteroidDestroyed(asteroid->is_moving);
+        
+        // Track missions progress
+        if (dailyMissions) {
+          dailyMissions->recordAsteroidDestroyed();
+          if (asteroid->is_moving) {
+            dailyMissions->recordMovingAsteroidDestroyed();
+          }
+        }
         
         world_node->remove(node);
         it = asteroids_.erase(it);
@@ -1081,6 +1162,15 @@ void Game::resetGame() {
   
   // Reset asteroid speed
   asteroid_speed = -2.4f;
+  
+  // Reset statistics for new game session
+  player->gameStats->resetSession();
+  player->gameStartTime = glfwGetTime();
+  
+  // Start new missions session
+  if (dailyMissions) {
+    dailyMissions->startSession();
+  }
   
   // Reset HUD state
   hud->resetDeathMenuState();

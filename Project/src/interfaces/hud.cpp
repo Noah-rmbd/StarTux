@@ -92,6 +92,7 @@ void Hud::update(int life, int score, int bullets, double time, int speed, int f
         renderRightPanelContent(score, speed, fps);
         renderCenterContent(time, paused, invincible);
         renderPositionBars(playerPos, playerRotation, shipState);
+        renderMissionProgress();
         renderCursor();
         
         // Handle score feedback color changes
@@ -716,9 +717,9 @@ void Hud::renderDeathMenu(double time) {
         false, -1
     );
     
-    // Calculate menu dimensions
-    float menuWidth = 600.0f;
-    float menuHeight = 400.0f;
+    // Calculate menu dimensions (matching calculateButtonAreas)
+    float menuWidth = 800.0f;
+    float menuHeight = 500.0f;
     float menuX = (windowWidth - menuWidth) / 2.0f;
     float menuY = (windowHeight - menuHeight) / 2.0f;
     
@@ -760,6 +761,128 @@ void Hud::renderDeathMenu(double time) {
         FontType::ROBOTO
     );
     
+    // Statistics display (if available)
+    if (gameStatistics != nullptr) {
+        GameStatistics::SessionStats sessionStats = gameStatistics->currentSession;
+        GameStatistics::LifetimeStats lifetimeStats = gameStatistics->lifetime;
+        
+        // Session Statistics (Left Column)
+        float leftColumnX = menuX + 50.0f;
+        float statsStartY = menuY + menuHeight - 200.0f;
+        float lineHeight = 25.0f;
+        
+        game_interface->addTextOverlay(
+            "SESSION STATS",
+            glm::vec3(leftColumnX, statsStartY, 0.2f),
+            0.5f,
+            glm::vec3(0.8f, 0.8f, 1.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::NASALIZATION
+        );
+        
+        game_interface->addTextOverlay(
+            "Asteroids: " + std::to_string(sessionStats.asteroidsDestroyed),
+            glm::vec3(leftColumnX, statsStartY - lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(1.0f, 1.0f, 1.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        game_interface->addTextOverlay(
+            "Moving Asteroids: " + std::to_string(sessionStats.movingAsteroidsDestroyed),
+            glm::vec3(leftColumnX, statsStartY - 2*lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(1.0f, 1.0f, 1.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        game_interface->addTextOverlay(
+            "Rings: " + std::to_string(sessionStats.ringsTaken),
+            glm::vec3(leftColumnX, statsStartY - 3*lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(1.0f, 1.0f, 0.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        game_interface->addTextOverlay(
+            "Max Speed: " + std::to_string(static_cast<int>(sessionStats.maxSpeedReached)) + " Km/h",
+            glm::vec3(leftColumnX, statsStartY - 4*lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(0.0f, 1.0f, 0.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        game_interface->addTextOverlay(
+            "Best Streak: " + std::to_string(sessionStats.consecutiveRings),
+            glm::vec3(leftColumnX, statsStartY - 5*lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(1.0f, 0.5f, 0.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        // Lifetime Statistics (Right Column)
+        float rightColumnX = menuX + menuWidth/2 + 50.0f;
+        
+        game_interface->addTextOverlay(
+            "LIFETIME STATS",
+            glm::vec3(rightColumnX, statsStartY, 0.2f),
+            0.5f,
+            glm::vec3(1.0f, 0.8f, 0.8f) * deathMenuAlpha,
+            false, -1,
+            FontType::NASALIZATION
+        );
+        
+        game_interface->addTextOverlay(
+            "Games: " + std::to_string(lifetimeStats.gamesPlayed),
+            glm::vec3(rightColumnX, statsStartY - lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(1.0f, 1.0f, 1.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        game_interface->addTextOverlay(
+            "High Score: " + std::to_string(lifetimeStats.highScore),
+            glm::vec3(rightColumnX, statsStartY - 2*lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(1.0f, 1.0f, 1.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        game_interface->addTextOverlay(
+            "Total Asteroids: " + std::to_string(lifetimeStats.totalAsteroidsDestroyed),
+            glm::vec3(rightColumnX, statsStartY - 3*lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(1.0f, 1.0f, 1.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        game_interface->addTextOverlay(
+            "Total Rings: " + std::to_string(lifetimeStats.totalRingsTaken),
+            glm::vec3(rightColumnX, statsStartY - 4*lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(1.0f, 1.0f, 0.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        game_interface->addTextOverlay(
+            "Best Streak: " + std::to_string(lifetimeStats.bestConsecutiveRings),
+            glm::vec3(rightColumnX, statsStartY - 5*lineHeight, 0.2f),
+            0.4f,
+            glm::vec3(1.0f, 0.5f, 0.0f) * deathMenuAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+    }
+    
     // Quit button background
     game_interface->addColoredRectangle(
         glm::vec3(quitButton.x, quitButton.y, 0.1f),
@@ -798,8 +921,8 @@ void Hud::renderDeathMenu(double time) {
 }
 
 void Hud::calculateButtonAreas() {
-    float menuWidth = 600.0f;
-    float menuHeight = 400.0f;
+    float menuWidth = 800.0f;
+    float menuHeight = 500.0f;
     float menuX = (windowWidth - menuWidth) / 2.0f;
     float menuY = (windowHeight - menuHeight) / 2.0f;
     
@@ -855,6 +978,88 @@ void Hud::resetDeathMenuState() {
     isFading = false;
     fadeStartTime = 0.0;
     currentAlpha = 1.0f;
+}
+
+void Hud::renderMissionProgress() {
+    if (!dailyMissions) return;
+    
+    auto missions = dailyMissions->getTodaysMissions();
+    if (missions.empty()) return;
+    
+    // Position for mission progress (top-right area of screen)
+    float panelX = windowWidth - 400.0f;
+    float panelY = windowHeight - 50.0f;
+    float missionHeight = 60.0f;
+    
+    // Show active missions (limit to 2 for space)
+    int displayedMissions = 0;
+    for (const auto& mission : missions) {
+        if (displayedMissions >= 2) break;
+        
+        float currentY = panelY - (displayedMissions * (missionHeight + 10.0f));
+        
+        // Mission background
+        game_interface->addColoredRectangle(
+            glm::vec3(panelX, currentY - missionHeight, 0.1f),
+            glm::vec2(350.0f, missionHeight),
+            glm::vec4(0.0f, 0.0f, 0.0f, 0.6f * currentAlpha),
+            false, -1
+        );
+        
+        // Status color
+        glm::vec3 statusColor = glm::vec3(0.7f, 0.7f, 0.7f); // Gray
+        if (mission.status == MissionStatus::IN_PROGRESS) {
+            statusColor = glm::vec3(1.0f, 1.0f, 0.0f); // Yellow
+        } else if (mission.status == MissionStatus::COMPLETED) {
+            statusColor = glm::vec3(0.0f, 1.0f, 0.0f); // Green
+        }
+        
+        // Mission title
+        game_interface->addTextOverlay(
+            mission.title,
+            glm::vec3(panelX + 10.0f, currentY - 15.0f, 0.2f),
+            0.4f,
+            statusColor * currentAlpha,
+            false, -1,
+            FontType::NASALIZATION
+        );
+        
+        // Progress text
+        std::string progressText = std::to_string(mission.currentProgress) + " / " + std::to_string(mission.targetValue);
+        game_interface->addTextOverlay(
+            progressText,
+            glm::vec3(panelX + 260.0f, currentY - 15.0f, 0.2f),
+            0.35f,
+            glm::vec3(1.0f, 1.0f, 1.0f) * currentAlpha,
+            false, -1,
+            FontType::ROBOTO
+        );
+        
+        // Progress bar
+        float progressBarWidth = 300.0f;
+        float progressBarHeight = 6.0f;
+        float progressPercent = mission.getProgressPercent();
+        
+        // Background bar
+        game_interface->addColoredRectangle(
+            glm::vec3(panelX + 10.0f, currentY - 45.0f, 0.2f),
+            glm::vec2(progressBarWidth, progressBarHeight),
+            glm::vec4(0.3f, 0.3f, 0.3f, 0.8f * currentAlpha),
+            false, -1
+        );
+        
+        // Progress fill
+        if (progressPercent > 0.0f) {
+            game_interface->addColoredRectangle(
+                glm::vec3(panelX + 10.0f, currentY - 45.0f, 0.3f),
+                glm::vec2(progressBarWidth * (progressPercent / 100.0f), progressBarHeight),
+                glm::vec4(statusColor.r, statusColor.g, statusColor.b, 0.8f * currentAlpha),
+                false, -1
+            );
+        }
+        
+        displayedMissions++;
+    }
 }
 
 Hud::~Hud() {

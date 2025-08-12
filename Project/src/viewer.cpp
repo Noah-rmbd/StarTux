@@ -62,11 +62,11 @@ Viewer::Viewer(int width, int height)
    * "closer" */
   glDepthFunc(GL_LESS);
 
-  // Initialize the game
-  game = new Game(width, height, target_FPS);
-
-  // Initialize the startup screen
+  // Initialize the startup screen first
   startup_screen = new StartupScreen(windowWidth, windowHeight);
+
+  // Initialize the game with missions manager
+  game = new Game(width, height, target_FPS, startup_screen->getMissionsManager());
 
   // Initialize audio manager
   audio_manager = new AudioManager();
@@ -149,7 +149,7 @@ void Viewer::run() {
       if (game->shouldQuitToMenu()) {
         game->resetQuitFlag();
         delete game;
-        game = new Game(windowWidth, windowHeight, target_FPS);
+        game = new Game(windowWidth, windowHeight, target_FPS, startup_screen->getMissionsManager());
         startup_screen = new StartupScreen(windowWidth, windowHeight);
         startGame = false;
         cursorStateSet = false; // Reset cursor state tracking
@@ -167,7 +167,7 @@ void Viewer::run() {
       // Note: Keep this for backward compatibility if needed
       else if (game->lost && !game->isDeathMenuActive()) {
         delete game;
-        game = new Game(windowWidth, windowHeight, target_FPS);
+        game = new Game(windowWidth, windowHeight, target_FPS, startup_screen->getMissionsManager());
         startup_screen = new StartupScreen(windowWidth, windowHeight);
         startGame = false;
         cursorStateSet = false; // Reset cursor state tracking
@@ -248,6 +248,12 @@ void Viewer::on_key(int key, int action) {
   if (key == GLFW_KEY_ESCAPE || key == GLFW_KEY_Q) {
     glfwSetWindowShouldClose(win, GLFW_TRUE);
   }
+  
+  // Send keys to startup screen if it's active
+  if (!startGame) {
+    startup_screen->keyHandler(key, action);
+  }
+  
   // Store key state (true when pressed, false when released)
   if (action == GLFW_PRESS) {
     if (!keyStates[key].first) {

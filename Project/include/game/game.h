@@ -13,6 +13,7 @@
 #include "texture.h"
 #include "textured_sphere.h"
 #include "explosion.h"
+#include "missions.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <unordered_map>
@@ -20,7 +21,7 @@
 
 class Game {
 public:
-  Game(int width, int height, int target_fps);
+  Game(int width, int height, int target_fps, DailyMissions* missions = nullptr);
   void updateGame(double time, int fps);
   void draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps);
   void keyHandler(std::unordered_map<int, std::pair<bool, double>> keyStates,
@@ -118,6 +119,9 @@ private:
   bool pause_key_pressed = false;
   bool invincible_key_pressed = false;
   bool debug_key_pressed = false;
+  
+  // Missions system
+  DailyMissions* dailyMissions = nullptr;
 };
 
 #endif
