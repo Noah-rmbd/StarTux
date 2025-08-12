@@ -104,6 +104,10 @@ Game::Game(int width, int height, int target_fps, DailyMissions* missions) {
   
   // Set game start time for statistics tracking
   player->gameStartTime = glfwGetTime();
+  
+  // Record initial speed for statistics
+  int initialSpeed = -asteroid_speed * 50;
+  player->gameStats->recordSpeedReached(initialSpeed);
 }
 
 void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps) {
@@ -122,9 +126,8 @@ void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double ti
       hud->setMissionsManager(dailyMissions);
   }
   
-  // Track current speed for statistics
+  // Track current speed for statistics (only record max speed, don't call every frame)
   int currentSpeed = -asteroid_speed * 50;
-  player->gameStats->recordSpeedReached(currentSpeed);
   
   // Track missions progress
   if (dailyMissions) {
@@ -152,9 +155,11 @@ void Game::updateGame(double time, int fps) {
     if (time - player->deathAnimationStart >= player->deathAnimationDuration) {
       create_explosion(player->position, time);
       
-      // Record game end statistics before setting lost
-      double gameTime = time - player->gameStartTime;
-      player->gameStats->recordGameEnd(int(player->score), gameTime);
+      // Record game end statistics ONLY ONCE by checking if not already lost
+      if (!lost) {
+        double gameTime = time - player->gameStartTime;
+        player->gameStats->recordGameEnd(int(player->score), gameTime);
+      }
       
       lost = true; // Set game as lost after death animation
     }
@@ -247,6 +252,10 @@ void Game::updateGame(double time, int fps) {
     } else {
       asteroid_speed -= 0.4 * boost_multiplicator;
     }
+    
+    // Record the new speed for statistics when it actually changes
+    int currentSpeed = -asteroid_speed * 50;
+    player->gameStats->recordSpeedReached(currentSpeed);
   }
 
   // Adds dialogs
@@ -921,15 +930,21 @@ void Game::colisions_player_ring(double time) {
     
     bool collision = (sqrt(x * x + y * y) < 0.055 && z > 0.03 && z < 0.05); 
 
-    if (collision && !ring->animating) {
-      std::cout << "Collision detected with ring: " << ring << " at position: " << ring_position.x << ", " << ring_position.y << ", " << ring_position.z << std::endl;
-        // Player collected the bullet
+    if (collision && !ring->animating && !ring->collected) {
+        // Mark ring as collected to prevent multiple collections
+        ring->collected = true;
+        
+        // Player collected the ring
         if (!is_boost_mode) {
           is_boost_mode = true;
           boost_time = time;
           asteroid_speed *= 2.0f;
           player->shipState = player->ACCELERATING;
           hud->newDialog(hud->ACCELERATION_1, time);
+          
+          // Record boost speed for statistics
+          int currentSpeed = -asteroid_speed * 50;
+          player->gameStats->recordSpeedReached(currentSpeed);
         } else {
           boost_time = time;
         }
@@ -1166,6 +1181,10 @@ void Game::resetGame() {
   // Reset statistics for new game session
   player->gameStats->resetSession();
   player->gameStartTime = glfwGetTime();
+  
+  // Record initial speed for new game
+  int initialSpeed = -asteroid_speed * 50;
+  player->gameStats->recordSpeedReached(initialSpeed);
   
   // Start new missions session
   if (dailyMissions) {

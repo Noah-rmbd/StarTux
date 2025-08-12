@@ -25,6 +25,7 @@ class Ring {
     // Animation state
     float animation_time = 0.0f;
     bool animating = false;
+    bool collected = false;  // Flag to prevent multiple collections
     bool to_delete = false;
     float animation_duration = 2.0f; // seconds
     float start_scale = 0.05f;

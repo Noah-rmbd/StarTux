@@ -49,6 +49,9 @@ StartupScreen::StartupScreen(int width, int height) : windowWidth(width), window
     background_space = new Node(environment_mat);
     background_space->add(space_node);
     background_space->add(ship_node);
+    
+    // Initialize button regions for layered interface
+    initializeButtonRegions();
 }
 
 void StartupScreen::update(){
@@ -64,16 +67,28 @@ void StartupScreen::update(){
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
     background_space->draw(model, view, projection);
     
-    // Render appropriate screen
+    // Setup layered rendering system
+    glm::mat4 orthoProjection = glm::ortho(0.0f, static_cast<float>(windowWidth), 0.0f, static_cast<float>(windowHeight), -10.0f, 10.0f);
+    glm::mat4 orthoView = glm::mat4(1.0f);
+    
+    start_interface->beginFrame(orthoView, orthoProjection);
+    
+    // Render appropriate screen with layered system
     if (showStatistics) {
-        renderStatisticsScreen();
+        renderStatisticsScreenLayered();
     } else {
-        renderMainMenu();
+        renderMainMenuLayered();
     }
+    
+    start_interface->endFrame();
 }
 
 void StartupScreen::mouse(int button, int action, double xpos, double ypos) {
     checkButtonClicks(button, action, xpos, ypos);
+}
+
+void StartupScreen::mouseMove(double xpos, double ypos) {
+    updateButtonStates(xpos, ypos);
 }
 
 void StartupScreen::keyHandler(int key, int action) {
@@ -93,59 +108,144 @@ StartupScreen::~StartupScreen(){
     delete gameStatistics;
 }
 
-void StartupScreen::renderMainMenu() {
-    float imageWidth = 373.0f;
-    float imageHeight = 960.0f;
-    float centerX = 1110.0f;
-    float centerY = 0.0f;
+void StartupScreen::renderMainMenuLayered() {
+    // Background panel with logo
+    float logoZ = -2.0f;
+    float logoWidth = 373.0f;
+    float logoHeight = 400.0f;
+    float logoX = windowWidth * 0.75f - logoWidth / 2;
+    float logoY = windowHeight / 2 - logoHeight / 2;
     
-    // Render logo
-    start_interface->renderImage(logo_image, centerX, centerY, imageWidth, imageHeight);
+    start_interface->addImageElement(logo_image, 
+                                   glm::vec3(logoX, logoY, logoZ), 
+                                   glm::vec2(logoWidth, logoHeight),
+                                   glm::vec4(1.0f), false, -1);
     
-    // Render "PLAY" text over the clickable area (1154-1440 x, 622-692 y)
-    start_interface->renderText("PLAY", 1270.0f, 650.0f, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f), FontType::ROBOTO);
+    // Play button background
+    float playButtonZ = -1.0f;
+    glm::vec3 playButtonColor = glm::vec3(0.0f, 0.8f, 0.0f);
+    if (playButtonHovered) playButtonColor = glm::vec3(0.0f, 1.0f, 0.0f);
     
-    // Render "STATISTICS" button below the logo area
-    start_interface->renderText("STATISTICS", 1200.0f, 500.0f, 0.8f, glm::vec3(0.0f, 0.5f, 1.0f), FontType::ROBOTO);
+    start_interface->addColoredRectangle(glm::vec3(playButtonRegion.x, playButtonRegion.y, playButtonZ),
+                                       glm::vec2(playButtonRegion.width, playButtonRegion.height),
+                                       glm::vec4(playButtonColor.r, playButtonColor.g, playButtonColor.b, 0.3f),
+                                       false, -1);
     
-    // Render missions
-    renderMissions();
+    start_interface->addTextOverlay("PLAY", 
+                                  glm::vec3(playButtonRegion.x + playButtonRegion.width/2 - 30, 
+                                           playButtonRegion.y + playButtonRegion.height/2 - 12, 0.0f), 
+                                  1.0f, playButtonColor, false, -1, FontType::ROBOTO);
+    
+    // Statistics button background
+    glm::vec3 statsButtonColor = glm::vec3(1.0f, 1.0f, 0.0f);
+    if (statsButtonHovered) statsButtonColor = glm::vec3(1.0f, 1.0f, 0.5f);
+    
+    start_interface->addColoredRectangle(glm::vec3(statsButtonRegion.x, statsButtonRegion.y, playButtonZ),
+                                       glm::vec2(statsButtonRegion.width, statsButtonRegion.height),
+                                       glm::vec4(statsButtonColor.r, statsButtonColor.g, statsButtonColor.b, 0.3f),
+                                       false, -1);
+    
+    start_interface->addTextOverlay("STATISTICS", 
+                                  glm::vec3(statsButtonRegion.x + statsButtonRegion.width/2 - 55, 
+                                           statsButtonRegion.y + statsButtonRegion.height/2 - 12, 0.0f), 
+                                  1.0f, statsButtonColor, false, -1, FontType::ROBOTO);
+    
+    // Render missions in the left panel
+    renderMissionsLayered();
 }
 
-void StartupScreen::renderStatisticsScreen() {
-    // Title
-    start_interface->renderText("LIFETIME STATISTICS", windowWidth/2 - 250.0f, windowHeight - 100.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), FontType::ROBOTO);
+void StartupScreen::renderStatisticsScreenLayered() {
+    // Semi-transparent overlay panel
+    float panelZ = -1.0f;
+    float panelWidth = windowWidth * 0.8f;
+    float panelHeight = windowHeight * 0.8f;
+    float panelX = (windowWidth - panelWidth) / 2;
+    float panelY = (windowHeight - panelHeight) / 2;
     
-    // Statistics content - simple vertical list
-    float leftColumnX = 200.0f;
-    float statsStartY = windowHeight - 200.0f;
+    start_interface->addColoredRectangle(glm::vec3(panelX, panelY, panelZ),
+                                       glm::vec2(panelWidth, panelHeight),
+                                       glm::vec4(0.0f, 0.0f, 0.2f, 0.9f),
+                                       false, -1);
+    
+    // Title
+    start_interface->addTextOverlay("LIFETIME STATISTICS", 
+                                  glm::vec3(panelX + panelWidth/2 - 150, panelY + panelHeight - 60, 0.0f), 
+                                  1.0f, glm::vec3(1.0f, 1.0f, 1.0f), false, -1, FontType::ROBOTO);
+    
+    // Statistics content
+    float leftColumnX = panelX + 50.0f;
+    float statsStartY = panelY + panelHeight - 120.0f;
     float lineHeight = 40.0f;
     
     // Get lifetime stats
     GameStatistics::LifetimeStats lifetimeStats = gameStatistics->lifetime;
     
-    start_interface->renderText("Games Played: " + std::to_string(lifetimeStats.gamesPlayed), leftColumnX, statsStartY, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f), FontType::ROBOTO);
-    start_interface->renderText("High Score: " + std::to_string(lifetimeStats.highScore), leftColumnX, statsStartY - lineHeight, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f), FontType::ROBOTO);
-    start_interface->renderText("Total Asteroids Destroyed: " + std::to_string(lifetimeStats.totalAsteroidsDestroyed), leftColumnX, statsStartY - 2*lineHeight, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f), FontType::ROBOTO);
-    start_interface->renderText("Total Rings Collected: " + std::to_string(lifetimeStats.totalRingsTaken), leftColumnX, statsStartY - 3*lineHeight, 0.5f, glm::vec3(1.0f, 1.0f, 0.0f), FontType::ROBOTO);
-    start_interface->renderText("Max Speed Ever: " + std::to_string(lifetimeStats.maxSpeedEverReached) + " Km/h", leftColumnX, statsStartY - 4*lineHeight, 0.5f, glm::vec3(0.0f, 1.0f, 0.0f), FontType::ROBOTO);
-    start_interface->renderText("Best Ring Streak: " + std::to_string(lifetimeStats.bestConsecutiveRings), leftColumnX, statsStartY - 5*lineHeight, 0.5f, glm::vec3(1.0f, 0.5f, 0.0f), FontType::ROBOTO);
+    start_interface->addTextOverlay("Games Played: " + std::to_string(lifetimeStats.gamesPlayed), 
+                                  glm::vec3(leftColumnX, statsStartY, 0.0f), 
+                                  0.5f, glm::vec3(1.0f, 1.0f, 1.0f), false, -1, FontType::ROBOTO);
+    
+    start_interface->addTextOverlay("High Score: " + std::to_string(lifetimeStats.highScore), 
+                                  glm::vec3(leftColumnX, statsStartY - lineHeight, 0.0f), 
+                                  0.5f, glm::vec3(1.0f, 1.0f, 1.0f), false, -1, FontType::ROBOTO);
+    
+    start_interface->addTextOverlay("Total Asteroids Destroyed: " + std::to_string(lifetimeStats.totalAsteroidsDestroyed), 
+                                  glm::vec3(leftColumnX, statsStartY - 2*lineHeight, 0.0f), 
+                                  0.5f, glm::vec3(1.0f, 1.0f, 1.0f), false, -1, FontType::ROBOTO);
+    
+    start_interface->addTextOverlay("Total Rings Collected: " + std::to_string(lifetimeStats.totalRingsTaken), 
+                                  glm::vec3(leftColumnX, statsStartY - 3*lineHeight, 0.0f), 
+                                  0.5f, glm::vec3(1.0f, 1.0f, 0.0f), false, -1, FontType::ROBOTO);
+    
+    start_interface->addTextOverlay("Max Speed Ever: " + std::to_string(lifetimeStats.maxSpeedEverReached) + " Km/h", 
+                                  glm::vec3(leftColumnX, statsStartY - 4*lineHeight, 0.0f), 
+                                  0.5f, glm::vec3(0.0f, 1.0f, 0.0f), false, -1, FontType::ROBOTO);
+    
+    start_interface->addTextOverlay("Best Ring Streak: " + std::to_string(lifetimeStats.bestConsecutiveRings), 
+                                  glm::vec3(leftColumnX, statsStartY - 5*lineHeight, 0.0f), 
+                                  0.5f, glm::vec3(1.0f, 0.5f, 0.0f), false, -1, FontType::ROBOTO);
     
     // Play time in minutes
     int totalMinutes = static_cast<int>(lifetimeStats.totalPlayTime / 60.0);
-    start_interface->renderText("Total Play Time: " + std::to_string(totalMinutes) + " minutes", leftColumnX, statsStartY - 6*lineHeight, 0.5f, glm::vec3(0.8f, 0.8f, 0.8f), FontType::ROBOTO);
+    start_interface->addTextOverlay("Total Play Time: " + std::to_string(totalMinutes) + " minutes", 
+                                  glm::vec3(leftColumnX, statsStartY - 6*lineHeight, 0.0f), 
+                                  0.5f, glm::vec3(0.8f, 0.8f, 0.8f), false, -1, FontType::ROBOTO);
     
-    // Back button text
-    start_interface->renderText("BACK (Press B)", windowWidth/2 - 100.0f, 100.0f, 0.6f, glm::vec3(0.8f, 0.2f, 0.2f), FontType::ROBOTO);
+    // Back button
+    glm::vec3 backButtonColor = glm::vec3(0.8f, 0.2f, 0.2f);
+    if (backButtonHovered) backButtonColor = glm::vec3(1.0f, 0.4f, 0.4f);
+    
+    start_interface->addColoredRectangle(glm::vec3(backButtonRegion.x, backButtonRegion.y, 0.0f),
+                                       glm::vec2(backButtonRegion.width, backButtonRegion.height),
+                                       glm::vec4(backButtonColor.r, backButtonColor.g, backButtonColor.b, 0.4f),
+                                       false, -1);
+    
+    start_interface->addTextOverlay("BACK", 
+                                  glm::vec3(backButtonRegion.x + backButtonRegion.width/2 - 25, 
+                                           backButtonRegion.y + backButtonRegion.height/2 - 12, 0.0f), 
+                                  0.6f, backButtonColor, false, -1, FontType::ROBOTO);
 }
 
-void StartupScreen::renderMissions() {
+void StartupScreen::renderMissionsLayered() {
+    // Missions panel background
+    float missionsPanelZ = -1.5f;
+    float missionsPanelWidth = windowWidth * 0.45f;
+    float missionsPanelHeight = windowHeight * 0.6f;
+    float missionsPanelX = 30.0f;
+    float missionsPanelY = (windowHeight - missionsPanelHeight) / 2;
+    
+    start_interface->addColoredRectangle(glm::vec3(missionsPanelX, missionsPanelY, missionsPanelZ),
+                                       glm::vec2(missionsPanelWidth, missionsPanelHeight),
+                                       glm::vec4(0.1f, 0.1f, 0.3f, 0.7f),
+                                       false, -1);
+    
     // Title
-    start_interface->renderText("DAILY MISSIONS", 50.0f, windowHeight - 100.0f, 0.6f, glm::vec3(1.0f, 1.0f, 0.0f), FontType::ROBOTO);
+    start_interface->addTextOverlay("DAILY MISSIONS", 
+                                  glm::vec3(missionsPanelX + 20, missionsPanelY + missionsPanelHeight - 50, 0.0f), 
+                                  0.6f, glm::vec3(1.0f, 1.0f, 0.0f), false, -1, FontType::ROBOTO);
     
     // Mission list
     auto missions = dailyMissions->getTodaysMissions();
-    float missionY = windowHeight - 150.0f;
+    float missionY = missionsPanelY + missionsPanelHeight - 100.0f;
     
     for (size_t i = 0; i < missions.size() && i < 3; i++) {
         const auto& mission = missions[i];
@@ -162,58 +262,94 @@ void StartupScreen::renderMissions() {
         std::string missionText = mission.title + ": " + mission.description + 
                                  " (" + std::to_string(mission.currentProgress) + "/" + std::to_string(mission.targetValue) + ")";
         
-        start_interface->renderText(missionText, 70.0f, missionY, 0.35f, statusColor, FontType::ROBOTO);
+        start_interface->addTextOverlay(missionText, 
+                                      glm::vec3(missionsPanelX + 20, missionY, 0.0f), 
+                                      0.35f, statusColor, false, -1, FontType::ROBOTO);
         
         missionY -= 50.0f;
     }
 }
 
+void StartupScreen::initializeButtonRegions() {
+    // Play button region - center right area
+    playButtonRegion = {
+        windowWidth * 0.7f,           // x
+        windowHeight * 0.6f,          // y  
+        150.0f,                       // width
+        50.0f                         // height
+    };
+    
+    // Statistics button region - below play button
+    statsButtonRegion = {
+        windowWidth * 0.7f,           // x
+        windowHeight * 0.5f,          // y
+        180.0f,                       // width
+        50.0f                         // height
+    };
+    
+    // Back button region - bottom center of stats screen
+    backButtonRegion = {
+        windowWidth * 0.5f - 50.0f,   // x
+        50.0f,                        // y
+        100.0f,                       // width
+        40.0f                         // height
+    };
+}
+
+void StartupScreen::updateButtonStates(double xpos, double ypos) {
+    // Convert GLFW coordinates (top-left origin) to OpenGL coordinates (bottom-left origin)
+    float glY = windowHeight - ypos;
+    
+    // Update hover states
+    playButtonHovered = isPointInRegion(xpos, glY, playButtonRegion);
+    statsButtonHovered = isPointInRegion(xpos, glY, statsButtonRegion);
+    backButtonHovered = isPointInRegion(xpos, glY, backButtonRegion);
+}
+
+bool StartupScreen::isPointInRegion(float x, float y, const ButtonRegion& region) {
+    return x >= region.x && x <= region.x + region.width &&
+           y >= region.y && y <= region.y + region.height;
+}
+
 void StartupScreen::checkButtonClicks(int button, int action, double xpos, double ypos) {
+    // Convert GLFW coordinates to OpenGL coordinates
+    float glY = windowHeight - ypos;
+    
     if (!showStatistics) {
-        // Main menu buttons
-        // Play button (existing coordinates)
-        if (action == GLFW_PRESS && button == 0 && xpos <= 1440.0 && xpos >= 1154.0 && ypos <= 692.0 && ypos >= 622.0) {
-            click_valid = true;
+        // Play button
+        if (action == GLFW_PRESS && button == 0 && isPointInRegion(xpos, glY, playButtonRegion)) {
+            playButtonPressed = true;
         }
-        if (click_valid && action == GLFW_RELEASE && button == 0 && xpos <= 1440.0 && xpos >= 1154.0 && ypos <= 692.0 && ypos >= 622.0) {
-            click_valid = false;
-            start_game = true;
-        }
-        else if(click_valid && action == GLFW_RELEASE) {
-            click_valid = false;
+        if (playButtonPressed && action == GLFW_RELEASE && button == 0) {
+            if (isPointInRegion(xpos, glY, playButtonRegion)) {
+                start_game = true;
+            }
+            playButtonPressed = false;
         }
         
-        // Statistics button (text area around 1200, 500)
-        if (action == GLFW_PRESS && button == 0 && xpos <= 1450.0 && xpos >= 1150.0 && ypos <= 520.0 && ypos >= 480.0) {
-            statsClick_valid = true;
+        // Statistics button
+        if (action == GLFW_PRESS && button == 0 && isPointInRegion(xpos, glY, statsButtonRegion)) {
+            statsButtonPressed = true;
         }
-        if (statsClick_valid && action == GLFW_RELEASE && button == 0 && xpos <= 1450.0 && xpos >= 1150.0 && ypos <= 520.0 && ypos >= 480.0) {
-            statsClick_valid = false;
-            showStatistics = true;
-        }
-        else if(statsClick_valid && action == GLFW_RELEASE) {
-            statsClick_valid = false;
+        if (statsButtonPressed && action == GLFW_RELEASE && button == 0) {
+            if (isPointInRegion(xpos, glY, statsButtonRegion)) {
+                showStatistics = true;
+            }
+            statsButtonPressed = false;
         }
     } else {
-        // Statistics screen - Back button
-        float panelWidth = 800.0f;
-        float panelHeight = 600.0f;
-        float panelX = (windowWidth - panelWidth) / 2.0f;
-        float panelY = (windowHeight - panelHeight) / 2.0f;
-        
-        if (action == GLFW_PRESS && button == 0 && 
-            xpos >= panelX + 50.0f && xpos <= panelX + 150.0f && 
-            ypos >= panelY + 50.0f && ypos <= panelY + 90.0f) {
-            backClick_valid = true;
+        // Back button in statistics screen
+        if (action == GLFW_PRESS && button == 0 && isPointInRegion(xpos, glY, backButtonRegion)) {
+            backButtonPressed = true;
         }
-        if (backClick_valid && action == GLFW_RELEASE && button == 0 && 
-            xpos >= panelX + 50.0f && xpos <= panelX + 150.0f && 
-            ypos >= panelY + 50.0f && ypos <= panelY + 90.0f) {
-            backClick_valid = false;
-            showStatistics = false;
-        }
-        else if(backClick_valid && action == GLFW_RELEASE) {
-            backClick_valid = false;
+        if (backButtonPressed && action == GLFW_RELEASE && button == 0) {
+            if (isPointInRegion(xpos, glY, backButtonRegion)) {
+                showStatistics = false;
+            }
+            backButtonPressed = false;
         }
     }
+    
+    // Update hover states
+    updateButtonStates(xpos, ypos);
 }

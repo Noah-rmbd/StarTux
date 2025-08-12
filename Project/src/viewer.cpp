@@ -229,8 +229,14 @@ void Viewer::key_callback_static(GLFWwindow *window, int key, int scancode,
 void Viewer::mouse_callback_static(GLFWwindow *window, double xpos,
                                    double ypos) {
   Viewer *viewer = static_cast<Viewer *>(glfwGetWindowUserPointer(window));
-  // Send the mouse to the game
-  viewer->game->mouse_callback(xpos, ypos);
+  
+  if (!viewer->startGame) {
+    // Send mouse movement to startup screen for hover effects
+    viewer->startup_screen->mouseMove(xpos, ypos);
+  } else {
+    // Send the mouse to the game
+    viewer->game->mouse_callback(xpos, ypos);
+  }
 }
 
 void Viewer::mouse_button_callback_static(GLFWwindow *window, int button,
