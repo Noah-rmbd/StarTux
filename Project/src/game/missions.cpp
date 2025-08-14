@@ -4,7 +4,8 @@
 #include <iomanip>
 
 DailyMissions::DailyMissions() {
-    missionsFilePath = "missions.txt";
+    dataDirFilePath = DATA_DIR;
+    missionsFilePath = dataDirFilePath + "missions.txt";
     currentDate = getCurrentDateString();
     sessionActive = false;
     sessionStartTime = 0.0;
@@ -226,19 +227,33 @@ void DailyMissions::resetDamageFreeTime() {
 }
 
 void DailyMissions::updatePlayTime(double currentTime) {
-    if (!sessionActive) return;
+    if (!sessionActive) {
+        std::cout << "Session not active, starting session..." << std::endl;
+        startSession();
+    }
     
     if (sessionStartTime == 0.0) {
         sessionStartTime = currentTime;
         lastDamageTime = currentTime;
+        std::cout << "Session started at time: " << currentTime << std::endl;
     }
     
     // Update damage-free time
     damageFreeTime = currentTime - lastDamageTime;
     
     // Update missions
-    updateMissionProgress(MissionType::FLY_WITHOUT_DAMAGE, static_cast<int>(damageFreeTime));
-    updateMissionProgress(MissionType::SURVIVE_TIME, static_cast<int>(currentTime - sessionStartTime));
+    int survivalSeconds = static_cast<int>(currentTime - sessionStartTime);
+    int damageFreSeconds = static_cast<int>(damageFreeTime);
+    
+    updateMissionProgress(MissionType::FLY_WITHOUT_DAMAGE, damageFreSeconds);
+    updateMissionProgress(MissionType::SURVIVE_TIME, survivalSeconds);
+    
+    // Debug output for time missions
+    static double lastDebugTime = 0.0;
+    if (currentTime - lastDebugTime > 5.0) { // Print debug every 5 seconds
+        std::cout << "Time missions - Survival: " << survivalSeconds << "s, Damage-free: " << damageFreSeconds << "s" << std::endl;
+        lastDebugTime = currentTime;
+    }
 }
 
 void DailyMissions::updateMissionProgress(MissionType type, int value) {
@@ -256,11 +271,20 @@ void DailyMissions::updateMissionProgress(MissionType type, int value) {
             // For time-based missions, use current value
             else if (type == MissionType::FLY_WITHOUT_DAMAGE || type == MissionType::SURVIVE_TIME) {
                 mission.currentProgress = value;
+                // Debug time mission updates
+                if (type == MissionType::SURVIVE_TIME) {
+                    static int lastReportedValue = -1;
+                    if (value != lastReportedValue && value % 10 == 0) { // Report every 10 seconds
+                        std::cout << "SURVIVE_TIME mission progress: " << value << "/" << mission.targetValue << std::endl;
+                        lastReportedValue = value;
+                    }
+                }
             }
             
             if (mission.currentProgress > 0 && mission.status == MissionStatus::NOT_STARTED) {
                 mission.status = MissionStatus::IN_PROGRESS;
                 progressChanged = true;
+                std::cout << "Mission " << mission.title << " status changed to IN_PROGRESS" << std::endl;
             }
             
             // Check if progress actually changed
@@ -274,10 +298,13 @@ void DailyMissions::updateMissionProgress(MissionType type, int value) {
     
     // Save progress periodically when changes are made (throttled to avoid spam)
     static double lastSaveTime = 0.0;
-    double currentTime = sessionStartTime; // Use session time as reference
-    if (progressChanged && (currentTime - lastSaveTime > 5.0)) { // Save at most every 5 seconds
+    static double currentGameTime = 0.0;
+    currentGameTime += 0.016; // Approximate frame time for save throttling
+    
+    if (progressChanged && (currentGameTime - lastSaveTime > 5.0)) { // Save at most every 5 seconds
         saveToFile(missionsFilePath);
-        lastSaveTime = currentTime;
+        lastSaveTime = currentGameTime;
+        std::cout << "Mission progress saved to file" << std::endl;
     }
 }
 

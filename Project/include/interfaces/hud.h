@@ -81,6 +81,12 @@ class Hud {
         GameStatistics* gameStatistics = nullptr;
         DailyMissions* dailyMissions = nullptr;
         
+        // Mission progress tracking for HUD display
+        std::vector<int> lastMissionProgress;
+        double lastMissionUpdateTime = 0.0;
+        const double MISSION_DISPLAY_DURATION = 3.0; // Show missions for 3 seconds after progress
+        bool shouldShowMissions = false;
+        
         // Death menu button areas (screen coordinates)
         struct ButtonArea {
             float x, y, width, height;
@@ -136,6 +142,7 @@ class Hud {
         void renderLeftPanelContent(int life, int bullets, double time, bool shieldActive = false);
         void renderRightPanelContent(int score, int speed, int fps);
         void renderCenterContent(double time, bool paused = false, bool invincible = false);
+        void renderMissionProgress(double time);
         void updateFade(double time, bool playerDying);
         void renderCursor();
         

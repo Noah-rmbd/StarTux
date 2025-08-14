@@ -92,7 +92,7 @@ void Hud::update(int life, int score, int bullets, double time, int speed, int f
         renderRightPanelContent(score, speed, fps);
         renderCenterContent(time, paused, invincible);
         renderPositionBars(playerPos, playerRotation, shipState);
-        renderMissionProgress();
+        renderMissionProgress(time);
         renderCursor();
         
         // Handle score feedback color changes
@@ -980,21 +980,69 @@ void Hud::resetDeathMenuState() {
     currentAlpha = 1.0f;
 }
 
-void Hud::renderMissionProgress() {
+void Hud::renderMissionProgress(double time) {
     if (!dailyMissions) return;
     
     auto missions = dailyMissions->getTodaysMissions();
     if (missions.empty()) return;
     
-    // Position for mission progress (top-right area of screen)
+    // Check for mission progress updates
+    bool hasProgressUpdate = false;
+    bool hasTimeBasedMission = false;
+    
+    // Check if there are time-based missions that should always be shown
+    for (const auto& mission : missions) {
+        if (mission.type == MissionType::SURVIVE_TIME || mission.type == MissionType::FLY_WITHOUT_DAMAGE) {
+            hasTimeBasedMission = true;
+            break;
+        }
+    }
+    
+    if (lastMissionProgress.size() != missions.size()) {
+        // First time or mission count changed - initialize tracking
+        lastMissionProgress.clear();
+        for (const auto& mission : missions) {
+            lastMissionProgress.push_back(mission.currentProgress);
+        }
+        hasProgressUpdate = true; // Show initially
+    } else {
+        // Check for progress changes
+        for (size_t i = 0; i < missions.size() && i < lastMissionProgress.size(); ++i) {
+            if (missions[i].currentProgress != lastMissionProgress[i]) {
+                hasProgressUpdate = true;
+                lastMissionProgress[i] = missions[i].currentProgress;
+            }
+        }
+    }
+    
+    // Update display timer if progress was made
+    if (hasProgressUpdate) {
+        lastMissionUpdateTime = time;
+        shouldShowMissions = true;
+    }
+    
+    // Always show missions if there are time-based missions (they need constant visibility)
+    if (hasTimeBasedMission) {
+        shouldShowMissions = true;
+    } else {
+        // Check if we should still show missions for non-time based missions
+        if (shouldShowMissions && (time - lastMissionUpdateTime) > MISSION_DISPLAY_DURATION) {
+            shouldShowMissions = false;
+        }
+    }
+    
+    // Only render if we should show missions
+    if (!shouldShowMissions) return;
+    
+    // Position for mission progress (bottom-right area of screen)
     float panelX = windowWidth - 400.0f;
-    float panelY = windowHeight - 50.0f;
+    float panelY = windowHeight - 600.0f;
     float missionHeight = 60.0f;
     
-    // Show active missions (limit to 2 for space)
+    // Show active missions (display all 3)
     int displayedMissions = 0;
     for (const auto& mission : missions) {
-        if (displayedMissions >= 2) break;
+        if (displayedMissions >= 3) break;
         
         float currentY = panelY - (displayedMissions * (missionHeight + 10.0f));
         
@@ -1017,7 +1065,7 @@ void Hud::renderMissionProgress() {
         // Mission title
         game_interface->addTextOverlay(
             mission.title,
-            glm::vec3(panelX + 10.0f, currentY - 15.0f, 0.2f),
+            glm::vec3(panelX + 10.0f, currentY - 25.0f, 0.2f),
             0.4f,
             statusColor * currentAlpha,
             false, -1,
@@ -1028,7 +1076,7 @@ void Hud::renderMissionProgress() {
         std::string progressText = std::to_string(mission.currentProgress) + " / " + std::to_string(mission.targetValue);
         game_interface->addTextOverlay(
             progressText,
-            glm::vec3(panelX + 260.0f, currentY - 15.0f, 0.2f),
+            glm::vec3(panelX + 240.0f, currentY - 25.0f, 0.2f),
             0.35f,
             glm::vec3(1.0f, 1.0f, 1.0f) * currentAlpha,
             false, -1,

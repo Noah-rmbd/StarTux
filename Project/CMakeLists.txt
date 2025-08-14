@@ -44,10 +44,12 @@ set(SOURCES
     ${SRC_DIR}/node.cpp
     ${SRC_DIR}/shapes/shape.cpp
     ${SRC_DIR}/graphics/shader.cpp
+    ${SRC_DIR}/graphics/lighting.cpp
     ${SRC_DIR}/viewer.cpp
     ${SRC_DIR}/game/camera.cpp
     ${SRC_DIR}/game/game.cpp
     ${SRC_DIR}/game/player.cpp
+    ${SRC_DIR}/game/engine_flames.cpp
     ${SRC_DIR}/game/light_projectile.cpp
     ${SRC_DIR}/game/projectile.cpp
     ${SRC_DIR}/game/asteroid.cpp
@@ -58,6 +60,7 @@ set(SOURCES
     ${SRC_DIR}/shapes/shape_model.cpp
     ${SRC_DIR}/shapes/sphere.cpp
     ${SRC_DIR}/graphics/texture.cpp
+    ${SRC_DIR}/graphics/resource_manager.cpp
     ${SRC_DIR}/shapes/textured_sphere.cpp
     ${SRC_DIR}/shapes/lighting_sphere.cpp
     ${SRC_DIR}/shapes/transparent_sphere.cpp
@@ -72,6 +75,7 @@ add_compile_definitions(SHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/shaders/")
 add_compile_definitions(TEXTURES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/textures/")
 add_compile_definitions(RESSOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/ressources/")
 add_compile_definitions(AUDIO_DIR="${CMAKE_CURRENT_SOURCE_DIR}/audio/")
+add_compile_definitions(DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/")
 
 # Add external subdirectories
 add_subdirectory(${GLEW_DIR})

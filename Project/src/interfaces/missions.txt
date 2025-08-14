@@ -1,5 +1,0 @@
-# StarTux Daily Missions
-date=2025-08-12
-mission=0,300,320,2,Speed Demon,Reach 300 Km/h
-mission=5,15,15,2,Ring Collector,Collect 15 rings
-mission=2,5500,5500,2,High Scorer,Reach a score of 5500

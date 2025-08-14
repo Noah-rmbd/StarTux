@@ -3,10 +3,10 @@
 
 Explosion::Explosion(Shader* shader, glm::vec3 position, double start_time) 
     : shader(shader), start_time(start_time) {
-    // Create a lighting sphere for the explosion with orange/red colors
-    glm::vec3 light_position = position;  // Light at explosion position
-    glm::vec3 light_color = glm::vec3(1.0f, 0.5f, 0.0f);  // Orange light
-    glm::vec3 object_color = glm::vec3(1.0f, 1.0f, 1.0f);  // White object color
+    // Create a lighting sphere for the explosion with bright colors
+    glm::vec3 light_position = position;  // Light at explosion position  
+    glm::vec3 light_color = glm::vec3(1.5f, 0.8f, 0.2f);  // Bright orange light
+    glm::vec3 object_color = glm::vec3(1.0f, 0.6f, 0.1f);  // Orange explosion color
     
     explosion_shape = new LightingSphere(shader, light_position, light_color, object_color);
     

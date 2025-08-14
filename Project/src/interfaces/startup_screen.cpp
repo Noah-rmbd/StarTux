@@ -19,7 +19,7 @@ StartupScreen::StartupScreen(int width, int height) : windowWidth(width), window
     // Initialize missions and statistics systems
     dailyMissions = new DailyMissions();
     gameStatistics = new GameStatistics();
-    logo_image = new Texture(textures_dir + "start_banner.png");
+    logo_image = new Texture(textures_dir + "startuxlogo4.png");
 
     Shader *space_shader = new Shader(shader_dir + "texture.vert", shader_dir + "texture.frag");
     Texture *texture = new Texture(textures_dir + "space3.jpeg");
@@ -46,6 +46,7 @@ StartupScreen::StartupScreen(int width, int height) : windowWidth(width), window
     glm::mat4 environment_mat = glm::translate(glm::mat4(1.0f), glm::vec3(-0.7f, -0.5f, 0.0f))
         * glm::scale(glm::mat4(1.0f), 1.0f * glm::vec3(1.0f, 1.0f, 1.0f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    
     background_space = new Node(environment_mat);
     background_space->add(space_node);
     background_space->add(ship_node);
@@ -110,11 +111,11 @@ StartupScreen::~StartupScreen(){
 
 void StartupScreen::renderMainMenuLayered() {
     // Background panel with logo
-    float logoZ = -2.0f;
-    float logoWidth = 373.0f;
-    float logoHeight = 400.0f;
-    float logoX = windowWidth * 0.75f - logoWidth / 2;
-    float logoY = windowHeight / 2 - logoHeight / 2;
+    float logoZ = 0.10f;
+    float logoWidth = 300.0f;
+    float logoHeight = 168.8f;
+    float logoX = windowWidth * 0.8f - logoWidth / 2;
+    float logoY = windowHeight * 0.8f - logoHeight / 2;
     
     start_interface->addImageElement(logo_image, 
                                    glm::vec3(logoX, logoY, logoZ), 
@@ -131,10 +132,10 @@ void StartupScreen::renderMainMenuLayered() {
                                        glm::vec4(playButtonColor.r, playButtonColor.g, playButtonColor.b, 0.3f),
                                        false, -1);
     
-    start_interface->addTextOverlay("PLAY", 
-                                  glm::vec3(playButtonRegion.x + playButtonRegion.width/2 - 30, 
+    start_interface->addTextOverlay("Play", 
+                                  glm::vec3(playButtonRegion.x + playButtonRegion.width/2 - 52, 
                                            playButtonRegion.y + playButtonRegion.height/2 - 12, 0.0f), 
-                                  1.0f, playButtonColor, false, -1, FontType::ROBOTO);
+                                  1.0f, playButtonColor, false, -1, FontType::NASALIZATION);
     
     // Statistics button background
     glm::vec3 statsButtonColor = glm::vec3(1.0f, 1.0f, 0.0f);
@@ -145,10 +146,10 @@ void StartupScreen::renderMainMenuLayered() {
                                        glm::vec4(statsButtonColor.r, statsButtonColor.g, statsButtonColor.b, 0.3f),
                                        false, -1);
     
-    start_interface->addTextOverlay("STATISTICS", 
-                                  glm::vec3(statsButtonRegion.x + statsButtonRegion.width/2 - 55, 
+    start_interface->addTextOverlay("Statistics", 
+                                  glm::vec3(statsButtonRegion.x + statsButtonRegion.width/2 - 110, 
                                            statsButtonRegion.y + statsButtonRegion.height/2 - 12, 0.0f), 
-                                  1.0f, statsButtonColor, false, -1, FontType::ROBOTO);
+                                  1.0f, statsButtonColor, false, -1, FontType::NASALIZATION);
     
     // Render missions in the left panel
     renderMissionsLayered();
@@ -274,17 +275,17 @@ void StartupScreen::initializeButtonRegions() {
     // Play button region - center right area
     playButtonRegion = {
         windowWidth * 0.7f,           // x
-        windowHeight * 0.6f,          // y  
-        150.0f,                       // width
-        50.0f                         // height
+        windowHeight * 0.4f,          // y  
+        300.0f,                       // width
+        80.0f                         // height
     };
     
     // Statistics button region - below play button
     statsButtonRegion = {
         windowWidth * 0.7f,           // x
-        windowHeight * 0.5f,          // y
-        180.0f,                       // width
-        50.0f                         // height
+        windowHeight * 0.2f,          // y
+        300.0f,                       // width
+        80.0f                         // height
     };
     
     // Back button region - bottom center of stats screen

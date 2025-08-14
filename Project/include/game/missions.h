@@ -86,6 +86,7 @@ public:
 private:
     std::vector<Mission> currentMissions;
     std::string currentDate;
+    std::string dataDirFilePath;
     std::string missionsFilePath;
     
     // Session tracking variables

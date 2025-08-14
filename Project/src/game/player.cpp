@@ -27,6 +27,9 @@ Player::Player(Shader* shader_program)
     // Add the model to the node
     node->add(model);
     
+    // Initialize engine flames
+    initializeEngineFlames();
+    
     // Initialize collision points
     setupCollisionPoints();
     
@@ -55,6 +58,14 @@ Player::Player(Shader* shader_program)
 }
 
 Player::~Player() {
+    // Clean up engine flames
+    if (engineFlames) {
+        delete engineFlames;
+    }
+    if (flameShader) {
+        delete flameShader;
+    }
+    
     // Clean up debug spheres
     for (auto sphere : debugSpheres) {
         delete sphere;
@@ -420,5 +431,31 @@ void Player::addDebugSpheresToScene(Node* sceneRoot) {
 void Player::removeDebugSpheresFromScene(Node* sceneRoot) {
     for (auto debugNode : debugNodes) {
         sceneRoot->remove(debugNode);
+    }
+}
+
+void Player::initializeEngineFlames() {
+    std::string shader_dir = SHADER_DIR;
+    flameShader = new Shader(shader_dir + "flame.vert", shader_dir + "flame.frag");
+    engineFlames = new EngineFlames(flameShader);
+    
+    // Set engine positions relative to ship center (scaled to match smaller flame size)
+    glm::vec3 leftEngine = glm::vec3(-0.02f, 0.0055f, -0.045f);   // Scaled down 10x for smaller flames
+    glm::vec3 rightEngine = glm::vec3(0.02f, 0.0055f, -0.045f);   // Scaled down 10x for smaller flames
+    engineFlames->setEnginePositions(leftEngine, rightEngine);
+}
+
+void Player::updateEngineFlames(float deltaTime, bool boosting) {
+    if (engineFlames) {
+        // Get ship direction from current rotation
+        glm::vec3 direction = glm::vec3(0.0f, 0.0f, 1.0f); // Forward direction
+        engineFlames->update(deltaTime, direction, boosting);
+    }
+}
+
+void Player::drawEngineFlames(const glm::mat4& view, const glm::mat4& projection) {
+    if (engineFlames) {
+        // Use the ship's transformation matrix so flames follow ship rotation and position
+        engineFlames->draw(view, projection, node->transform_);
     }
 }

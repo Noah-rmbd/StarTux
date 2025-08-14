@@ -57,6 +57,10 @@ void Shader::setInt(const std::string &name, int value) const {
     glUniform1i(glGetUniformLocation(glid, name.c_str()), value);
 }
 
+void Shader::setFloat(const std::string &name, float value) const {
+    glUniform1f(glGetUniformLocation(glid, name.c_str()), value);
+}
+
 GLuint Shader::compile_shader(const std::string& path, GLenum shader_type) {
     std::string shader_code;
     std::ifstream shader_file;

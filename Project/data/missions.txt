@@ -1,0 +1,5 @@
+# StarTux Daily Missions
+date=2025-08-14
+mission=4,60,60,2,Untouchable,Fly for 60 seconds without damage
+mission=2,4000,4003,2,High Scorer,Reach a score of 4000
+mission=3,6,6,2,Moving Target,Destroy 6 moving asteroids

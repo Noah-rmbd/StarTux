@@ -8,6 +8,7 @@
 #include "lighting_sphere.h"
 #include "transparent_sphere.h"
 #include "statistics.h"
+#include "engine_flames.h"
 #include <glm/glm.hpp>
 
 class Player{
@@ -121,6 +122,13 @@ class Player{
         // Statistics tracking
         GameStatistics* gameStats;
         double gameStartTime = 0.0;
+        
+        // Engine flame effects
+        EngineFlames* engineFlames = nullptr;
+        Shader* flameShader = nullptr;
+        void initializeEngineFlames();
+        void updateEngineFlames(float deltaTime, bool boosting = false);
+        void drawEngineFlames(const glm::mat4& view, const glm::mat4& projection);
 
     private:
         std::string ship_dir;

@@ -22,6 +22,10 @@ Game::Game(int width, int height, int target_fps, DailyMissions* missions) {
   std::string textures_dir = TEXTURES_DIR;
   std::string ressources_dir = RESSOURCES_DIR;
 
+  // Initialize lighting system
+  Lighting::Initialize();
+  Lighting::Get().SetupSpaceLighting();
+
   // Store missions reference first
   dailyMissions = missions;
   
@@ -39,7 +43,7 @@ Game::Game(int width, int height, int target_fps, DailyMissions* missions) {
 
   // Player object
   phong_shader =
-      new Shader(shader_dir + "phong.vert", shader_dir + "phong.frag");
+      new Shader(shader_dir + "phong.vert", shader_dir + "phong_enhanced.frag");
   player = new Player(phong_shader);
 
   // World node (moves when game is running)
@@ -113,6 +117,11 @@ Game::Game(int width, int height, int target_fps, DailyMissions* missions) {
 void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps) {
   scene_root->draw(model, view, projection);
   
+  // Draw engine flames (after main scene but before UI)
+  if (!lost) { // Only draw flames when alive
+    player->drawEngineFlames(view, projection);
+  }
+  
   // Prepare player rotation data
   glm::vec3 playerRotation(player->xAngle, player->yAngle, player->zAngle);
   
@@ -142,6 +151,16 @@ void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double ti
 }
 
 void Game::updateGame(double time, int fps) {
+  // Update lighting system
+  if (g_LightingSystem) {
+    static double lastTime = 0.0;
+    double deltaTime = (lastTime == 0.0) ? 0.016 : time - lastTime; // Default to ~60fps on first frame
+    lastTime = time;
+    
+    g_LightingSystem->Update(deltaTime);
+    g_LightingSystem->SetupGameplayLighting(player->position);
+  }
+  
   // Don't update game logic if paused
   if (paused) {
     return;
@@ -616,6 +635,12 @@ void Game::keyHandler(
   // Update damage animation
   player->updateDamageAnimation(time);
   player->updatePosition();
+  
+  // Update engine flames
+  static double lastFlameTime = 0.0;
+  float deltaTime = (lastFlameTime == 0.0) ? 0.016f : (float)(time - lastFlameTime);
+  lastFlameTime = time;
+  player->updateEngineFlames(deltaTime, is_boost_mode);
 }
 
 void Game::spawn_asteroid(bool start_generation, float generation_distance) {
@@ -745,6 +770,11 @@ void Game::create_explosion(glm::vec3 position, double time) {
     Explosion* explosion = new Explosion(phong_shader, position, time);
     explosions.push_back(explosion);
     scene_root->add(explosion->getNode());
+    
+    // Add dynamic explosion lighting effect
+    if (g_LightingSystem) {
+        g_LightingSystem->AddExplosionLight(position, 5.0f, 2.0f);
+    }
 }
 
 void Game::activate_dev_mode() {

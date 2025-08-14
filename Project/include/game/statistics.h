@@ -70,6 +70,7 @@ public:
     double getTotalPlayTime() const { return lifetime.totalPlayTime; }
 
 private:
+    std::string dataDirFilePath;
     std::string statsFilePath;
     void updateLifetimeStats();
 };

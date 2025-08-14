@@ -324,6 +324,30 @@ src/game/camera.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/camera.cpp.s
 .PHONY : src/game/camera.cpp.s
 
+src/game/engine_flames.o: src/game/engine_flames.cpp.o
+.PHONY : src/game/engine_flames.o
+
+# target to build an object file
+src/game/engine_flames.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/engine_flames.cpp.o
+.PHONY : src/game/engine_flames.cpp.o
+
+src/game/engine_flames.i: src/game/engine_flames.cpp.i
+.PHONY : src/game/engine_flames.i
+
+# target to preprocess a source file
+src/game/engine_flames.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/engine_flames.cpp.i
+.PHONY : src/game/engine_flames.cpp.i
+
+src/game/engine_flames.s: src/game/engine_flames.cpp.s
+.PHONY : src/game/engine_flames.s
+
+# target to generate assembly for a file
+src/game/engine_flames.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/engine_flames.cpp.s
+.PHONY : src/game/engine_flames.cpp.s
+
 src/game/explosion.o: src/game/explosion.cpp.o
 .PHONY : src/game/explosion.o
 
@@ -515,6 +539,54 @@ src/game/statistics.s: src/game/statistics.cpp.s
 src/game/statistics.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/statistics.cpp.s
 .PHONY : src/game/statistics.cpp.s
+
+src/graphics/lighting.o: src/graphics/lighting.cpp.o
+.PHONY : src/graphics/lighting.o
+
+# target to build an object file
+src/graphics/lighting.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/lighting.cpp.o
+.PHONY : src/graphics/lighting.cpp.o
+
+src/graphics/lighting.i: src/graphics/lighting.cpp.i
+.PHONY : src/graphics/lighting.i
+
+# target to preprocess a source file
+src/graphics/lighting.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/lighting.cpp.i
+.PHONY : src/graphics/lighting.cpp.i
+
+src/graphics/lighting.s: src/graphics/lighting.cpp.s
+.PHONY : src/graphics/lighting.s
+
+# target to generate assembly for a file
+src/graphics/lighting.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/lighting.cpp.s
+.PHONY : src/graphics/lighting.cpp.s
+
+src/graphics/resource_manager.o: src/graphics/resource_manager.cpp.o
+.PHONY : src/graphics/resource_manager.o
+
+# target to build an object file
+src/graphics/resource_manager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/resource_manager.cpp.o
+.PHONY : src/graphics/resource_manager.cpp.o
+
+src/graphics/resource_manager.i: src/graphics/resource_manager.cpp.i
+.PHONY : src/graphics/resource_manager.i
+
+# target to preprocess a source file
+src/graphics/resource_manager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/resource_manager.cpp.i
+.PHONY : src/graphics/resource_manager.cpp.i
+
+src/graphics/resource_manager.s: src/graphics/resource_manager.cpp.s
+.PHONY : src/graphics/resource_manager.s
+
+# target to generate assembly for a file
+src/graphics/resource_manager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/resource_manager.cpp.s
+.PHONY : src/graphics/resource_manager.cpp.s
 
 src/graphics/shader.o: src/graphics/shader.cpp.o
 .PHONY : src/graphics/shader.o
@@ -880,6 +952,9 @@ help:
 	@echo "... src/game/camera.o"
 	@echo "... src/game/camera.i"
 	@echo "... src/game/camera.s"
+	@echo "... src/game/engine_flames.o"
+	@echo "... src/game/engine_flames.i"
+	@echo "... src/game/engine_flames.s"
 	@echo "... src/game/explosion.o"
 	@echo "... src/game/explosion.i"
 	@echo "... src/game/explosion.s"
@@ -904,6 +979,12 @@ help:
 	@echo "... src/game/statistics.o"
 	@echo "... src/game/statistics.i"
 	@echo "... src/game/statistics.s"
+	@echo "... src/graphics/lighting.o"
+	@echo "... src/graphics/lighting.i"
+	@echo "... src/graphics/lighting.s"
+	@echo "... src/graphics/resource_manager.o"
+	@echo "... src/graphics/resource_manager.i"
+	@echo "... src/graphics/resource_manager.s"
 	@echo "... src/graphics/shader.o"
 	@echo "... src/graphics/shader.i"
 	@echo "... src/graphics/shader.s"

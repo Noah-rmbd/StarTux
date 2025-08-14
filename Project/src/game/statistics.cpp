@@ -2,9 +2,14 @@
 #include <algorithm>
 #include <sstream>
 
+#ifndef DATA_DIR
+#error "DATA_DIR not defined"
+#endif 
+
 GameStatistics::GameStatistics() {
-    // Set default file path (can be customized)
-    statsFilePath = "statistics.txt";
+    // Set default file path
+    dataDirFilePath = DATA_DIR;
+    statsFilePath = dataDirFilePath + "statistics.txt";
     
     // Load existing statistics on startup
     loadFromFile(statsFilePath);
@@ -71,6 +76,7 @@ void GameStatistics::updateLifetimeStats() {
 
 void GameStatistics::saveToFile(const std::string& filename) {
     std::ofstream file(filename);
+    std::cout<< filename;
     if (!file.is_open()) {
         std::cerr << "Failed to save statistics to " << filename << std::endl;
         return;
@@ -95,7 +101,7 @@ void GameStatistics::saveToFile(const std::string& filename) {
 void GameStatistics::loadFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cout << "No existing statistics file found. Starting with fresh statistics." << std::endl;
+        std::cout << "No existing statistics file found. Starting with fresh statistics. : " << filename << std::endl;
         return;
     }
     

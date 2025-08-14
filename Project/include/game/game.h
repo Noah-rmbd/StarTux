@@ -14,10 +14,12 @@
 #include "textured_sphere.h"
 #include "explosion.h"
 #include "missions.h"
+#include "lighting.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <unordered_map>
 #include <vector>
+#include <memory>  // For smart pointers
 
 class Game {
 public:
