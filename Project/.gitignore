@@ -22,6 +22,7 @@ InstallScripts.json
 pkgRedirects/
 progress.marks
 TargetDirectories.txt
+data/
 external/
 external/glew-cmake
 

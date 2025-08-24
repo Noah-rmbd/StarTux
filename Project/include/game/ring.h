@@ -28,8 +28,8 @@ class Ring {
     bool collected = false;  // Flag to prevent multiple collections
     bool to_delete = false;
     float animation_duration = 2.0f; // seconds
-    float start_scale = 0.05f;
-    float end_scale = 0.6f;
+    float start_scale = 0.0005f;
+    float end_scale = 0.006f;
     glm::vec3 position;
 };
 

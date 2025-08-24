@@ -5,7 +5,7 @@ Ring::Ring(glm::vec3 position) : position(position) {
     std::string ressources_dir = RESSOURCES_DIR;
 
     Shader* rainbow_shader = new Shader(shader_dir + "phong.vert", shader_dir + "phong.frag");
-    ring_model = new ShapeModel(ressources_dir + "test.obj", rainbow_shader);
+    ring_model = new ShapeModel(ressources_dir + "ring2.obj", rainbow_shader);
 
     glm::mat4 node_mat =
       glm::translate(glm::mat4(1.0f), position) *
