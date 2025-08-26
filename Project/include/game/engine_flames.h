@@ -1,5 +1,4 @@
-#ifndef ENGINE_FLAMES_H
-#define ENGINE_FLAMES_H
+#pragma once
 
 #include <vector>
 #include <glm/glm.hpp>
@@ -61,5 +60,3 @@ private:
     float baseIntensity = 1.0f;
     float boostIntensity = 2.5f;
 };
-
-#endif // ENGINE_FLAMES_H

@@ -1,5 +1,4 @@
-#ifndef MISSIONS_H
-#define MISSIONS_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -108,5 +107,3 @@ private:
     std::vector<std::string> getAsteroidMissionTitles() const;
     std::vector<std::string> getSurvivalMissionTitles() const;
 };
-
-#endif

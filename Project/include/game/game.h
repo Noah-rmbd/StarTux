@@ -1,5 +1,4 @@
-#ifndef GAME_H
-#define GAME_H
+#pragma once
 
 #include "hud.h"
 #include "node.h"
@@ -125,5 +124,3 @@ private:
   // Missions system
   DailyMissions* dailyMissions = nullptr;
 };
-
-#endif

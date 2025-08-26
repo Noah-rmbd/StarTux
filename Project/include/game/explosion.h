@@ -1,5 +1,4 @@
-#ifndef EXPLOSION_H
-#define EXPLOSION_H
+#pragma once
 
 #include "node.h"
 #include "shader.h"
@@ -26,5 +25,3 @@ private:
     glm::vec3 initial_scale = glm::vec3(0.01f);
     glm::vec3 max_scale = glm::vec3(0.2f);
 };
-
-#endif 

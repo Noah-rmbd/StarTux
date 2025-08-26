@@ -1,5 +1,4 @@
-#ifndef VIEWER_H
-#define VIEWER_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -58,5 +57,3 @@ private:
     void on_mouse_button(int button, int action, double xpos, double ypos);
     void keyboard_events();
 };
-
-#endif // VIEWER_H

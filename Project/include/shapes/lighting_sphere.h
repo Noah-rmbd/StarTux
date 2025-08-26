@@ -1,5 +1,4 @@
-#ifndef LIGHTING_SPHERE_H
-#define LIGHTING_SPHERE_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include "shader.h"
@@ -22,5 +21,3 @@ private:
     GLint light_color_loc;
     GLint object_color_loc;
 };
-
-#endif // LIGHTING_SPHERE_H

@@ -1,5 +1,4 @@
-#ifndef TRANSPARENT_SPHERE_H
-#define TRANSPARENT_SPHERE_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include "shader.h"
@@ -27,5 +26,3 @@ private:
     GLint object_color_loc;
     GLint alpha_loc;
 };
-
-#endif // TRANSPARENT_SPHERE_H

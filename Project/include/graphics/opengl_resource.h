@@ -1,5 +1,4 @@
-#ifndef OPENGL_RESOURCE_H
-#define OPENGL_RESOURCE_H
+#pragma once
 
 #include <GL/glew.h>
 #include <utility>
@@ -172,5 +171,3 @@ public:
         glBindVertexArray(0);
     }
 };
-
-#endif // OPENGL_RESOURCE_H

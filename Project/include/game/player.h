@@ -1,5 +1,4 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#pragma once
 
 #include "node.h"
 #include "shader.h"
@@ -132,6 +131,4 @@ class Player{
 
     private:
         std::string ship_dir;
-}; 
-
-#endif
+};

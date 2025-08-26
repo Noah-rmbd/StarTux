@@ -1,5 +1,4 @@
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -30,5 +29,3 @@ private:
     GLuint glid;
     GLuint compile_shader(const std::string& path, GLenum shader_type);
 };
-
-#endif // SHADER_H

@@ -1,5 +1,4 @@
-#ifndef HUD_H
-#define HUD_H
+#pragma once
 
 #include "interface.h"
 #include "texture.h"
@@ -166,5 +165,3 @@ class Hud {
         // Legacy 2D methods (for backward compatibility)
         void render2DHUD(int life, double score, int bullets, double time, int speed, int fps, bool shieldActive = false, bool playerDying = false);
 };
-
-#endif

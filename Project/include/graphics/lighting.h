@@ -1,5 +1,4 @@
-#ifndef LIGHTING_H
-#define LIGHTING_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -100,5 +99,3 @@ namespace Lighting {
         return *g_LightingSystem;
     }
 }
-
-#endif // LIGHTING_H

@@ -1,5 +1,5 @@
-#ifndef RING_H
-#define RING_H
+#pragma once
+
 #ifndef RESSOURCES_DIR
 #error "RESSOURCES_DIR not defined"
 #endif
@@ -32,5 +32,3 @@ class Ring {
     float end_scale = 0.006f;
     glm::vec3 position;
 };
-
-#endif

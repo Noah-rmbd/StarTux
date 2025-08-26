@@ -1,9 +1,0 @@
-# StarTux Game Statistics
-totalAsteroidsDestroyed=18
-totalMovingAsteroidsDestroyed=1
-totalRingsTaken=4
-maxSpeedEverReached=400
-bestConsecutiveRings=1
-gamesPlayed=1
-highScore=3455
-totalPlayTime=94.8997

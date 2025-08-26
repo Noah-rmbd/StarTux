@@ -1,5 +1,4 @@
-#ifndef RESOURCE_MANAGER_H
-#define RESOURCE_MANAGER_H
+#pragma once
 
 #include <memory>
 #include <unordered_map>
@@ -121,5 +120,3 @@ namespace Resources {
         return ResourceManager::Instance().GetShader(vertexFile, fragmentFile);
     }
 }
-
-#endif // RESOURCE_MANAGER_H

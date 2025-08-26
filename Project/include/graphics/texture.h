@@ -1,4 +1,5 @@
 #pragma once
+
 #include <GL/glew.h>
 #include <string>
 #include <iostream>
@@ -16,4 +17,3 @@ public:
 private:
     GLuint glid_;
 };
-

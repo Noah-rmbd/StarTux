@@ -1,5 +1,4 @@
-#ifndef SHAPE_MODEL_H
-#define SHAPE_MODEL_H
+#pragma once
 
 #include "shader.h"
 #include "shape.h"
@@ -46,5 +45,3 @@ private:
   std::vector<unsigned int> indices;
   unsigned int indexCount;
 };
-
-#endif

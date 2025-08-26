@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <unordered_map>
 #include <glm/glm.hpp>
@@ -34,5 +33,3 @@ public:
 
 private:
 };
-
-#endif // VIEWER_H

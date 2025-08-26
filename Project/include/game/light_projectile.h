@@ -1,5 +1,5 @@
-#ifndef LIGHT_PROJECTILE_H
-#define LIGHT_PROJECTILE_H
+#pragma once
+
 #include "shader.h"
 #include "node.h"
 #include "sphere.h"
@@ -22,5 +22,3 @@ public:
     void draw(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection);
     bool checkCollision(glm::vec3 asteroid_pos);
 };
-
-#endif

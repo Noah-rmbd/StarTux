@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.10...3.27)  # Version moderne avec plage de com
 project(OpenGLProgram)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Configuration pour libsndfile (solution alternative)
 find_path(SNDFILE_INCLUDE_DIR sndfile.h)

@@ -1,5 +1,4 @@
-#ifndef STATISTICS_H
-#define STATISTICS_H
+#pragma once
 
 #include <fstream>
 #include <string>
@@ -74,5 +73,3 @@ private:
     std::string statsFilePath;
     void updateLifetimeStats();
 };
-
-#endif

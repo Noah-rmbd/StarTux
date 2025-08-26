@@ -1,5 +1,4 @@
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#pragma once
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -148,5 +147,3 @@ class Interface {
         void setupBlending();
         void disableBlending();
 };
-
-#endif

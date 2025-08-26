@@ -1,5 +1,4 @@
-#ifndef STARTUPSCREEN_H
-#define STARTUPSCREEN_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include "interface.h"
@@ -71,5 +70,3 @@ class StartupScreen {
         void renderMissionsLayered();
         void checkButtonClicks(int button, int action, double xpos, double ypos);
 };
-
-#endif

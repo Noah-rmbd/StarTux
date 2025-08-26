@@ -1,5 +1,4 @@
-#ifndef AUDIO_MANAGER_H
-#define AUDIO_MANAGER_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -40,5 +39,3 @@ private:
   ALuint musicBuffer;
   bool isInitialized;
 };
-
-#endif // AUDIO_MANAGER_H

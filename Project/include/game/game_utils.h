@@ -1,5 +1,4 @@
-#ifndef GAME_UTILS_H
-#define GAME_UTILS_H
+#pragma once
 
 #include <vector>
 #include <memory>
@@ -73,5 +72,3 @@ size_t CountObjects(const Container& container, Predicate condition) {
 }
 
 } // namespace GameUtils
-
-#endif // GAME_UTILS_H

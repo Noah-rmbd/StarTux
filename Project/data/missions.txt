@@ -1,5 +1,5 @@
 # StarTux Daily Missions
-date=2025-08-14
-mission=4,60,60,2,Untouchable,Fly for 60 seconds without damage
-mission=2,4000,4003,2,High Scorer,Reach a score of 4000
-mission=3,6,6,2,Moving Target,Destroy 6 moving asteroids
+date=2025-08-26
+mission=0,300,120,1,Speed Demon,Reach 300 Km/h
+mission=1,4,0,0,Ring Master,Collect 4 rings in a row
+mission=4,120,1,1,Untouchable,Fly for 120 seconds without damage
