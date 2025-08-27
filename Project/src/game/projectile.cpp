@@ -47,14 +47,14 @@ void Projectile::draw(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection) 
     node->draw(model, view, projection);
 }
 
-bool Projectile::checkCollision(glm::vec3 asteroid_pos) {
+bool Projectile::checkCollision(const glm::vec3& asteroid_pos) {
     // Simple collision detection - distance based
     double x = (position.x - asteroid_pos.x);
     double y = (position.y - asteroid_pos.y);
     double z = (position.z - asteroid_pos.z);
     
     // Use an appropriate collision radius
-    if (sqrt(x*x + y*y + z*z) < 0.2) {
+    if (x*x + y*y + z*z < 0.04f) { // 0.2^2 = 0.04
         return true;
     }
     return false;

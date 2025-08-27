@@ -364,13 +364,17 @@ glm::vec3 Player::getWorldCollisionPoint(int index) const {
     return position + glm::vec3(rotatedOffset);
 }
 
-int Player::checkCollisionPoint(glm::vec3 objectPos, float objectRadius) const {
+int Player::checkCollisionPoint(const glm::vec3& objectPos, float objectRadius) const {
     for (int i = 0; i < collisionPoints.size(); i++) {
-        glm::vec3 collisionWorldPos = getWorldCollisionPoint(i);
-        float distance = glm::distance(collisionWorldPos, objectPos);
+        const glm::vec3 collisionWorldPos = getWorldCollisionPoint(i);
         
-        // Check if collision occurs (sum of radii)
-        if (distance < (collisionPoints[i].radius + objectRadius)) {
+        // Calculate squared distance to avoid sqrt()
+        const glm::vec3 diff = collisionWorldPos - objectPos;
+        const float distanceSquared = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+        const float radiusSum = collisionPoints[i].radius + objectRadius;
+        
+        // Check if collision occurs (sum of radii squared)
+        if (distanceSquared < radiusSum * radiusSum) {
             return i; // Return index of colliding point
         }
     }

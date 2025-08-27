@@ -14,11 +14,16 @@
 #include "explosion.h"
 #include "missions.h"
 #include "lighting.h"
+#include "object_pool.h"
+#include "spatial_hash_grid.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <unordered_map>
 #include <vector>
 #include <memory>  // For smart pointers
+#include <thread>
+#include <future>
+#include <atomic>
 
 class Game {
 public:
@@ -55,10 +60,13 @@ private:
   void detect_colisions(double time);
   void colisions_between_asteroids(double time);
   void colisions_player_asteroids(double time);
+  void colisions_player_asteroids_optimized(double time);
   void colisions_player_bullet(double time);
   void colisions_player_ring(double time);
   void colisions_lprojectile_asteroid(double time);
+  void colisions_lprojectile_asteroid_optimized(double time);
   void colisions_projectile_asteroid(double time);
+  void colisions_projectile_asteroid_optimized(double time);
 
   Shader *phong_shader;
   bool dev_mode = false;
@@ -85,32 +93,49 @@ private:
   void deactivate_dev_mode();
 
   // List of active projectiles in the game
-  std::vector<Projectile *> projectiles;
+  std::vector<std::unique_ptr<Projectile>> projectiles;
   Node *projectile_node;
   double last_shoot_time;
 
   // List of light active projectiles in the game
-  std::vector<LightProjectile *> light_projectiles;
+  std::vector<std::unique_ptr<LightProjectile>> light_projectiles;
   Node *projectile_l_node;
   double last_shoot_time_l;
 
   // Asteroids elements
   Shape *asteroid;
-  std::vector<Asteroid *> asteroids_;
+  std::vector<std::unique_ptr<Asteroid>> asteroids_;
   const size_t max_asteroids_ = 30;
   float asteroid_speed = -2.4f;
   int generation_cooldown = 0;
 
   // Bullet elements
   Shape *bullet;
-  std::vector<Node *> bullets_;
+  std::vector<std::unique_ptr<Node>> bullets_;
 
   // Ring elements
   Ring *ring;
-  std::vector<Ring *> rings_;
+  std::vector<std::unique_ptr<Ring>> rings_;
 
   // Explosion effects
-  std::vector<Explosion*> explosions;
+  std::vector<std::unique_ptr<Explosion>> explosions;
+
+private:
+  // Performance optimization systems (will be implemented incrementally)
+  std::unique_ptr<SpatialHashGrid<Asteroid>> asteroid_spatial_grid_;
+  void initializePerformanceOptimizations();
+  void initializePredictivePools();
+  void monitorPoolUsage(double time);  // Monitor pool efficiency
+  
+  // Multi-threaded collision detection
+  void colisions_projectile_asteroid_mt(double time);
+  void colisions_lprojectile_asteroid_mt(double time);
+  
+  // Threading configuration
+  size_t thread_count_;
+  bool use_multithreading_;
+  void setThreadCount(size_t count) { thread_count_ = count; }
+  void setMultithreading(bool enable) { use_multithreading_ = enable; }
 
   // Boost mode
   bool is_boost_mode = false;

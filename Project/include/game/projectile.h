@@ -20,5 +20,5 @@ public:
     
     void update(double currentTime);
     void draw(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection);
-    bool checkCollision(glm::vec3 asteroid_pos);
+    bool checkCollision(const glm::vec3& asteroid_pos);
 };

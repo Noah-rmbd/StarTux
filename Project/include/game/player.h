@@ -77,7 +77,7 @@ class Player{
         void addDebugSpheresToScene(Node* sceneRoot);
         void removeDebugSpheresFromScene(Node* sceneRoot);
         glm::vec3 getWorldCollisionPoint(int index) const;
-        int checkCollisionPoint(glm::vec3 objectPos, float objectRadius) const;
+        int checkCollisionPoint(const glm::vec3& objectPos, float objectRadius) const;
 
         float xAngle = 0.0f;
         float yAngle = 0.0f;
