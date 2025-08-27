@@ -88,6 +88,29 @@ private:
   // Functions related to the dev mode
   void activate_dev_mode();
   void deactivate_dev_mode();
+  
+  // IMPROVED: Constructor helper methods (decomposed from monolithic constructor)
+  void initializeDirectories();
+  void initializeLightingSystem();
+  void initializeUI(int width, int height, DailyMissions* missions);
+  void initializeGraphicsResources();
+  void initializeGameWorld();
+  void initializeSceneGraph();
+  void initializeCameraAndPlayer();
+  void initializeGameState();
+  
+  // IMPROVED: Input handler helper methods (decomposed from 317-line keyHandler)
+  void handleMouseShooting(double time);
+  void handleDeveloperModeKeys(const std::unordered_map<int, std::pair<bool, double>>& keyStates);
+  void handleDebugToggleKeys(const std::unordered_map<int, std::pair<bool, double>>& keyStates);
+  void handleBulletMovementKeys(const std::unordered_map<int, std::pair<bool, double>>& keyStates);
+  void handlePlayerMovement(const std::unordered_map<int, std::pair<bool, double>>& keyStates, double time);
+  void handlePlayerRotation(const std::unordered_map<int, std::pair<bool, double>>& keyStates, double time);
+  void handleIdleAnimations(const std::unordered_map<int, std::pair<bool, double>>& keyStates, double time);
+  
+  // Utility helper methods
+  float calculateMovementSmoother(double key_press_time, double current_time);
+  glm::vec3 calculateShootDirection(double mouse_x, double mouse_y);
 
   // List of active projectiles in the game
   std::vector<std::unique_ptr<Projectile>> projectiles;
@@ -131,4 +154,12 @@ private:
   
   // Missions system
   DailyMissions* dailyMissions = nullptr;
+  
+  // Directory paths for resources
+  std::string shader_dir_;
+  std::string textures_dir_;
+  std::string resources_dir_;
+  
+  // Environment node for scene graph
+  Node* environment_node_;
 };

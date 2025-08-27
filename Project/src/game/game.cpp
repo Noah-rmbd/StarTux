@@ -1,17 +1,12 @@
 #include "game.h"
 #include "GLFW/glfw3.h"
-#include <set>
-#include <map>
-#include <algorithm>
 #include "real_profiler.h"
 #include "asteroid.h"
 #include "glm/fwd.hpp"
 #include "hud.h"
 #include "projectile.h"
 #include "shape_model.h"
-#include <cmath>
-#include <ctime>
-#include <memory>
+
 #ifndef SHADER_DIR
 #error "SHADER_DIR not defined"
 #endif
@@ -25,109 +20,99 @@
 Game::Game(int width, int height, int target_fps, DailyMissions* missions) {
   PROFILE_SCOPE("Game Constructor");
   
-  // Fast initialization - defer heavy loading
-  auto init_start = std::chrono::high_resolution_clock::now();
-  
-  std::string shader_dir = SHADER_DIR;
-  std::string textures_dir = TEXTURES_DIR;
-  std::string ressources_dir = RESSOURCES_DIR;
-
-  // Initialize lighting system
-  Lighting::Initialize();
-  Lighting::Get().SetupSpaceLighting();
-
-  // Store missions reference first
-  dailyMissions = missions;
-  
-  // Generates HUD
-  hud = new Hud(width, height);
-  
-  // Set up HUD with missions manager if available
-  if (dailyMissions) {
-    hud->setMissionsManager(dailyMissions);
-  }
-  
+  // IMPROVED: Decomposed constructor for better readability
   window_width = width;
   window_height = height;
   targeted_fps = target_fps;
+  
+  initializeDirectories();
+  initializeLightingSystem();
+  initializeUI(width, height, missions);
+  initializeGraphicsResources();
+  initializeGameWorld();
+  initializeSceneGraph();
+  initializeCameraAndPlayer();
+  initializeGameState();
+}
 
-  // Player object
-  phong_shader =
-      new Shader(shader_dir + "phong.vert", shader_dir + "phong_enhanced.frag");
+// IMPROVED: Constructor helper methods for better code organization
+void Game::initializeDirectories() {
+  shader_dir_ = SHADER_DIR;
+  textures_dir_ = TEXTURES_DIR; 
+  resources_dir_ = RESSOURCES_DIR;
+}
+
+void Game::initializeLightingSystem() {
+  Lighting::Initialize();
+  Lighting::Get().SetupSpaceLighting();
+}
+
+void Game::initializeUI(int width, int height, DailyMissions* missions) {
+  dailyMissions = missions;
+  
+  hud = new Hud(width, height);
+  
+  if (dailyMissions) {
+    hud->setMissionsManager(dailyMissions);
+  }
+}
+
+void Game::initializeGraphicsResources() {
+  phong_shader = new Shader(shader_dir_ + "phong.vert", shader_dir_ + "phong_enhanced.frag");
   player = new Player(phong_shader);
+  
+  bullet = new ShapeModel(resources_dir_ + "bullets.obj", phong_shader);
+  
+  Shader* asteroid_texture_shader = new Shader(shader_dir_ + "asteroid.vert", shader_dir_ + "asteroid.frag");
+  Texture* asteroid_texture = new Texture(textures_dir_ + "asteroid.png");
+  asteroid = new ShapeModel(resources_dir_ + "Asteroid.obj", asteroid_texture_shader);
+  static_cast<ShapeModel*>(asteroid)->setTexture(asteroid_texture);
+}
 
-  // World node (moves when game is running)
-  glm::mat4 world_mat =
-      glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) *
-      glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f)) *
-      glm::rotate(glm::mat4(1.0f), glm::radians(0.0f),
-                  glm::vec3(1.0f, 0.0f, 0.0f));
+void Game::initializeGameWorld() {
+  glm::mat4 world_mat = glm::mat4(1.0f); // Identity matrix is cleaner than complex transforms
   world_node = new Node(world_mat);
 
-  // Environment Sphere
-  Shader *texture_shader =
-      new Shader(shader_dir + "texture.vert", shader_dir + "texture.frag");
-  Texture *texture = new Texture(textures_dir + "space3.jpeg");
-  Shape *environment_sphere = new TexturedSphere(texture_shader, texture);
-
-  // Node that contains the environment sphere
-  glm::mat4 environment_mat =
-      glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)) *
-      glm::scale(glm::mat4(1.0f), 120.0f * glm::vec3(1.0f, 1.0f, 1.0f)) *
-      glm::rotate(glm::mat4(1.0f), glm::radians(0.0f),
-                  glm::vec3(1.0f, 0.0f, 0.0f));
-  Node *environment_node = new Node(environment_mat);
-  environment_node->add(environment_sphere);
-
-  // Bullet model
-  bullet = new ShapeModel(ressources_dir + "bullets.obj", phong_shader);
+  Shader *texture_shader = new Shader(shader_dir_ + "texture.vert", shader_dir_ + "texture.frag");
+  Texture *space_texture = new Texture(textures_dir_ + "space3.jpeg");
+  Shape *environment_sphere = new TexturedSphere(texture_shader, space_texture);
   
-  // Asteroid model
-  Shader* asteroid_texture_shader = new Shader(shader_dir + "asteroid.vert", shader_dir + "asteroid.frag");
-  Texture* asteroid_texture = new Texture(textures_dir + "asteroid.png");
-  asteroid = new ShapeModel(ressources_dir + "Asteroid.obj", asteroid_texture_shader);
-  static_cast<ShapeModel*>(asteroid)->setTexture(asteroid_texture);
+  glm::mat4 environment_mat = glm::scale(glm::mat4(1.0f), 120.0f * glm::vec3(1.0f));
+  environment_node_ = new Node(environment_mat);
+  environment_node_->add(environment_sphere);
   
-  // OPTIMIZATION: Defer object creation - only create minimal objects at startup
-  // The original loop created 40 objects during startup causing 821ms delay
-  // Instead, create objects progressively during gameplay
-  
-  // Create only 5 initial objects instead of 40
+  // Create only 5 initial objects instead of 40 for faster startup
   for (int i = 0; i < 5; ++i) {
-    if (i%3 == 0) {
-      spawn_ring(true, i/5.0f);
+    if (i % 3 == 0) {
+      spawn_ring(true, i / 5.0f);
     } else {
-      spawn_asteroid(true, i/5.0f);
+      spawn_asteroid(true, i / 5.0f);
     }
   }
-  
-  // Add the player and the world to the scene root
+}
+
+void Game::initializeSceneGraph() {
   scene_root = new Node();
   scene_root->add(player->node);
   scene_root->add(world_node);
-  scene_root->add(environment_node);
+  scene_root->add(environment_node_);
   
-  // Add collision debug spheres to the scene
   player->addDebugSpheresToScene(scene_root);
-  
-  // Place the camera
+}
+
+void Game::initializeCameraAndPlayer() {
   camera.cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
   camera.cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
   camera.cameraPos = player->position + glm::vec3(0.0f, 0.05f, -0.3f);
+}
 
-  // Initialize the shoot cooldown variable
+void Game::initializeGameState() {
   last_shoot_time = 0.0;
-
   spawn_ring();
   
-  // Set game start time for statistics tracking
   player->gameStartTime = glfwGetTime();
-  
-  // Record initial speed for statistics
-  int initialSpeed = -asteroid_speed * 50;
-  player->gameStats->recordSpeedReached(initialSpeed);
-  
-  // Removed performance optimization initialization
+  int initial_speed = -asteroid_speed * 50;
+  player->gameStats->recordSpeedReached(initial_speed);
 }
 
 
@@ -404,79 +389,84 @@ void Game::mouse_button_callback(int button, int action, double xpos, double ypo
   }
 }
 
-void Game::keyHandler(
-    std::unordered_map<int, std::pair<bool, double>> keyStates, double time) {
-  // Disable all controls during death animation
+// IMPROVED: Decomposed keyHandler from 317 lines into focused methods
+void Game::keyHandler(std::unordered_map<int, std::pair<bool, double>> keyStates, double time) {
   if (player->isDeathAnimationActive()) {
     return;
   }
-    
-  float smoother = 0.0f;
-  float speed = player->movement_speed * player->fps_correction;
-
-  if(dev_mode) {
+  
+  if (dev_mode) {
     camera.keyboard_events(keyStates);
   }
+  
+  // IMPROVED: Decomposed input handling into focused methods
+  handleMouseShooting(time);
+  handleDeveloperModeKeys(keyStates);
+  handleDebugToggleKeys(keyStates);
+  handleBulletMovementKeys(keyStates);
+  handlePlayerMovement(keyStates, time);
+  handlePlayerRotation(keyStates, time);
+  handleIdleAnimations(keyStates, time);
+}
 
+// IMPROVED: keyHandler helper methods - decomposed from 317-line monolithic function
+void Game::handleMouseShooting(double time) {
+  // Right mouse button - Heavy projectiles
   if (r_mouse_button_pressed) {
-    // Shooting cooldown
-    if ((last_shoot_time == 0.0 || time-last_shoot_time > 1.0) && (player->bullets > 0)) {
+    if ((last_shoot_time == 0.0 || time - last_shoot_time > 1.0) && (player->bullets > 0)) {
       player->bullets -= 1;
-      double xpos = (x_mouse / (window_width)) - 0.5;
-      double ypos = (y_mouse / (window_height)) - 0.5;
       
-      glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.15f); 
-      glm::vec3 shoot_direction = glm::vec3(-xpos+camera.cameraPos.x-player->position.x, -ypos+camera.cameraPos.y-player->position.y, 1.0f);
-
-      // Add new shot to projectile list
+      glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.15f);
+      glm::vec3 shoot_direction = calculateShootDirection(x_mouse, y_mouse);
+      
       auto new_shot = std::make_unique<Projectile>(phong_shader, shoot_position, shoot_direction, glm::vec3(x_mouse, y_mouse, 0.0f));
       scene_root->add(new_shot->node);
       projectiles.push_back(std::move(new_shot));
       last_shoot_time = time;
     }
   }
-
+  
+  // Left mouse button - Light projectiles
   if (l_mouse_button_pressed) {
-    // Shooting cooldown
-    if (last_shoot_time_l == 0.0 || time-last_shoot_time_l > 0.1) {
-      double xpos = (x_mouse / (window_width)) - 0.5;
-      double ypos = (y_mouse / (window_height)) - 0.5;
+    if (last_shoot_time_l == 0.0 || time - last_shoot_time_l > 0.1) {
+      glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.15f);
+      glm::vec3 shoot_direction = calculateShootDirection(x_mouse, y_mouse);
       
-      glm::vec3 shoot_position = glm::vec3(player->position.x, player->position.y, player->position.z + 0.15f); 
-      glm::vec3 shoot_direction = glm::vec3(-xpos+camera.cameraPos.x-player->position.x, -ypos+camera.cameraPos.y-player->position.y, 1.0f);
-
-      // Add new shot to projectile list
       auto new_shot = std::make_unique<LightProjectile>(phong_shader, shoot_position, shoot_direction, glm::vec3(x_mouse, y_mouse, 0.0f));
       scene_root->add(new_shot->node);
       light_projectiles.push_back(std::move(new_shot));
       last_shoot_time_l = time;
-      
     }
   }
-  if (keyStates[GLFW_KEY_T].first) {
+}
+
+void Game::handleDeveloperModeKeys(const std::unordered_map<int, std::pair<bool, double>>& keyStates) {
+  if (keyStates.find(GLFW_KEY_T) != keyStates.end() && keyStates.at(GLFW_KEY_T).first) {
     activate_dev_mode();
-  } else if (keyStates[GLFW_KEY_G].first) {
+  } else if (keyStates.find(GLFW_KEY_G) != keyStates.end() && keyStates.at(GLFW_KEY_G).first) {
     deactivate_dev_mode();
   }
-  
+}
+
+void Game::handleDebugToggleKeys(const std::unordered_map<int, std::pair<bool, double>>& keyStates) {
   // Pause toggle (V key)
-  if (keyStates[GLFW_KEY_V].first && !pause_key_pressed) {
+  if (keyStates.find(GLFW_KEY_V) != keyStates.end() && keyStates.at(GLFW_KEY_V).first && !pause_key_pressed) {
     paused = !paused;
     pause_key_pressed = true;
-  } else if (!keyStates[GLFW_KEY_V].first) {
+  } else if (keyStates.find(GLFW_KEY_V) == keyStates.end() || !keyStates.at(GLFW_KEY_V).first) {
     pause_key_pressed = false;
   }
   
   // Invincibility toggle (B key)
-  if (keyStates[GLFW_KEY_B].first && !invincible_key_pressed) {
+  if (keyStates.find(GLFW_KEY_B) != keyStates.end() && keyStates.at(GLFW_KEY_B).first && !invincible_key_pressed) {
     invincible = !invincible;
     invincible_key_pressed = true;
-  } else if (!keyStates[GLFW_KEY_B].first) {
+  } else if (keyStates.find(GLFW_KEY_B) == keyStates.end() || !keyStates.at(GLFW_KEY_B).first) {
     invincible_key_pressed = false;
   }
   
   // Debug collision spheres toggle (D key)
-  if (keyStates[GLFW_KEY_D].first && !debug_key_pressed) {
+  if (keyStates.find(GLFW_KEY_D) != keyStates.end() && keyStates.at(GLFW_KEY_D).first && !debug_key_pressed) {
     player->showCollisionDebug = !player->showCollisionDebug;
     if (player->showCollisionDebug) {
       player->addDebugSpheresToScene(scene_root);
@@ -484,233 +474,222 @@ void Game::keyHandler(
       player->removeDebugSpheresFromScene(scene_root);
     }
     debug_key_pressed = true;
-  } else if (!keyStates[GLFW_KEY_D].first) {
+  } else if (keyStates.find(GLFW_KEY_D) == keyStates.end() || !keyStates.at(GLFW_KEY_D).first) {
     debug_key_pressed = false;
   }
+}
 
-  if (keyStates[GLFW_KEY_W].first) {
-    for(auto it = bullets_.begin(); it != bullets_.end();) {
-    auto& bulletNode = *it;
-    
-    // Move bullet at asteroid speed
-    bulletNode->transform_[3].z += 0.01f;
-    ++it;
+void Game::handleBulletMovementKeys(const std::unordered_map<int, std::pair<bool, double>>& keyStates) {
+  // W key - Move bullets forward
+  if (keyStates.find(GLFW_KEY_W) != keyStates.end() && keyStates.at(GLFW_KEY_W).first) {
+    for (auto it = bullets_.begin(); it != bullets_.end(); ++it) {
+      auto& bulletNode = *it;
+      bulletNode->transform_[3].z += 0.01f;
+    }
   }
+  
+  // S key - Move bullets backward
+  if (keyStates.find(GLFW_KEY_S) != keyStates.end() && keyStates.at(GLFW_KEY_S).first) {
+    for (auto it = bullets_.begin(); it != bullets_.end(); ++it) {
+      auto& bulletNode = *it;
+      bulletNode->transform_[3].z -= 0.01f;
+    }
   }
-  if (keyStates[GLFW_KEY_S].first) {
-    for(auto it = bullets_.begin(); it != bullets_.end();) {
-    auto& bulletNode = *it;
-    
-    // Move bullet at asteroid speed
-    bulletNode->transform_[3].z -= 0.01f;
-    ++it;
-  }
-  }
+}
 
-  if (keyStates[GLFW_KEY_U].first) { // Move Forward
+void Game::handlePlayerMovement(const std::unordered_map<int, std::pair<bool, double>>& keyStates, double time) {
+  float speed = player->movement_speed * player->fps_correction;
+  
+  // U key - Move Forward
+  if (keyStates.find(GLFW_KEY_U) != keyStates.end() && keyStates.at(GLFW_KEY_U).first) {
     idle_ud = false;
-
-    if (time - keyStates[GLFW_KEY_U].second < 1.0) {
-      smoother = sin(glm::radians(90 * (time - keyStates[GLFW_KEY_U].second)));
-    } else {
-      smoother = 1.0f;
-    }
+    float smoother = calculateMovementSmoother(keyStates.at(GLFW_KEY_U).second, time);
+    
     if (player->position.y + smoother * speed >= -1.0) {
-      player->position -= smoother * glm::vec3(0.0f, speed, 0.0f); // Move
+      player->position -= smoother * glm::vec3(0.0f, speed, 0.0f);
     }
-
-    if(!dev_mode && camera.cameraPos.y - player->position.y >= 0.04) {
+    
+    if (!dev_mode && camera.cameraPos.y - player->position.y >= 0.04) {
       camera.cameraPos.y = player->position.y + 0.04f;
     }
-
+    
     if (player->xAngle < 15.0f) {
       player->xAngle += smoother * 1.0f;
     }
   }
-
-  if (keyStates[GLFW_KEY_J].first) { // Move Backward
+  
+  // J key - Move Backward  
+  if (keyStates.find(GLFW_KEY_J) != keyStates.end() && keyStates.at(GLFW_KEY_J).first) {
     idle_ud = false;
-
-    if (time - keyStates[GLFW_KEY_J].second < 1.0) {
-      smoother = sin(glm::radians(90 * (time - keyStates[GLFW_KEY_J].second)));
-    } else {
-      smoother = 1.0f;
-    }
-
+    float smoother = calculateMovementSmoother(keyStates.at(GLFW_KEY_J).second, time);
+    
     if (player->position.y + smoother * speed <= 1.0) {
-      player->position += smoother * glm::vec3(0.0f, speed, 0.0f); // Move
+      player->position += smoother * glm::vec3(0.0f, speed, 0.0f);
     }
-
-    if(!dev_mode && camera.cameraPos.y - player->position.y <= -0.04) {
+    
+    if (!dev_mode && camera.cameraPos.y - player->position.y <= -0.04) {
       camera.cameraPos.y = player->position.y + -0.04f;
     }
-
+    
     if (player->xAngle > -15.0f) {
       player->xAngle -= smoother * 1.0f;
     }
   }
-
-  if (keyStates[GLFW_KEY_H].first) { // Move Left
+  
+  // H key - Move Left
+  if (keyStates.find(GLFW_KEY_H) != keyStates.end() && keyStates.at(GLFW_KEY_H).first) {
     idle_lr = false;
-
-    if (time - keyStates[GLFW_KEY_H].second < 1.0) {
-      smoother = sin(glm::radians(90 * (time - keyStates[GLFW_KEY_H].second)));
-    } else {
-      smoother = 1.0f;
-    }
-
-    if(player->position.x + smoother * speed <= 1.5){
-      player->position += smoother * glm::vec3(speed, 0.0f, 0.0f); // Move
+    float smoother = calculateMovementSmoother(keyStates.at(GLFW_KEY_H).second, time);
+    
+    if (player->position.x + smoother * speed <= 1.5) {
+      player->position += smoother * glm::vec3(speed, 0.0f, 0.0f);
     }
     
-    if(!dev_mode && camera.cameraPos.x - player->position.x <= -0.06) {
+    if (!dev_mode && camera.cameraPos.x - player->position.x <= -0.06) {
       camera.cameraPos.x = player->position.x + -0.06f;
     }
-
+    
     if (player->zAngle > -15.0f && !is_rotating) {
       player->zAngle -= smoother * 1.0f;
     }
     if (player->yAngle < 15.0f) {
       player->yAngle += smoother * 1.0f;
-      //camera.yAngle = player->yAngle; 
     }
   }
-
-  if (keyStates[GLFW_KEY_K].first) { // Move Right
+  
+  // K key - Move Right
+  if (keyStates.find(GLFW_KEY_K) != keyStates.end() && keyStates.at(GLFW_KEY_K).first) {
     idle_lr = false;
-
-    if (time - keyStates[GLFW_KEY_K].second < 1.0) {
-      smoother = sin(glm::radians(90 * (time - keyStates[GLFW_KEY_K].second)));
-    } else {
-      smoother = 1.0f;
+    float smoother = calculateMovementSmoother(keyStates.at(GLFW_KEY_K).second, time);
+    
+    if (player->position.x - smoother * speed >= -1.5) {
+      player->position -= smoother * glm::vec3(speed, 0.0f, 0.0f);
     }
-
-    if (player->position.x - smoother * speed >= -1.5){
-      player->position -= smoother * glm::vec3(speed, 0.0f, 0.0f); // Move
-    }
-    if(!dev_mode && camera.cameraPos.x - player->position.x >= 0.06) {
+    
+    if (!dev_mode && camera.cameraPos.x - player->position.x >= 0.06) {
       camera.cameraPos.x = player->position.x + 0.06f;
     }
-
+    
     if (player->zAngle < 15.0f && !is_rotating) {
       player->zAngle += smoother * 1.0f;
     }
     if (player->yAngle > -15.0f) {
       player->yAngle -= smoother * 1.0f;
-      //camera.yAngle = player->yAngle; 
     }
   }
+}
 
-  if (keyStates[GLFW_KEY_O].first) { // Rotate left
+void Game::handlePlayerRotation(const std::unordered_map<int, std::pair<bool, double>>& keyStates, double time) {
+  // O key - Rotate left
+  if (keyStates.find(GLFW_KEY_O) != keyStates.end() && keyStates.at(GLFW_KEY_O).first) {
     is_rotating = true;
     idle_rot = false;
-
-    if (time - keyStates[GLFW_KEY_O].second < 1.0) {
-      smoother = sin(glm::radians(90 * (time - keyStates[GLFW_KEY_O].second)));
-    } else {
-      smoother = 1.0f;
-    }
+    
+    float smoother = calculateMovementSmoother(keyStates.at(GLFW_KEY_O).second, time);
     if (player->zAngle > -90.0f) {
       player->zAngle -= smoother * 1.8f;
     }
   }
-
-  if (keyStates[GLFW_KEY_P].first) { // Rotate right
+  
+  // P key - Rotate right
+  if (keyStates.find(GLFW_KEY_P) != keyStates.end() && keyStates.at(GLFW_KEY_P).first) {
     is_rotating = true;
     idle_rot = false;
-
-    if (time - keyStates[GLFW_KEY_P].second < 1.0) {
-      smoother = sin(glm::radians(90 * (time - keyStates[GLFW_KEY_P].second)));
-    } else {
-      smoother = 1.0f;
-    }
+    
+    float smoother = calculateMovementSmoother(keyStates.at(GLFW_KEY_P).second, time);
     if (player->zAngle < 90.0f) {
       player->zAngle += smoother * 1.8f;
     }
   }
+}
 
-  if (!keyStates[GLFW_KEY_H].first && !keyStates[GLFW_KEY_K].first) {
+void Game::handleIdleAnimations(const std::unordered_map<int, std::pair<bool, double>>& keyStates, double time) {
+  // Handle idle animations when no movement keys are pressed
+  bool up_down_pressed = (keyStates.find(GLFW_KEY_U) != keyStates.end() && keyStates.at(GLFW_KEY_U).first) ||
+                        (keyStates.find(GLFW_KEY_J) != keyStates.end() && keyStates.at(GLFW_KEY_J).first);
+  bool left_right_pressed = (keyStates.find(GLFW_KEY_H) != keyStates.end() && keyStates.at(GLFW_KEY_H).first) ||
+                           (keyStates.find(GLFW_KEY_K) != keyStates.end() && keyStates.at(GLFW_KEY_K).first);
+  bool rotation_pressed = (keyStates.find(GLFW_KEY_O) != keyStates.end() && keyStates.at(GLFW_KEY_O).first) ||
+                         (keyStates.find(GLFW_KEY_P) != keyStates.end() && keyStates.at(GLFW_KEY_P).first);
+  
+  // Left/Right idle animation
+  if (!left_right_pressed) {
     if (!idle_lr && player->yAngle != 0.0f) {
-      idle_lr = true; // start of the Up/Down idle animation
-      idle_start_lr =
-          time; // stores the timestamp of the beginning of the idle animation
+      idle_lr = true;
+      idle_start_lr = time;
     }
-
-    if (idle_lr && (time - idle_start_lr) <= 1.0) { // animation lasts 1 second
+    
+    if (idle_lr && (time - idle_start_lr) <= 1.0) {
       if (!is_rotating) {
-        player->zAngle =
-            player->zAngle * cos(glm::radians(90.0f * (time - idle_start_lr)));
-            //camera.yAngle = player->yAngle; 
+        player->zAngle *= cos(glm::radians(90.0f * (time - idle_start_lr)));
       }
-      player->yAngle =
-          player->yAngle * cos(glm::radians(90.0f * (time - idle_start_lr)));
-          //camera.yAngle = player->yAngle; 
-    } else if (idle_lr) { // end of the animation
+      player->yAngle *= cos(glm::radians(90.0f * (time - idle_start_lr)));
+    } else if (idle_lr) {
       idle_lr = false;
       if (!is_rotating) {
         player->zAngle = 0.0f;
       }
       player->yAngle = 0.0f;
-      //camera.yAngle = player->yAngle; 
     }
   }
-
-  if (!keyStates[GLFW_KEY_U].first && !keyStates[GLFW_KEY_J].first) {
+  
+  // Up/Down idle animation
+  if (!up_down_pressed) {
     if (!idle_ud && player->xAngle != 0.0f) {
-      idle_ud = true; // start of the Up/Down idle animation
-      idle_start_ud =
-          time; // stores the timestamp of the beginning of the idle animation
+      idle_ud = true;
+      idle_start_ud = time;
     }
-
-    if (idle_ud && (time - idle_start_ud) <= 1.0) { // animation lasts 1 second
+    
+    if (idle_ud && (time - idle_start_ud) <= 1.0) {
       player->xAngle *= cos(glm::radians(90.0f * (time - idle_start_ud)));
-    } else if (idle_ud) { // end of the animation
+    } else if (idle_ud) {
       idle_ud = false;
       player->xAngle = 0.0f;
     }
   }
-
-  if (!keyStates[GLFW_KEY_O].first && !keyStates[GLFW_KEY_P].first) {
+  
+  // Rotation idle animation
+  if (!rotation_pressed) {
     if (is_rotating && player->zAngle != 0.0f) {
       idle_rot = true;
       is_rotating = false;
-      idle_start_rot =
-          time; // stores the timestamp of the beginning of the idle animation
+      idle_start_rot = time;
     }
-
-    if (keyStates[GLFW_KEY_H].first &&
-        !keyStates[GLFW_KEY_K].first) { // animation must finish at -15 degrees
+    
+    // Complex rotation idle logic based on movement keys
+    if (keyStates.find(GLFW_KEY_H) != keyStates.end() && keyStates.at(GLFW_KEY_H).first &&
+        (keyStates.find(GLFW_KEY_K) == keyStates.end() || !keyStates.at(GLFW_KEY_K).first)) {
       if (idle_rot && player->zAngle <= -16.8f) {
         player->zAngle += 1.8f;
       } else if (idle_rot && player->zAngle >= -13.2f) {
         player->zAngle -= 1.8f;
-      } else if (idle_rot) { // end of the animation
+      } else if (idle_rot) {
         is_rotating = false;
         idle_rot = false;
         player->zAngle = -15.0f;
       }
-    } else if (!keyStates[GLFW_KEY_H].first && keyStates[GLFW_KEY_K].first) {
+    } else if ((keyStates.find(GLFW_KEY_H) == keyStates.end() || !keyStates.at(GLFW_KEY_H).first) &&
+               keyStates.find(GLFW_KEY_K) != keyStates.end() && keyStates.at(GLFW_KEY_K).first) {
       if (idle_rot && player->zAngle <= 13.2f) {
         player->zAngle += 1.8f;
       } else if (idle_rot && player->zAngle >= 16.8f) {
         player->zAngle -= 1.8f;
-      } else if (idle_rot) { // end of the animation
+      } else if (idle_rot) {
         is_rotating = false;
         idle_rot = false;
         player->zAngle = 15.0f;
       }
     } else {
-      if (idle_rot &&
-          (time - idle_start_rot) <= 1.0) { // animation lasts 1 second
+      if (idle_rot && (time - idle_start_rot) <= 1.0) {
         player->zAngle *= cos(glm::radians(90.0f * (time - idle_start_rot)));
-      } else if (idle_rot) { // end of the animation
+      } else if (idle_rot) {
         is_rotating = false;
         idle_rot = false;
         player->zAngle = 0.0f;
       }
     }
   }
-
+  
   // Update damage animation
   player->updateDamageAnimation(time);
   player->updatePosition();
@@ -720,6 +699,25 @@ void Game::keyHandler(
   float deltaTime = (lastFlameTime == 0.0) ? 0.016f : (float)(time - lastFlameTime);
   lastFlameTime = time;
   player->updateEngineFlames(deltaTime, is_boost_mode);
+}
+
+// Utility helper methods
+float Game::calculateMovementSmoother(double key_press_time, double current_time) {
+  if (current_time - key_press_time < 1.0) {
+    return sin(glm::radians(90 * (current_time - key_press_time)));
+  }
+  return 1.0f;
+}
+
+glm::vec3 Game::calculateShootDirection(double mouse_x, double mouse_y) {
+  double xpos = (mouse_x / window_width) - 0.5;
+  double ypos = (mouse_y / window_height) - 0.5;
+  
+  return glm::vec3(
+    -xpos + camera.cameraPos.x - player->position.x,
+    -ypos + camera.cameraPos.y - player->position.y,
+    1.0f
+  );
 }
 
 void Game::spawn_asteroid(bool start_generation, float generation_distance) {
