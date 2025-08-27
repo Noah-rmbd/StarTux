@@ -271,3 +271,106 @@ void Game::colisions_lprojectile_asteroid_mt(double time) {
     }
   }
 }
+
+void Game::colisions_between_asteroids_mt(double time) {
+  if (asteroids_.size() < 2) {
+    return;
+  }
+  
+  struct AsteroidCollisionPair {
+    size_t asteroid1_idx;
+    size_t asteroid2_idx;
+    glm::vec3 pos1;
+    glm::vec3 pos2;
+  };
+  
+  std::vector<AsteroidCollisionPair> collision_pairs;
+  std::mutex pairs_mutex;
+  
+  // Dynamic thread count based on workload
+  size_t total_comparisons = (asteroids_.size() * (asteroids_.size() - 1)) / 2;
+  size_t effective_threads = std::min(thread_count_, std::max(size_t(1), total_comparisons / 500));
+  
+  // Divide work among threads - each thread handles a range of first asteroids
+  std::vector<std::future<void>> futures;
+  size_t asteroids_per_thread = std::max(size_t(1), asteroids_.size() / effective_threads);
+  
+  for (size_t thread_id = 0; thread_id < effective_threads; ++thread_id) {
+    size_t start_idx = thread_id * asteroids_per_thread;
+    size_t end_idx = (thread_id == effective_threads - 1) 
+                     ? asteroids_.size() 
+                     : std::min(start_idx + asteroids_per_thread, asteroids_.size());
+                     
+    if (start_idx >= asteroids_.size()) break;
+    
+    auto future = std::async(std::launch::async, [&, start_idx, end_idx]() {
+      std::vector<AsteroidCollisionPair> thread_pairs;
+      
+      for (size_t i = start_idx; i < end_idx; ++i) {
+        const auto& asteroid1 = asteroids_[i];
+        Node* node1 = asteroid1->asteroid_node;
+        if (!node1) continue;
+        
+        glm::vec3 pos1 = glm::vec3(node1->transform_[3].x, node1->transform_[3].y, node1->transform_[3].z);
+        
+        // Check against all subsequent asteroids to avoid duplicates
+        for (size_t j = i + 1; j < asteroids_.size(); ++j) {
+          const auto& asteroid2 = asteroids_[j];
+          Node* node2 = asteroid2->asteroid_node;
+          if (!node2) continue;
+          
+          glm::vec3 pos2 = glm::vec3(node2->transform_[3].x, node2->transform_[3].y, node2->transform_[3].z);
+          
+          // Check collision using optimized distance calculation
+          glm::vec3 diff = pos2 - pos1;
+          float distance_squared = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+          
+          if (distance_squared < 0.04f) { // 0.20^2 = 0.04
+            AsteroidCollisionPair pair;
+            pair.asteroid1_idx = i;
+            pair.asteroid2_idx = j;
+            pair.pos1 = pos1;
+            pair.pos2 = pos2;
+            thread_pairs.push_back(pair);
+          }
+        }
+      }
+      
+      // Add thread results to global pairs (thread-safe)
+      std::lock_guard<std::mutex> lock(pairs_mutex);
+      collision_pairs.insert(collision_pairs.end(), thread_pairs.begin(), thread_pairs.end());
+    });
+    
+    futures.push_back(std::move(future));
+  }
+  
+  // Wait for all threads to complete
+  for (auto& future : futures) {
+    future.get();
+  }
+  
+  // Process collisions (single-threaded to maintain game state consistency)
+  std::set<size_t> asteroids_to_remove;
+  
+  for (const auto& pair : collision_pairs) {
+    // Skip if either asteroid already marked for removal
+    if (asteroids_to_remove.find(pair.asteroid1_idx) != asteroids_to_remove.end() ||
+        asteroids_to_remove.find(pair.asteroid2_idx) != asteroids_to_remove.end()) {
+      continue;
+    }
+    
+    // Create explosions at both positions
+    create_explosion(pair.pos1, time);
+    create_explosion(pair.pos2, time);
+    
+    // Mark both asteroids for removal
+    asteroids_to_remove.insert(pair.asteroid1_idx);
+    asteroids_to_remove.insert(pair.asteroid2_idx);
+  }
+  
+  // Remove asteroids in reverse order to maintain indices
+  for (auto it = asteroids_to_remove.rbegin(); it != asteroids_to_remove.rend(); ++it) {
+    world_node->remove(asteroids_[*it]->asteroid_node);
+    asteroids_.erase(asteroids_.begin() + *it);
+  }
+}

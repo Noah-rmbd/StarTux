@@ -1,5 +1,5 @@
 # StarTux Daily Missions
-date=2025-08-26
-mission=0,300,360,2,Speed Demon,Reach 300 Km/h
-mission=1,4,1,1,Ring Master,Collect 4 rings in a row
+date=2025-08-27
+mission=0,300,320,2,Speed Demon,Reach 300 Km/h
+mission=1,4,2,1,Ring Master,Collect 4 rings in a row
 mission=4,120,120,2,Untouchable,Fly for 120 seconds without damage

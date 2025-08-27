@@ -1,4 +1,5 @@
 #include "startup_screen.h"
+#include "matrix_cache.h"
 #ifndef SHADER_DIR
 #error "SHADER_DIR not defined"
 #endif
@@ -24,10 +25,11 @@ StartupScreen::StartupScreen(int width, int height) : windowWidth(width), window
     Shader *space_shader = new Shader(shader_dir + "texture.vert", shader_dir + "texture.frag");
     Texture *texture = new Texture(textures_dir + "space3.jpeg");
     Shape* space_sphere = new TexturedSphere(space_shader, texture);
-    glm::mat4 space_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
-        * glm::scale(glm::mat4(1.0f), 120.0f * glm::vec3(1.0f, 1.0f, 1.0f))
-        * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    Node* space_node = new Node(space_mat);
+    // Cache static space transformation matrix (computed once)
+    auto& matrix_cache = MatrixCache::getInstance();
+    matrix_cache.cacheStaticMatrix("startup_space", 
+        glm::scale(glm::mat4(1.0f), 120.0f * glm::vec3(1.0f, 1.0f, 1.0f)));
+    Node* space_node = new Node(matrix_cache.getMatrix("startup_space"));
     space_node->add(space_sphere);
 
     // Create ship's texture and shader
@@ -37,15 +39,16 @@ StartupScreen::StartupScreen(int width, int height) : windowWidth(width), window
     Shape* ship = new ShapeModel(ressources_dir + "ship.obj", ship_shader);
     static_cast<ShapeModel*>(ship)->setTexture(ship_texture);
     
-    glm::mat4 ship_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
-        * glm::scale(glm::mat4(1.0f), 0.1f * glm::vec3(1.0f, 1.0f, 1.0f))
-        * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    Node* ship_node = new Node(ship_mat);
+    // Cache static ship transformation matrix (computed once)
+    matrix_cache.cacheStaticMatrix("startup_ship", 
+        glm::scale(glm::mat4(1.0f), 0.1f * glm::vec3(1.0f, 1.0f, 1.0f)));
+    Node* ship_node = new Node(matrix_cache.getMatrix("startup_ship"));
     ship_node->add(ship);
     
-    glm::mat4 environment_mat = glm::translate(glm::mat4(1.0f), glm::vec3(-0.7f, -0.5f, 0.0f))
-        * glm::scale(glm::mat4(1.0f), 1.0f * glm::vec3(1.0f, 1.0f, 1.0f))
-        * glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    // Cache static environment transformation matrix (computed once)
+    matrix_cache.cacheStaticMatrix("startup_environment", 
+        glm::translate(glm::mat4(1.0f), glm::vec3(-0.7f, -0.5f, 0.0f)));
+    const glm::mat4& environment_mat = matrix_cache.getMatrix("startup_environment");
     
     background_space = new Node(environment_mat);
     background_space->add(space_node);

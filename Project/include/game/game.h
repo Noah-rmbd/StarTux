@@ -16,6 +16,10 @@
 #include "lighting.h"
 #include "object_pool.h"
 #include "spatial_hash_grid.h"
+#include "matrix_cache.h"
+#include "object_factory.h"
+#include "dynamic_transform_cache.h"
+#include "optimized_pools.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <unordered_map>
@@ -130,6 +134,7 @@ private:
   // Multi-threaded collision detection
   void colisions_projectile_asteroid_mt(double time);
   void colisions_lprojectile_asteroid_mt(double time);
+  void colisions_between_asteroids_mt(double time);
   
   // Threading configuration
   size_t thread_count_;

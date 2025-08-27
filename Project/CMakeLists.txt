@@ -46,10 +46,14 @@ set(SOURCES
     ${SRC_DIR}/shapes/shape.cpp
     ${SRC_DIR}/graphics/shader.cpp
     ${SRC_DIR}/graphics/lighting.cpp
+    ${SRC_DIR}/graphics/matrix_cache.cpp
     ${SRC_DIR}/viewer.cpp
     ${SRC_DIR}/game/camera.cpp
     ${SRC_DIR}/game/game.cpp
     ${SRC_DIR}/game/game_mt.cpp
+    ${SRC_DIR}/game/object_factory.cpp
+    ${SRC_DIR}/game/dynamic_transform_cache.cpp
+    ${SRC_DIR}/game/optimized_pools.cpp
     ${SRC_DIR}/game/player.cpp
     ${SRC_DIR}/game/engine_flames.cpp
     ${SRC_DIR}/game/light_projectile.cpp
