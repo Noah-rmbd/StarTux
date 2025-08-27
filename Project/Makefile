@@ -324,30 +324,6 @@ src/game/camera.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/camera.cpp.s
 .PHONY : src/game/camera.cpp.s
 
-src/game/dynamic_transform_cache.o: src/game/dynamic_transform_cache.cpp.o
-.PHONY : src/game/dynamic_transform_cache.o
-
-# target to build an object file
-src/game/dynamic_transform_cache.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/dynamic_transform_cache.cpp.o
-.PHONY : src/game/dynamic_transform_cache.cpp.o
-
-src/game/dynamic_transform_cache.i: src/game/dynamic_transform_cache.cpp.i
-.PHONY : src/game/dynamic_transform_cache.i
-
-# target to preprocess a source file
-src/game/dynamic_transform_cache.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/dynamic_transform_cache.cpp.i
-.PHONY : src/game/dynamic_transform_cache.cpp.i
-
-src/game/dynamic_transform_cache.s: src/game/dynamic_transform_cache.cpp.s
-.PHONY : src/game/dynamic_transform_cache.s
-
-# target to generate assembly for a file
-src/game/dynamic_transform_cache.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/dynamic_transform_cache.cpp.s
-.PHONY : src/game/dynamic_transform_cache.cpp.s
-
 src/game/engine_flames.o: src/game/engine_flames.cpp.o
 .PHONY : src/game/engine_flames.o
 
@@ -420,30 +396,6 @@ src/game/game.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/game.cpp.s
 .PHONY : src/game/game.cpp.s
 
-src/game/game_mt.o: src/game/game_mt.cpp.o
-.PHONY : src/game/game_mt.o
-
-# target to build an object file
-src/game/game_mt.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/game_mt.cpp.o
-.PHONY : src/game/game_mt.cpp.o
-
-src/game/game_mt.i: src/game/game_mt.cpp.i
-.PHONY : src/game/game_mt.i
-
-# target to preprocess a source file
-src/game/game_mt.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/game_mt.cpp.i
-.PHONY : src/game/game_mt.cpp.i
-
-src/game/game_mt.s: src/game/game_mt.cpp.s
-.PHONY : src/game/game_mt.s
-
-# target to generate assembly for a file
-src/game/game_mt.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/game_mt.cpp.s
-.PHONY : src/game/game_mt.cpp.s
-
 src/game/light_projectile.o: src/game/light_projectile.cpp.o
 .PHONY : src/game/light_projectile.o
 
@@ -491,54 +443,6 @@ src/game/missions.s: src/game/missions.cpp.s
 src/game/missions.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/missions.cpp.s
 .PHONY : src/game/missions.cpp.s
-
-src/game/object_factory.o: src/game/object_factory.cpp.o
-.PHONY : src/game/object_factory.o
-
-# target to build an object file
-src/game/object_factory.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/object_factory.cpp.o
-.PHONY : src/game/object_factory.cpp.o
-
-src/game/object_factory.i: src/game/object_factory.cpp.i
-.PHONY : src/game/object_factory.i
-
-# target to preprocess a source file
-src/game/object_factory.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/object_factory.cpp.i
-.PHONY : src/game/object_factory.cpp.i
-
-src/game/object_factory.s: src/game/object_factory.cpp.s
-.PHONY : src/game/object_factory.s
-
-# target to generate assembly for a file
-src/game/object_factory.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/object_factory.cpp.s
-.PHONY : src/game/object_factory.cpp.s
-
-src/game/optimized_pools.o: src/game/optimized_pools.cpp.o
-.PHONY : src/game/optimized_pools.o
-
-# target to build an object file
-src/game/optimized_pools.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/optimized_pools.cpp.o
-.PHONY : src/game/optimized_pools.cpp.o
-
-src/game/optimized_pools.i: src/game/optimized_pools.cpp.i
-.PHONY : src/game/optimized_pools.i
-
-# target to preprocess a source file
-src/game/optimized_pools.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/optimized_pools.cpp.i
-.PHONY : src/game/optimized_pools.cpp.i
-
-src/game/optimized_pools.s: src/game/optimized_pools.cpp.s
-.PHONY : src/game/optimized_pools.s
-
-# target to generate assembly for a file
-src/game/optimized_pools.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/optimized_pools.cpp.s
-.PHONY : src/game/optimized_pools.cpp.s
 
 src/game/player.o: src/game/player.cpp.o
 .PHONY : src/game/player.o
@@ -659,30 +563,6 @@ src/graphics/lighting.s: src/graphics/lighting.cpp.s
 src/graphics/lighting.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/lighting.cpp.s
 .PHONY : src/graphics/lighting.cpp.s
-
-src/graphics/matrix_cache.o: src/graphics/matrix_cache.cpp.o
-.PHONY : src/graphics/matrix_cache.o
-
-# target to build an object file
-src/graphics/matrix_cache.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/matrix_cache.cpp.o
-.PHONY : src/graphics/matrix_cache.cpp.o
-
-src/graphics/matrix_cache.i: src/graphics/matrix_cache.cpp.i
-.PHONY : src/graphics/matrix_cache.i
-
-# target to preprocess a source file
-src/graphics/matrix_cache.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/matrix_cache.cpp.i
-.PHONY : src/graphics/matrix_cache.cpp.i
-
-src/graphics/matrix_cache.s: src/graphics/matrix_cache.cpp.s
-.PHONY : src/graphics/matrix_cache.s
-
-# target to generate assembly for a file
-src/graphics/matrix_cache.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/matrix_cache.cpp.s
-.PHONY : src/graphics/matrix_cache.cpp.s
 
 src/graphics/resource_manager.o: src/graphics/resource_manager.cpp.o
 .PHONY : src/graphics/resource_manager.o
@@ -1072,9 +952,6 @@ help:
 	@echo "... src/game/camera.o"
 	@echo "... src/game/camera.i"
 	@echo "... src/game/camera.s"
-	@echo "... src/game/dynamic_transform_cache.o"
-	@echo "... src/game/dynamic_transform_cache.i"
-	@echo "... src/game/dynamic_transform_cache.s"
 	@echo "... src/game/engine_flames.o"
 	@echo "... src/game/engine_flames.i"
 	@echo "... src/game/engine_flames.s"
@@ -1084,21 +961,12 @@ help:
 	@echo "... src/game/game.o"
 	@echo "... src/game/game.i"
 	@echo "... src/game/game.s"
-	@echo "... src/game/game_mt.o"
-	@echo "... src/game/game_mt.i"
-	@echo "... src/game/game_mt.s"
 	@echo "... src/game/light_projectile.o"
 	@echo "... src/game/light_projectile.i"
 	@echo "... src/game/light_projectile.s"
 	@echo "... src/game/missions.o"
 	@echo "... src/game/missions.i"
 	@echo "... src/game/missions.s"
-	@echo "... src/game/object_factory.o"
-	@echo "... src/game/object_factory.i"
-	@echo "... src/game/object_factory.s"
-	@echo "... src/game/optimized_pools.o"
-	@echo "... src/game/optimized_pools.i"
-	@echo "... src/game/optimized_pools.s"
 	@echo "... src/game/player.o"
 	@echo "... src/game/player.i"
 	@echo "... src/game/player.s"
@@ -1114,9 +982,6 @@ help:
 	@echo "... src/graphics/lighting.o"
 	@echo "... src/graphics/lighting.i"
 	@echo "... src/graphics/lighting.s"
-	@echo "... src/graphics/matrix_cache.o"
-	@echo "... src/graphics/matrix_cache.i"
-	@echo "... src/graphics/matrix_cache.s"
 	@echo "... src/graphics/resource_manager.o"
 	@echo "... src/graphics/resource_manager.i"
 	@echo "... src/graphics/resource_manager.s"

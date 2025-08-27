@@ -127,82 +127,9 @@ Game::Game(int width, int height, int target_fps, DailyMissions* missions) {
   int initialSpeed = -asteroid_speed * 50;
   player->gameStats->recordSpeedReached(initialSpeed);
   
-  // Initialize performance optimizations after all scene setup is complete
-  initializePerformanceOptimizations();
+  // Removed performance optimization initialization
 }
 
-void Game::initializePerformanceOptimizations() {
-  // Initialize spatial grid for asteroids (the main performance bottleneck)
-  asteroid_spatial_grid_ = std::make_unique<SpatialHashGrid<Asteroid>>(0.5f);  // 0.5 unit cells
-  
-  // Initialize predictive object pools based on analyzed spawn patterns
-  initializePredictivePools();
-  
-  // Initialize object factory with optimized pools (simplified initialization)
-  // ObjectFactory::getInstance().initialize(phong_shader, texture_shader);
-  // ObjectFactory::getInstance().warmPools();
-  
-  // Initialize matrix cache for static transformations (using identity matrices for now)
-  MatrixCache::getInstance().cacheStaticMatrix("world_transform", glm::mat4(1.0f));
-  MatrixCache::getInstance().cacheStaticMatrix("environment_transform", glm::mat4(1.0f));
-  
-  // Initialize multi-threading
-  thread_count_ = std::thread::hardware_concurrency();
-  if (thread_count_ == 0) thread_count_ = 4; // Fallback
-  use_multithreading_ = true; // Enable by default
-  std::cout << "Performance optimizations initialized:" << std::endl;
-  std::cout << "  Matrix caching: ENABLED" << std::endl;
-  std::cout << "  Object pooling: ENABLED" << std::endl;
-  std::cout << "  Multi-threading: " << thread_count_ << " threads" << std::endl;
-}
-
-void Game::initializePredictivePools() {
-  // Based on spawn pattern analysis:
-  // - Asteroids spawn every 3 frames (20/sec at 60fps) + moving asteroids every 15 frames (4/sec)
-  // - Projectiles: up to 10/sec each type (0.1s cooldown)
-  // - Average object lifetime: ~5 seconds for asteroids, ~3 seconds for projectiles
-  
-  // Calculate pool sizes for ~10 seconds of gameplay with 50% safety margin
-  int asteroid_pool_size = static_cast<int>((20 + 4) * 10 * 1.5f);  // ~360 asteroids
-  int projectile_pool_size = static_cast<int>(10 * 3 * 1.5f);       // ~45 projectiles
-  int light_projectile_pool_size = static_cast<int>(10 * 3 * 1.5f); // ~45 light projectiles
-  
-  std::cout << "Initializing predictive object pools:" << std::endl;
-  std::cout << "  Asteroid pool: " << asteroid_pool_size << " objects" << std::endl;
-  std::cout << "  Projectile pool: " << projectile_pool_size << " objects" << std::endl;
-  std::cout << "  Light projectile pool: " << light_projectile_pool_size << " objects" << std::endl;
-  
-  // Note: Ring pools are small since they spawn infrequently (1/sec)
-  // and existing pool sizes should be adequate
-}
-
-void Game::monitorPoolUsage(double time) {
-  // Monitor pool usage every 30 seconds
-  static double last_monitor_time = 0.0;
-  if (time - last_monitor_time > 30.0) {
-    std::cout << "\n=== Pool Usage Statistics (t=" << static_cast<int>(time) << "s) ===" << std::endl;
-    
-    // Calculate usage percentages
-    float asteroid_usage = asteroids_.size();
-    float projectile_usage = projectiles.size();
-    float light_projectile_usage = light_projectiles.size();
-    
-    std::cout << "Active objects:" << std::endl;
-    std::cout << "  Asteroids: " << static_cast<int>(asteroid_usage) << std::endl;
-    std::cout << "  Projectiles: " << static_cast<int>(projectile_usage) << std::endl;
-    std::cout << "  Light projectiles: " << static_cast<int>(light_projectile_usage) << std::endl;
-    
-    // Warn if we're approaching predicted limits
-    if (asteroid_usage > 300) {
-      std::cout << "WARNING: High asteroid count - consider larger initial pool" << std::endl;
-    }
-    if (projectile_usage > 35) {
-      std::cout << "WARNING: High projectile count - consider larger initial pool" << std::endl;
-    }
-    
-    last_monitor_time = time;
-  }
-}
 
 void Game::draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection, double time, int fps) {
   PROFILE_SCOPE("Game Draw");
@@ -263,7 +190,7 @@ void Game::updateGame(double time, int fps) {
   frame_counter++;
   
   // Begin frame for transform caching
-  OptimizedPools::getInstance().beginFrame();
+  // Removed optimized pools frame begin
   
   // Update lighting system
   if (g_LightingSystem) {
@@ -411,28 +338,20 @@ void Game::updateGame(double time, int fps) {
   }
   
   // Monitor pool usage for performance optimization
-  monitorPoolUsage(time);
+  // Removed pool usage monitoring
   
   // End frame for transform caching and cleanup
-  OptimizedPools::getInstance().endFrame();
+  // Removed optimized pools frame end
   
   // Monitor all performance optimizations
   static double last_perf_monitor = 0.0;
   if (time - last_perf_monitor > 60.0) { // Every 60 seconds
     std::cout << "\n=== Performance Optimization Status ===" << std::endl;
     
-    // Matrix cache statistics
-    MatrixCache::getInstance().printCacheStats();
-    
-    // Object pool statistics  
-    ObjectFactory::getInstance().printPoolStats();
+    // Removed cache and pool statistics
     
     // Multi-threading status
-    if (use_multithreading_) {
-      std::cout << "Multi-threaded collision systems: " << thread_count_ << " threads" << std::endl;
-    } else {
-      std::cout << "Collision detection: SINGLE-THREADED" << std::endl;
-    }
+    std::cout << "Collision detection: SINGLE-THREADED" << std::endl;
     
     // Show REAL performance bottlenecks
     std::cout << "\n=== ACTUAL BOTTLENECKS (last 60s) ===" << std::endl;
@@ -975,8 +894,8 @@ void Game::detect_colisions(double time) {
   //   asteroid_spatial_grid_->insert(asteroid.get(), pos, 0.2f); // 0.2f collision radius
   // }
   
-  if (use_multithreading_) {
-    colisions_between_asteroids_mt(time); // Use multi-threaded version
+  if (false) { // Disabled multi-threading
+    colisions_between_asteroids(time); // Use single-threaded version
   } else {
     colisions_between_asteroids(time); // Use original version
   }
@@ -985,9 +904,9 @@ void Game::detect_colisions(double time) {
   colisions_player_bullet(time);
   colisions_player_ring(time);
   
-  if (use_multithreading_) {
-    colisions_lprojectile_asteroid_mt(time); // Use multi-threaded version
-    colisions_projectile_asteroid_mt(time); // Use multi-threaded version
+  if (false) { // Disabled multi-threading
+    colisions_lprojectile_asteroid(time); // Use single-threaded version
+    colisions_projectile_asteroid(time); // Use single-threaded version
   } else {
     colisions_lprojectile_asteroid(time); // Use original single-threaded version
     colisions_projectile_asteroid(time); // Use original single-threaded version
@@ -1445,8 +1364,11 @@ bool Game::isDeathMenuActive() const {
 // Optimized collision detection using spatial partitioning
 void Game::colisions_player_asteroids_optimized(double time) {
   // Get nearby asteroids using spatial grid
-  std::vector<Asteroid*> nearby_asteroids = asteroid_spatial_grid_->getNearby(
-    player->position, 0.3f); // 0.3f search radius around player
+  // Use simple iteration instead of spatial grid
+  std::vector<Asteroid*> nearby_asteroids;
+  for (auto& asteroid : asteroids_) {
+    nearby_asteroids.push_back(asteroid.get());
+  }
   
   for (Asteroid* asteroid : nearby_asteroids) {
     // Safety check for null pointer
@@ -1463,7 +1385,7 @@ void Game::colisions_player_asteroids_optimized(double time) {
     
     if (collisionPointIndex >= 0) {
       // Remove from spatial grid
-      asteroid_spatial_grid_->remove(asteroid);
+      // Removed spatial grid removal
       
       // Find and remove from asteroids_ vector
       auto it = std::find_if(asteroids_.begin(), asteroids_.end(),
@@ -1505,7 +1427,7 @@ void Game::colisions_player_asteroids_optimized(double time) {
     glm::vec3 asteroid_position = glm::vec3(node->transform_[3].x, node->transform_[3].y, node->transform_[3].z);
     
     if (asteroid_position.z < 0.0) {
-      asteroid_spatial_grid_->remove(asteroid.get());
+      // Removed spatial grid removal
       world_node->remove(node);
       it = asteroids_.erase(it);
     } else {
@@ -1520,8 +1442,11 @@ void Game::colisions_lprojectile_asteroid_optimized(double time) {
     shoot->update(time);
 
     // Get nearby asteroids for this projectile using spatial grid
-    std::vector<Asteroid*> nearby_asteroids = asteroid_spatial_grid_->getNearby(
-      shoot->position, 0.25f); // 0.25f search radius around projectile
+    // Use simple iteration instead of spatial grid
+    std::vector<Asteroid*> nearby_asteroids;
+    for (auto& asteroid : asteroids_) {
+      nearby_asteroids.push_back(asteroid.get());
+    }
     
     bool hit = false;
     for (Asteroid* asteroid : nearby_asteroids) {
@@ -1560,7 +1485,7 @@ void Game::colisions_lprojectile_asteroid_optimized(double time) {
           }
           
           // Remove from spatial grid and vector
-          asteroid_spatial_grid_->remove(asteroid);
+          // Removed spatial grid removal
           auto asteroid_it = std::find_if(asteroids_.begin(), asteroids_.end(),
             [asteroid](const std::unique_ptr<Asteroid>& ptr) { return ptr.get() == asteroid; });
           
@@ -1591,8 +1516,11 @@ void Game::colisions_projectile_asteroid_optimized(double time) {
     shoot->update(time);
 
     // Get nearby asteroids for this projectile using spatial grid
-    std::vector<Asteroid*> nearby_asteroids = asteroid_spatial_grid_->getNearby(
-      shoot->position, 0.25f); // 0.25f search radius around projectile
+    // Use simple iteration instead of spatial grid
+    std::vector<Asteroid*> nearby_asteroids;
+    for (auto& asteroid : asteroids_) {
+      nearby_asteroids.push_back(asteroid.get());
+    }
     
     bool hit = false;
     for (Asteroid* asteroid : nearby_asteroids) {
@@ -1625,7 +1553,7 @@ void Game::colisions_projectile_asteroid_optimized(double time) {
         }
         
         // Remove from spatial grid and vector
-        asteroid_spatial_grid_->remove(asteroid);
+        // Removed spatial grid removal
         auto asteroid_it = std::find_if(asteroids_.begin(), asteroids_.end(),
           [asteroid](const std::unique_ptr<Asteroid>& ptr) { return ptr.get() == asteroid; });
         

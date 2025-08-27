@@ -14,20 +14,13 @@
 #include "explosion.h"
 #include "missions.h"
 #include "lighting.h"
-#include "object_pool.h"
-#include "spatial_hash_grid.h"
-#include "matrix_cache.h"
-#include "object_factory.h"
-#include "dynamic_transform_cache.h"
-#include "optimized_pools.h"
+// Removed unused optimization includes
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <unordered_map>
 #include <vector>
 #include <memory>  // For smart pointers
-#include <thread>
-#include <future>
-#include <atomic>
+// Removed unused threading includes
 
 class Game {
 public:
@@ -125,22 +118,7 @@ private:
   std::vector<std::unique_ptr<Explosion>> explosions;
 
 private:
-  // Performance optimization systems (will be implemented incrementally)
-  std::unique_ptr<SpatialHashGrid<Asteroid>> asteroid_spatial_grid_;
-  void initializePerformanceOptimizations();
-  void initializePredictivePools();
-  void monitorPoolUsage(double time);  // Monitor pool efficiency
-  
-  // Multi-threaded collision detection
-  void colisions_projectile_asteroid_mt(double time);
-  void colisions_lprojectile_asteroid_mt(double time);
-  void colisions_between_asteroids_mt(double time);
-  
-  // Threading configuration
-  size_t thread_count_;
-  bool use_multithreading_;
-  void setThreadCount(size_t count) { thread_count_ = count; }
-  void setMultithreading(bool enable) { use_multithreading_ = enable; }
+  // Removed unused optimization systems
 
   // Boost mode
   bool is_boost_mode = false;
