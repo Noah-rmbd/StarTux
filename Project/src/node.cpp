@@ -9,6 +9,13 @@ Node::Node(const glm::mat4 &transform) : transform_(transform), z_speed(nullptr)
   children_ = std::vector<Node *>();
 }
 
+Node::~Node() {
+  // Clear vectors but don't delete the objects (they may be shared or owned elsewhere)
+  std::cout << "DEBUG: Node destructor - clearing " << children_.size() << " child nodes and " << children_shape_.size() << " shapes" << std::endl;
+  children_.clear();
+  children_shape_.clear();
+}
+
 void Node::add(Node *node) { children_.push_back(node); }
 
 void Node::add(Shape *shape) { children_shape_.push_back(shape); }
@@ -23,6 +30,10 @@ void Node::draw(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection) {
   }
 
   for (auto child : children_shape_) {
+    if (child == nullptr) {
+      std::cout << "ERROR: Found null shape pointer in children_shape_!" << std::endl;
+      continue;
+    }
     child->draw(updatedModel, view, projection);
   }
 }
@@ -63,5 +74,12 @@ void Node::remove(Node *node) {
   auto it = std::find(children_.begin(), children_.end(), node);
   if (it != children_.end()) {
     children_.erase(it);
+  }
+}
+
+void Node::remove(Shape *shape) {
+  auto it = std::find(children_shape_.begin(), children_shape_.end(), shape);
+  if (it != children_shape_.end()) {
+    children_shape_.erase(it);
   }
 }

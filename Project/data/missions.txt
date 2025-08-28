@@ -1,5 +1,5 @@
 # StarTux Daily Missions
 date=2025-08-28
-mission=3,2,0,0,Moving Target,Destroy 2 moving asteroids
-mission=6,30,3,1,Asteroid Hunter,Destroy 30 asteroids
-mission=4,120,118,1,Untouchable,Fly for 120 seconds without damage
+mission=3,2,1,1,Moving Target,Destroy 2 moving asteroids
+mission=6,30,30,2,Asteroid Hunter,Destroy 30 asteroids
+mission=4,120,120,2,Untouchable,Fly for 120 seconds without damage

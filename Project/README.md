@@ -240,6 +240,9 @@ For issues, questions, or contributions:
 - Check the troubleshooting section above
 - Review the `CLAUDE.md` file for development guidance
 
+## Credit 
+Audio made by : fl.setsuko [Instagram]
+
 ---
 
 **Happy Gaming!** 🎮✨

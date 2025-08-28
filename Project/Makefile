@@ -324,6 +324,30 @@ src/game/camera.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/camera.cpp.s
 .PHONY : src/game/camera.cpp.s
 
+src/game/collision_manager.o: src/game/collision_manager.cpp.o
+.PHONY : src/game/collision_manager.o
+
+# target to build an object file
+src/game/collision_manager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/collision_manager.cpp.o
+.PHONY : src/game/collision_manager.cpp.o
+
+src/game/collision_manager.i: src/game/collision_manager.cpp.i
+.PHONY : src/game/collision_manager.i
+
+# target to preprocess a source file
+src/game/collision_manager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/collision_manager.cpp.i
+.PHONY : src/game/collision_manager.cpp.i
+
+src/game/collision_manager.s: src/game/collision_manager.cpp.s
+.PHONY : src/game/collision_manager.s
+
+# target to generate assembly for a file
+src/game/collision_manager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/collision_manager.cpp.s
+.PHONY : src/game/collision_manager.cpp.s
+
 src/game/engine_flames.o: src/game/engine_flames.cpp.o
 .PHONY : src/game/engine_flames.o
 
@@ -395,6 +419,30 @@ src/game/game.s: src/game/game.cpp.s
 src/game/game.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/game.cpp.s
 .PHONY : src/game/game.cpp.s
+
+src/game/input_handler.o: src/game/input_handler.cpp.o
+.PHONY : src/game/input_handler.o
+
+# target to build an object file
+src/game/input_handler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/input_handler.cpp.o
+.PHONY : src/game/input_handler.cpp.o
+
+src/game/input_handler.i: src/game/input_handler.cpp.i
+.PHONY : src/game/input_handler.i
+
+# target to preprocess a source file
+src/game/input_handler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/input_handler.cpp.i
+.PHONY : src/game/input_handler.cpp.i
+
+src/game/input_handler.s: src/game/input_handler.cpp.s
+.PHONY : src/game/input_handler.s
+
+# target to generate assembly for a file
+src/game/input_handler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/game/input_handler.cpp.s
+.PHONY : src/game/input_handler.cpp.s
 
 src/game/light_projectile.o: src/game/light_projectile.cpp.o
 .PHONY : src/game/light_projectile.o
@@ -928,6 +976,9 @@ help:
 	@echo "... src/game/camera.o"
 	@echo "... src/game/camera.i"
 	@echo "... src/game/camera.s"
+	@echo "... src/game/collision_manager.o"
+	@echo "... src/game/collision_manager.i"
+	@echo "... src/game/collision_manager.s"
 	@echo "... src/game/engine_flames.o"
 	@echo "... src/game/engine_flames.i"
 	@echo "... src/game/engine_flames.s"
@@ -937,6 +988,9 @@ help:
 	@echo "... src/game/game.o"
 	@echo "... src/game/game.i"
 	@echo "... src/game/game.s"
+	@echo "... src/game/input_handler.o"
+	@echo "... src/game/input_handler.i"
+	@echo "... src/game/input_handler.s"
 	@echo "... src/game/light_projectile.o"
 	@echo "... src/game/light_projectile.i"
 	@echo "... src/game/light_projectile.s"

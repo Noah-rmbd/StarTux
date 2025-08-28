@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/glm.hpp>
 #include "hud.h"
 #include "node.h"
 #include "player.h"
@@ -14,6 +15,8 @@
 #include "explosion.h"
 #include "missions.h"
 #include "lighting.h"
+#include "collision_manager.h"
+#include "input_handler.h"
 // Removed unused optimization includes
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -54,31 +57,18 @@ private:
   void spawn_bullet(glm::vec3 position);
   void spawn_ring(bool start_generation = false, float generation_distance = 0.0f);
   void create_explosion(glm::vec3 position, double time);
-  void detect_colisions(double time);
-  void colisions_between_asteroids(double time);
-  void colisions_player_asteroids(double time);
-  void colisions_player_asteroids_optimized(double time);
-  void colisions_player_bullet(double time);
-  void colisions_player_ring(double time);
-  void colisions_lprojectile_asteroid(double time);
-  void colisions_lprojectile_asteroid_optimized(double time);
-  void colisions_projectile_asteroid(double time);
-  void colisions_projectile_asteroid_optimized(double time);
 
   Shader *phong_shader;
   bool dev_mode = false;
-  bool is_rotating = false;
-  bool idle_rot = false;
-  bool idle_lr = false; // stores if the idle animation for left/right is running
-  bool idle_ud = false; // stores if the idle animation for up/down is running
-  double idle_start_lr = 0.0; // stores the timestamp of the beginning of the idle animation
-  double idle_start_ud = 0.0;
-  double idle_start_rot = 0.0;
 
   double x_mouse;
   double y_mouse;
   bool l_mouse_button_pressed = false;
   bool r_mouse_button_pressed = false;
+  
+  // Manager classes
+  std::unique_ptr<CollisionManager> collision_manager_;
+  std::unique_ptr<InputHandler> input_handler_;
 
   Hud *hud;
   int window_width;
@@ -99,28 +89,14 @@ private:
   void initializeCameraAndPlayer();
   void initializeGameState();
   
-  // IMPROVED: Input handler helper methods (decomposed from 317-line keyHandler)
-  void handleMouseShooting(double time);
-  void handleDeveloperModeKeys(const std::unordered_map<int, std::pair<bool, double>>& keyStates);
-  void handleDebugToggleKeys(const std::unordered_map<int, std::pair<bool, double>>& keyStates);
-  void handleBulletMovementKeys(const std::unordered_map<int, std::pair<bool, double>>& keyStates);
-  void handlePlayerMovement(const std::unordered_map<int, std::pair<bool, double>>& keyStates, double time);
-  void handlePlayerRotation(const std::unordered_map<int, std::pair<bool, double>>& keyStates, double time);
-  void handleIdleAnimations(const std::unordered_map<int, std::pair<bool, double>>& keyStates, double time);
-  
-  // Utility helper methods
-  float calculateMovementSmoother(double key_press_time, double current_time);
-  glm::vec3 calculateShootDirection(double mouse_x, double mouse_y);
 
   // List of active projectiles in the game
   std::vector<std::unique_ptr<Projectile>> projectiles;
   Node *projectile_node;
-  double last_shoot_time;
 
   // List of light active projectiles in the game
   std::vector<std::unique_ptr<LightProjectile>> light_projectiles;
   Node *projectile_l_node;
-  double last_shoot_time_l;
 
   // Asteroids elements
   Shape *asteroid;
@@ -146,11 +122,6 @@ private:
   // Boost mode
   bool is_boost_mode = false;
   double boost_time;
-  
-  // Pause and developer features
-  bool pause_key_pressed = false;
-  bool invincible_key_pressed = false;
-  bool debug_key_pressed = false;
   
   // Missions system
   DailyMissions* dailyMissions = nullptr;

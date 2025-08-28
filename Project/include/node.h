@@ -9,11 +9,13 @@ class Shape;
 class Node {
 public:
   Node(const glm::mat4 &transform = glm::mat4(1.0f));
+  ~Node();
   void add(Node *node);
   void add(Shape *shape);
   void draw(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection);
   void key_handler(int key) const;
   void remove(Node *node);
+  void remove(Shape *shape);
   void animation(float fps_correction);
 
   float* x_speed;

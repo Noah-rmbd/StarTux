@@ -18,6 +18,10 @@ Explosion::Explosion(Shader* shader, glm::vec3 position, double start_time)
 }
 
 Explosion::~Explosion() {
+    // Remove shape from node before deleting to prevent dangling pointer
+    if (explosion_node && explosion_shape) {
+        explosion_node->remove(explosion_shape);
+    }
     delete explosion_node;
     delete explosion_shape;
 }
