@@ -290,12 +290,9 @@ void CollisionManager::collisionsProjectileAsteroid(double time,
                 }
                 
                 createExplosion(asteroid_position, time, explosions);
-                std::cout << "DEBUG: Removing asteroid node from world_node" << std::endl;
                 world_node_->remove(node);
-                std::cout << "DEBUG: Erasing asteroid from vector" << std::endl;
                 it2 = asteroids.erase(it2);
                 shoot->active = false;
-                std::cout << "DEBUG: Asteroid collision processed, breaking" << std::endl;
                 break;
             } else {
                 ++it2;

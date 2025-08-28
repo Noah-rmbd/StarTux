@@ -2,7 +2,7 @@
 
 **StarTux** is an exciting 3D space game built with OpenGL and C++. Navigate your spaceship through a perilous asteroid field, collect rings, and blast your way through obstacles in this fast-paced arcade-style game.
 
-![StarTux Logo](textures/capture_startux.gif)
+![StarTux Logo](Project/textures/capture_startux.gif)
 
 ## 🎮 Game Overview
 

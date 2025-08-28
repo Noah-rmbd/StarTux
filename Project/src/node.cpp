@@ -11,7 +11,6 @@ Node::Node(const glm::mat4 &transform) : transform_(transform), z_speed(nullptr)
 
 Node::~Node() {
   // Clear vectors but don't delete the objects (they may be shared or owned elsewhere)
-  std::cout << "DEBUG: Node destructor - clearing " << children_.size() << " child nodes and " << children_shape_.size() << " shapes" << std::endl;
   children_.clear();
   children_shape_.clear();
 }
@@ -31,7 +30,6 @@ void Node::draw(glm::mat4 &model, glm::mat4 &view, glm::mat4 &projection) {
 
   for (auto child : children_shape_) {
     if (child == nullptr) {
-      std::cout << "ERROR: Found null shape pointer in children_shape_!" << std::endl;
       continue;
     }
     child->draw(updatedModel, view, projection);
