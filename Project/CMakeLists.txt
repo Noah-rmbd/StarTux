@@ -61,7 +61,6 @@ set(SOURCES
     ${SRC_DIR}/shapes/shape_model.cpp
     ${SRC_DIR}/shapes/sphere.cpp
     ${SRC_DIR}/graphics/texture.cpp
-    ${SRC_DIR}/graphics/resource_manager.cpp
     ${SRC_DIR}/shapes/textured_sphere.cpp
     ${SRC_DIR}/shapes/lighting_sphere.cpp
     ${SRC_DIR}/shapes/transparent_sphere.cpp

@@ -564,30 +564,6 @@ src/graphics/lighting.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/lighting.cpp.s
 .PHONY : src/graphics/lighting.cpp.s
 
-src/graphics/resource_manager.o: src/graphics/resource_manager.cpp.o
-.PHONY : src/graphics/resource_manager.o
-
-# target to build an object file
-src/graphics/resource_manager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/resource_manager.cpp.o
-.PHONY : src/graphics/resource_manager.cpp.o
-
-src/graphics/resource_manager.i: src/graphics/resource_manager.cpp.i
-.PHONY : src/graphics/resource_manager.i
-
-# target to preprocess a source file
-src/graphics/resource_manager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/resource_manager.cpp.i
-.PHONY : src/graphics/resource_manager.cpp.i
-
-src/graphics/resource_manager.s: src/graphics/resource_manager.cpp.s
-.PHONY : src/graphics/resource_manager.s
-
-# target to generate assembly for a file
-src/graphics/resource_manager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/opengl_program.dir/build.make CMakeFiles/opengl_program.dir/src/graphics/resource_manager.cpp.s
-.PHONY : src/graphics/resource_manager.cpp.s
-
 src/graphics/shader.o: src/graphics/shader.cpp.o
 .PHONY : src/graphics/shader.o
 
@@ -982,9 +958,6 @@ help:
 	@echo "... src/graphics/lighting.o"
 	@echo "... src/graphics/lighting.i"
 	@echo "... src/graphics/lighting.s"
-	@echo "... src/graphics/resource_manager.o"
-	@echo "... src/graphics/resource_manager.i"
-	@echo "... src/graphics/resource_manager.s"
 	@echo "... src/graphics/shader.o"
 	@echo "... src/graphics/shader.i"
 	@echo "... src/graphics/shader.s"
